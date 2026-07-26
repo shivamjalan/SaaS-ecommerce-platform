@@ -3,7 +3,7 @@ import express from "express";
 import protect from "../middleware/authMiddleware.js";
 import merchant from "../middleware/merchantMiddleware.js";
 import { merchantStore } from "../middleware/storeMiddleware.js";
-
+import {getMerchantProducts,} from "../controllers/productController.js";
 import {
     createProduct,
     updateProduct,
@@ -49,5 +49,13 @@ router.get(
         });
 
     }
+);
+
+router.get(
+    "/",
+    protect,
+    merchant,
+    merchantStore,
+    getMerchantProducts
 );
 export default router;

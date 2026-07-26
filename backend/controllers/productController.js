@@ -14,9 +14,7 @@ export const getProducts = async (
   try {
 
     const products =
-      await Product.find({
-        store:req.store._id
-      });
+      await Product.find();
 
     res.json(products);
 
@@ -166,17 +164,17 @@ export const updateProduct = async (
             _id: id,
             store: req.store._id,
         },
-
         {
-            name,
-            price,
-            image,
-            category,
-            description,
-        },
+        name,
+        price,
+        image,
+        category,
+        description,
+    },
 
         {
             new: true,
+            runValidators:true,
         }
 
     );
@@ -328,4 +326,26 @@ export const seedProducts = async (
     });
 
   }
+};
+
+export const getMerchantProducts = async (req, res) => {
+    try {
+
+        const products = await Product.find({
+            store: req.store._id,
+        }).sort({
+          createdAt:-1
+        });
+
+        res.json(products);
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            message: error.message,
+        });
+
+    }
 };
