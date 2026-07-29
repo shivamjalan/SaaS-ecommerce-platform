@@ -1,9 +1,10 @@
 import express from "express";
 
 import protect from "../middleware/authMiddleware.js";
-import admin from "../middleware/adminMiddleware.js";
 import publicStore from "../middleware/publicStoreMiddleware.js";
 import merchant from "../middleware/merchantMiddleware.js";
+import { getStoreProducts } from "../controllers/productController.js";
+import { merchantStore } from "../middleware/storeMiddleware.js";
 import {
   getProducts,
   getProductById,
@@ -33,6 +34,11 @@ router.get(
   getProducts
 );
 
+router.get(
+    "/store/:slug",
+    getStoreProducts
+);
+
 /* ===================================================== */
 /* ================= GET SINGLE PRODUCT ================ */
 /* ===================================================== */
@@ -50,7 +56,7 @@ router.get(
 router.post(
   "/",
   protect,
-  admin,
+  merchant,merchantStore,
   createProduct
 );
 
@@ -61,7 +67,7 @@ router.post(
 router.put(
   "/:id",
   protect,
-  admin,
+  merchant,merchantStore,
   updateProduct
 );
 
@@ -72,7 +78,7 @@ router.put(
 router.delete(
   "/:id",
   protect,
-  admin,
+  merchant,merchantStore,
   deleteProduct
 );
 

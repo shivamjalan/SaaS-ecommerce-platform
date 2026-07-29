@@ -60,7 +60,7 @@ const Home = () => {
             <div className="flex gap-4 mt-8">
 
               <Link
-                to="/products"
+                to="/stores"
                 className="bg-black text-white px-8 py-4 rounded-xl hover:bg-gray-900 transition shadow-lg inline-block"
               >
 
@@ -69,7 +69,7 @@ const Home = () => {
               </Link>
 
               <Link
-                to="/products"
+                to="/stores"
                 className="border border-black px-8 py-4 rounded-xl hover:bg-black hover:text-white transition inline-block"
               >
 

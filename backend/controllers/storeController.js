@@ -55,3 +55,51 @@ export const createStore = async (req, res) => {
     });
   }
 };
+
+/* ===================================================== */
+/* ================= GET ALL STORES ==================== */
+/* ===================================================== */
+
+export const getAllStores = async (req, res) => {
+  try {
+    const stores = await Store.find({})
+      .select("name slug logo description theme")
+      .sort({ createdAt: -1 });
+
+    res.json(stores);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+/* ===================================================== */
+/* ================= GET STORE BY SLUG ================= */
+/* ===================================================== */
+
+export const getStoreBySlug = async (req, res) => {
+  try {
+    const store = await Store.findOne({
+      slug: req.params.slug,
+    }).select(
+      "name slug logo description theme subscription"
+    );
+
+    if (!store) {
+      return res.status(404).json({
+        message: "Store not found",
+      });
+    }
+
+    res.json(store);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};

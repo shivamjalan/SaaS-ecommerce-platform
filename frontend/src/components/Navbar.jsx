@@ -96,14 +96,23 @@ const Navbar = () => {
 
           {/* PRODUCTS */}
 
-          <Link
-            to="/products"
-            className="text-gray-200 hover:text-pink-400 transition duration-300 font-medium"
-          >
+          <div className="flex items-center gap-8">
 
-            Products
+    <Link
+        to="/stores"
+        className="text-gray-200 hover:text-pink-400 transition duration-300 font-medium"
+    >
+        Stores
+    </Link>
 
-          </Link>
+    <Link
+        to="/products"
+        className="text-gray-200 hover:text-pink-400 transition duration-300 font-medium"
+    >
+        Products
+    </Link>
+
+</div>
 
           {/* MY ORDERS */}
 

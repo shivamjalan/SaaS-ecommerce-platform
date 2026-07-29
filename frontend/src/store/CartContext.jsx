@@ -13,20 +13,13 @@ const CartProvider = ({
 
   // ================= CART =================
 
-  const [cart, setCart] =
-    useState(() => {
+  const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
 
-      const savedCart =
-        localStorage.getItem(
-          "cart"
-        );
+const [cart, setCart] = useState(savedCart);
 
-      return savedCart
-        ? JSON.parse(
-            savedCart
-          )
-        : [];
-    });
+const [cartStore, setCartStore] = useState(() => {
+  return localStorage.getItem("cartStore") || null;
+});
 
   // ================= SHIPPING ADDRESS =================
 
@@ -62,6 +55,13 @@ const CartProvider = ({
     );
 
   }, [cart]);
+  useEffect(() => {
+  if (cartStore) {
+    localStorage.setItem("cartStore", cartStore);
+  } else {
+    localStorage.removeItem("cartStore");
+  }
+}, [cartStore]);
 
   // ================= SAVE SHIPPING =================
 
@@ -78,47 +78,66 @@ const CartProvider = ({
 
   // ================= ADD TO CART =================
 
-  const addToCart = (
-    product
-  ) => {
+  const addToCart = (product) => {
 
-    const existing =
-      cart.find(
-        (item) =>
-          item._id ===
-          product._id
-      );
+  // First product in cart
+  if (!cartStore) {
+    setCartStore(product.store);
+  }
 
-    if (existing) {
+  // Product belongs to another merchant
+  if (cartStore && cartStore !== product.store) {
 
-      setCart(
+    const confirmClear = window.confirm(
+      "Your cart contains items from another store.\n\nClear the cart and continue?"
+    );
 
-        cart.map((item) =>
-
-          item._id ===
-          product._id
-            ? {
-                ...item,
-                quantity:
-                  item.quantity +
-                  1,
-              }
-            : item
-        )
-      );
-
-    } else {
-
-      setCart([
-        ...cart,
-        {
-          ...product,
-          quantity: 1,
-        },
-      ]);
+    if (!confirmClear) {
+      return;
     }
-  };
 
+    setCart([]);
+    setCartStore(product.store);
+
+    setCart([
+      {
+        ...product,
+        quantity: 1,
+      },
+    ]);
+
+    return;
+  }
+
+  const existing = cart.find(
+    (item) => item._id === product._id
+  );
+
+  if (existing) {
+
+    setCart(
+      cart.map((item) =>
+        item._id === product._id
+          ? {
+              ...item,
+              quantity: item.quantity + 1,
+            }
+          : item
+      )
+    );
+
+  } else {
+
+    setCart([
+      ...cart,
+      {
+        ...product,
+        quantity: 1,
+      },
+    ]);
+
+  }
+};
   // ================= REMOVE =================
 
   const removeFromCart = (
@@ -174,12 +193,15 @@ const CartProvider = ({
 
   const clearCart = () => {
 
-    setCart([]);
+  setCart([]);
 
-    localStorage.removeItem(
-      "cart"
-    );
-  };
+  setCartStore(null);
+
+  localStorage.removeItem("cart");
+
+  localStorage.removeItem("cartStore");
+
+};
 
   // ================= SAVE SHIPPING ADDRESS =================
 
@@ -195,7 +217,7 @@ const CartProvider = ({
 
     <CartContext.Provider
       value={{
-        cart,
+        cart,cartStore,
         addToCart,
         removeFromCart,
         updateQuantity,

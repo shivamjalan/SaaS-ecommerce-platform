@@ -30,6 +30,8 @@ import Register from "./pages/Register";
 import Shipping from "./pages/Shipping";
 import AdminOrders from "./pages/AdminOrders";
 import PlaceOrder from "./pages/PlaceOrder";
+import Stores from "./pages/Stores";
+import StorePage from "./pages/StorePage";
 
 /* ===================================================== */
 /* ================= ROUTE PROTECTION ================== */
@@ -170,12 +172,18 @@ function App() {
           path="login"
           element={<Login />}
         />
-
+        <Route
+    path="/store/:slug"
+    element={<StorePage />}
+/>
         <Route
           path="register"
           element={<Register />}
         />
-
+        <Route
+    path="/stores"
+    element={<Stores />}
+/>
       </Route>
 
     </Routes>

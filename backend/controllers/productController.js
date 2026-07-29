@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 import Product from "../models/Product.js";
+import Store from "../models/storeModel.js";
 
 /* ===================================================== */
 /* ================= GET ALL PRODUCTS ================== */
@@ -349,3 +350,23 @@ export const getMerchantProducts = async (req, res) => {
 
     }
 };
+/* ===================================================== */
+/* ============== GET STORE PRODUCTS =================== */
+/* ===================================================== */
+
+export const getStoreProducts = (async (req, res) => {
+    const store = await Store.findOne({
+        slug: req.params.slug,
+    });
+
+    if (!store) {
+        res.status(404);
+        throw new Error("Store not found");
+    }
+
+    const products = await Product.find({
+        store: store._id,
+    }).sort("-createdAt");
+
+    res.json(products);
+});

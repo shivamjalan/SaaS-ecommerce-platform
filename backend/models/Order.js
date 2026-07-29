@@ -114,6 +114,11 @@ razorpayOrderId: {
     deliveredAt: {
       type: Date,
     },
+    store: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Store",
+    required: true,
+},
   },
   {
     timestamps: true,
