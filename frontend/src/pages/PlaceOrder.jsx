@@ -2,7 +2,7 @@ import {
   useContext,
   useState,
 } from "react";
-
+import { useEffect } from "react";
 import {
   useNavigate,
 } from "react-router-dom";
@@ -11,6 +11,7 @@ import {
   CartContext,
 } from "../store/CartContext";
 import { handleRazorpayPayment } from "../utils/razorpay";
+
 const PlaceOrder = () => {
 
   const navigate =
@@ -23,7 +24,11 @@ const PlaceOrder = () => {
   } = useContext(
     CartContext
   );
-
+useEffect(() => {
+  if (cart.length === 0) {
+    navigate("/cart");
+  }
+}, [cart, navigate]);
   const [loading, setLoading] =
     useState(false);
   const [paymentMethod, setPaymentMethod] =
@@ -62,7 +67,10 @@ const PlaceOrder = () => {
               "userInfo"
             )
           );
-
+          if (!userInfo) {
+    navigate("/login");
+    return;
+}
         const response =
           await fetch(
             "http://localhost:5000/api/orders",
@@ -96,7 +104,10 @@ const PlaceOrder = () => {
 
         const data =
           await response.json();
-
+        if (!response.ok) {
+    alert(data.message || "Failed to place order");
+    return;
+}
         console.log(data);
 
         if (response.ok) {

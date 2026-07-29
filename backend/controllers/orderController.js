@@ -1,8 +1,7 @@
 import Order from "../models/Order.js";
-
+import Product from "../models/Product.js";
 /* ===================================================== */
 /* ==================== PLACE ORDER ==================== */
-/* ===================================================== */
 
 export const placeOrder = async (req, res) => {
   try {
@@ -19,17 +18,55 @@ export const placeOrder = async (req, res) => {
       });
     }
 
+    
+const firstProduct = await Product.findById(orderItems[0].product);
+
+if (!firstProduct) {
+    return res.status(404).json({
+        error: "Product not found",
+    });
+}
+
+const store = firstProduct.store;
+const products = await Product.find({
+  _id: { $in: orderItems.map(item => item.product) }
+});
+if (products.length !== orderItems.length) {
+    return res.status(400).json({
+        error: "One or more products are invalid",
+    });
+}
+const sameStore = products.every(
+  product => product.store.toString() === store.toString()
+);
+
+if (!sameStore) {
+  return res.status(400).json({
+    error: "All products must belong to the same store",
+  });
+}
     const order = new Order({
       user: req.user._id,
+      store,
       orderItems,
       shippingAddress,
       totalPrice,
       paymentMethod,
     });
+const total = products.reduce(
+    (sum, product) => {
+        const item = orderItems.find(
+            i => i.product === product._id.toString()
+        );
 
+        return sum + product.price * item.quantity;
+    },
+    0
+);
     const createdOrder = await order.save();
+    
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "Order placed successfully",
       order: createdOrder,
     });
@@ -38,13 +75,12 @@ export const placeOrder = async (req, res) => {
 
     console.log(error);
 
-    res.status(500).json({
+    return res.status(500).json({
       error: "Server error",
     });
 
   }
 };
-
 /* ===================================================== */
 /* ================= GET MY ORDERS ===================== */
 /* ===================================================== */
@@ -54,8 +90,11 @@ export const getMyOrders = async (req, res) => {
   try {
 
     const orders = await Order.find({
-      user: req.user._id,
-    });
+    user: req.user._id,
+})
+.populate("store", "name slug logo")
+.sort({ createdAt: -1 })
+.lean();
 
     res.json(orders);
 
@@ -114,7 +153,7 @@ export const getAllOrders = async (req, res) => {
 
   try {
 
-    const orders = await Order.find({})
+    const orders = await Order.find({store: req.store._id,})
       .populate(
         "user",
         "id name email"
@@ -148,8 +187,11 @@ export const markOrderPaid = async (
 
   try {
 
-    const order = await Order.findById(
-      req.params.id
+    const order = await Order.findOne(
+      {
+    _id: req.params.id,
+    store: req.store._id,
+}
     );
 
     if (!order) {
@@ -207,9 +249,10 @@ export const updateOrderStatus = async (
       });
     }
 
-    const order = await Order.findById(
-      req.params.id
-    );
+    const order = await Order.findOne({
+    _id: req.params.id,
+    store: req.store._id,
+});
 
     if (!order) {
       return res.status(404).json({
@@ -256,9 +299,10 @@ export const cancelOrder = async (
 
   try {
 
-    const order = await Order.findById(
-      req.params.id
-    );
+    const order = await Order.findOne({
+    _id: req.params.id,
+    user: req.user._id,
+});
 
     if (!order) {
       return res.status(404).json({
@@ -298,9 +342,10 @@ export const markOrderDelivered = async (
 
   try {
 
-    const order = await Order.findById(
-      req.params.id
-    );
+    const order = await Order.findOne({
+    _id: req.params.id,
+    store: req.store._id,
+});
 
     if (!order) {
       return res.status(404).json({

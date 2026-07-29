@@ -11,7 +11,9 @@ const Stores = () => {
     const fetchStores = async () => {
       try {
         const { data } = await axios.get("/api/stores");
-        setStores(data.stores);
+        console.log(data);
+console.log(Array.isArray(data));
+        setStores(data);
       } catch (err) {
         console.error(err);
       } finally {

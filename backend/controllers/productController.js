@@ -15,7 +15,10 @@ export const getProducts = async (
   try {
 
     const products =
-      await Product.find();
+      await Product.find().populate("store", "name slug logo").sort({
+    createdAt:-1
+})
+.lean();
 
     res.json(products);
 
@@ -55,7 +58,7 @@ export const getProductById = async (
     }
 
     const product =
-      await Product.findById(id);
+      await Product.findById(req.params.id).populate("store", "name slug logo");
 
     if (!product) {
 
@@ -366,7 +369,7 @@ export const getStoreProducts = (async (req, res) => {
 
     const products = await Product.find({
         store: store._id,
-    }).sort("-createdAt");
+    }).populate("store", "name slug logo");
 
     res.json(products);
 });

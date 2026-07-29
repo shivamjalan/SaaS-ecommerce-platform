@@ -79,14 +79,17 @@ const [cartStore, setCartStore] = useState(() => {
   // ================= ADD TO CART =================
 
   const addToCart = (product) => {
-
+    const storeId =
+  typeof product.store === "object"
+    ? product.store._id
+    : product.store;
   // First product in cart
   if (!cartStore) {
-    setCartStore(product.store);
+    setCartStore(storeId);
   }
 
   // Product belongs to another merchant
-  if (cartStore && cartStore !== product.store) {
+  if (cartStore && cartStore !== storeId) {
 
     const confirmClear = window.confirm(
       "Your cart contains items from another store.\n\nClear the cart and continue?"
@@ -97,7 +100,7 @@ const [cartStore, setCartStore] = useState(() => {
     }
 
     setCart([]);
-    setCartStore(product.store);
+    setCartStore(storeId);
 
     setCart([
       {
@@ -140,18 +143,18 @@ const [cartStore, setCartStore] = useState(() => {
 };
   // ================= REMOVE =================
 
-  const removeFromCart = (
-    id
-  ) => {
+  const removeFromCart = (id) => {
 
-    setCart(
-
-      cart.filter(
-        (item) =>
-          item._id !== id
-      )
+    const updatedCart = cart.filter(
+        item => item._id !== id
     );
-  };
+
+    setCart(updatedCart);
+
+    if (updatedCart.length === 0) {
+        setCartStore(null);
+    }
+};
 
   // ================= QUANTITY =================
 
