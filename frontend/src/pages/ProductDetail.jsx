@@ -1,6 +1,7 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
-import { CartContext } from "../store/CartContext";
+import { CartContext } from "../store/cartContext";
+import { API_URL } from "../utils/api";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -13,9 +14,14 @@ const ProductDetail = () => {
 
   // 🟢 Fetch from backend
   useEffect(() => {
-    fetch(`http://localhost:5000/api/products/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
+    fetch(`${API_URL}/products/${id}`)
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) {
+          setProduct(null);
+          setLoading(false);
+          return;
+        }
         setProduct(data);
         setLoading(false);
       })

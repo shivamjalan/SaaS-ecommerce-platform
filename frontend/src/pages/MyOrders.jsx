@@ -4,6 +4,7 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { handleRazorpayPayment } from "../utils/razorpay";
+import { API_URL } from "../utils/api";
 import { motion } from "framer-motion";
 
 import {
@@ -67,7 +68,7 @@ const MyOrders = () => {
 
           const response =
             await fetch(
-              "http://localhost:5000/api/orders/myorders",
+              `${API_URL}/orders/myorders`,
               {
                 headers: {
                   Authorization: `Bearer ${userInfo.token}`,

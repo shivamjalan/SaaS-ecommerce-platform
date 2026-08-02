@@ -8,7 +8,7 @@ import {
 
 import {
   CartContext,
-} from "../store/CartContext";
+} from "../store/cartContext";
 
 const Cart = () => {
 
@@ -43,15 +43,12 @@ const Cart = () => {
   /* ======================= GST ======================== */
   /* ===================================================== */
 
-  const gst =
-    subtotal * 0.05;
-
-  /* ===================================================== */
-  /* =================== FINAL TOTAL ==================== */
-  /* ===================================================== */
-
+  // Matches the backend (subtotal + 5% GST, rounded)
   const total =
-    subtotal + gst;
+    Math.round(subtotal * 1.05);
+
+  const gst =
+    total - subtotal;
 
   return (
 
@@ -213,9 +210,7 @@ const Cart = () => {
 
                 <span>
                   ₹
-                  {subtotal.toFixed(
-                    2
-                  )}
+                  {subtotal}
                 </span>
 
               </div>
@@ -228,7 +223,7 @@ const Cart = () => {
 
                 <span>
                   ₹
-                  {gst.toFixed(2)}
+                  {gst}
                 </span>
 
               </div>
@@ -243,7 +238,7 @@ const Cart = () => {
 
                 <span>
                   ₹
-                  {total.toFixed(2)}
+                  {total}
                 </span>
 
               </div>

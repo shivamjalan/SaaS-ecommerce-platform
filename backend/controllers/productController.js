@@ -98,7 +98,33 @@ export const createProduct = async (
       image,
       category,
       description,
+      store,
     } = req.body;
+
+    // Admin picks the store; merchants use their own store
+    const storeId =
+      req.store
+        ? req.store._id
+        : store;
+
+    if (!storeId) {
+
+      return res.status(400).json({
+        error: "Store is required",
+      });
+
+    }
+
+    const existingStore =
+      await Store.findById(storeId);
+
+    if (!existingStore) {
+
+      return res.status(400).json({
+        error: "Store not found",
+      });
+
+    }
 
     const newProduct =
       new Product({
@@ -107,7 +133,7 @@ export const createProduct = async (
         image,
         category,
         description,
-        store: req.store._id,
+        store: storeId,
       });
 
     await newProduct.save();
@@ -166,7 +192,9 @@ export const updateProduct = async (
 
         {
             _id: id,
-            store: req.store._id,
+            ...(req.store && {
+              store: req.store._id,
+            }),
         },
         {
         name,
@@ -235,7 +263,9 @@ export const deleteProduct = async (
     const deletedProduct =
       await Product.findOneAndDelete({
         _id:id,
+        ...(req.store && {
           store:req.store._id,
+        }),
       }
         
       );

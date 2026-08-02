@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import axios from "axios";
+import { API_URL } from "../utils/api";
 
 const Stores = () => {
   const [stores, setStores] = useState([]);
@@ -10,9 +10,8 @@ const Stores = () => {
   useEffect(() => {
     const fetchStores = async () => {
       try {
-        const { data } = await axios.get("/api/stores");
-        console.log(data);
-console.log(Array.isArray(data));
+        const response = await fetch(`${API_URL}/stores`);
+        const data = await response.json();
         setStores(data);
       } catch (err) {
         console.error(err);

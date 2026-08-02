@@ -1,8 +1,7 @@
 import express from "express";
 
 import protect from "../middleware/authMiddleware.js";
-import publicStore from "../middleware/publicStoreMiddleware.js";
-import merchant from "../middleware/merchantMiddleware.js";
+import admin from "../middleware/adminMiddleware.js";
 import { getStoreProducts } from "../controllers/productController.js";
 import { merchantStore } from "../middleware/storeMiddleware.js";
 import {
@@ -22,6 +21,8 @@ const router = express.Router();
 
 router.get(
   "/seed",
+  protect,
+  admin,
   seedProducts
 );
 
@@ -45,7 +46,6 @@ router.get(
 
 router.get(
   "/:id",
-  publicStore,
   getProductById
 );
 
@@ -56,7 +56,7 @@ router.get(
 router.post(
   "/",
   protect,
-  merchant,merchantStore,
+  merchantStore,
   createProduct
 );
 
@@ -67,7 +67,7 @@ router.post(
 router.put(
   "/:id",
   protect,
-  merchant,merchantStore,
+  merchantStore,
   updateProduct
 );
 
@@ -78,7 +78,7 @@ router.put(
 router.delete(
   "/:id",
   protect,
-  merchant,merchantStore,
+  merchantStore,
   deleteProduct
 );
 

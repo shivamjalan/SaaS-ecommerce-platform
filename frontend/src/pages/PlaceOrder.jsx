@@ -9,8 +9,9 @@ import {
 
 import {
   CartContext,
-} from "../store/CartContext";
+} from "../store/cartContext";
 import { handleRazorpayPayment } from "../utils/razorpay";
+import { API_URL } from "../utils/api";
 
 const PlaceOrder = () => {
 
@@ -27,8 +28,18 @@ const PlaceOrder = () => {
 useEffect(() => {
   if (cart.length === 0) {
     navigate("/cart");
+    return;
   }
-}, [cart, navigate]);
+  if (
+    !shippingAddress ||
+    !shippingAddress.address ||
+    !shippingAddress.city ||
+    !shippingAddress.postalCode ||
+    !shippingAddress.country
+  ) {
+    navigate("/shipping");
+  }
+}, [cart, navigate, shippingAddress]);
   const [loading, setLoading] =
     useState(false);
   const [paymentMethod, setPaymentMethod] =
@@ -38,7 +49,7 @@ useEffect(() => {
   /* ================= TOTAL PRICE ====================== */
   /* ===================================================== */
 
-  const totalPrice =
+  const subtotal =
     cart.reduce(
 
       (sum, item) =>
@@ -49,6 +60,12 @@ useEffect(() => {
 
       0
     );
+
+  // Matches the backend (subtotal + 5% GST, rounded)
+  const totalPrice =
+    Math.round(subtotal * 1.05);
+
+  const gst = totalPrice - subtotal;
   
   /* ===================================================== */
   /* ================= PLACE ORDER ====================== */
@@ -71,9 +88,9 @@ useEffect(() => {
     navigate("/login");
     return;
 }
-        const response =
-          await fetch(
-            "http://localhost:5000/api/orders",
+          const response =
+            await fetch(
+              `${API_URL}/orders`,
             {
               method: "POST",
 
@@ -105,7 +122,7 @@ useEffect(() => {
         const data =
           await response.json();
         if (!response.ok) {
-    alert(data.message || "Failed to place order");
+    alert(data.error || data.message || "Failed to place order");
     return;
 }
         console.log(data);
@@ -274,7 +291,20 @@ useEffect(() => {
 
               <span>
                 ₹
-                {totalPrice}
+                {subtotal}
+              </span>
+
+            </div>
+
+            <div className="flex justify-between mb-3">
+
+              <span>
+                GST (5%)
+              </span>
+
+              <span>
+                ₹
+                {gst}
               </span>
 
             </div>

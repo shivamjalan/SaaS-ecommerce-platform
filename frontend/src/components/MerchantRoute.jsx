@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 
 import { AuthContext } from "../store/authContext";
 
-const AdminRoute = ({ children }) => {
+const MerchantRoute = ({ children }) => {
 
   const { userInfo } = useContext(AuthContext);
 
@@ -12,12 +12,14 @@ const AdminRoute = ({ children }) => {
     return <Navigate to="/login" />;
   }
 
-  // Not admin
-  if (userInfo?.user?.role !== "admin") {
+  // Merchant or admin only
+  const role = userInfo?.user?.role;
+
+  if (role !== "merchant" && role !== "admin") {
     return <Navigate to="/" />;
   }
 
   return children;
 };
 
-export default AdminRoute;
+export default MerchantRoute;

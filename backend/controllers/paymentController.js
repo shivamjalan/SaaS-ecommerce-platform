@@ -1,5 +1,5 @@
 import razorpay from "../config/razorpay.js";
-import crypto from "crypto";
+import crypto from "node:crypto";
 import Order from "../models/Order.js";
 
 export const createRazorpayOrder = async (req, res) => {
@@ -56,6 +56,14 @@ export const verifyPayment = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Order not found",
+      });
+    }
+
+    // Order must belong to the authenticated user
+    if (order.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You do not own this order",
       });
     }
 

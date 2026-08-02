@@ -57,6 +57,93 @@ export const createStore = async (req, res) => {
 };
 
 /* ===================================================== */
+/* ================== GET MY STORE ===================== */
+/* ===================================================== */
+
+export const getMyStore = async (req, res) => {
+  try {
+
+    const store = await Store.findOne({
+      owner: req.user._id,
+    }).select("name slug logo description theme");
+
+    if (!store) {
+      return res.status(404).json({
+        message: "Store not found",
+      });
+    }
+
+    res.json(store);
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+/* ===================================================== */
+/* ================== UPDATE MY STORE ================== */
+/* ===================================================== */
+
+export const updateMyStore = async (req, res) => {
+  try {
+
+    const {
+      name,
+      slug,
+      description,
+      logo,
+      theme,
+    } = req.body;
+
+    const store = await Store.findOne({
+      owner: req.user._id,
+    });
+
+    if (!store) {
+      return res.status(404).json({
+        message: "Store not found",
+      });
+    }
+
+    // Slug uniqueness check (if changing)
+    if (slug && slug !== store.slug) {
+
+      const existingStore = await Store.findOne({ slug });
+
+      if (existingStore) {
+        return res.status(400).json({
+          message: "Store slug already exists",
+        });
+      }
+    }
+
+    store.name = name || store.name;
+    store.slug = slug || store.slug;
+    store.description =
+      description !== undefined
+        ? description
+        : store.description;
+    store.logo = logo || store.logo;
+    store.theme = theme || store.theme;
+
+    const updatedStore = await store.save();
+
+    res.json(updatedStore);
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+/* ===================================================== */
 /* ================= GET ALL STORES ==================== */
 /* ===================================================== */
 
@@ -85,7 +172,7 @@ export const getStoreBySlug = async (req, res) => {
     const store = await Store.findOne({
       slug: req.params.slug,
     }).select(
-      "name slug logo description theme subscription"
+      "name slug logo description theme"
     );
 
     if (!store) {

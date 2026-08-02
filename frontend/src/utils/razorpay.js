@@ -1,4 +1,43 @@
-export const handleRazorpayPayment = async (order,clearCart,navigate) => {
+import { API_URL } from "./api";
+
+/* ===================================================== */
+/* ================= LOAD RAZORPAY CHECKOUT ============ */
+/* ===================================================== */
+
+const loadRazorpayCheckout = () => {
+
+  return new Promise((resolve, reject) => {
+
+    if (window.Razorpay) {
+      resolve();
+      return;
+    }
+
+    const script = document.createElement("script");
+
+    script.src =
+      "https://checkout.razorpay.com/v1/checkout.js";
+
+    script.onload = () => resolve();
+
+    script.onerror = () =>
+      reject(
+        new Error(
+          "checkout.js failed to load"
+        )
+      );
+
+    document.body.appendChild(script);
+
+  });
+
+};
+
+/* ===================================================== */
+/* ================= HANDLE RAZORPAY PAYMENT =========== */
+/* ===================================================== */
+
+export const handleRazorpayPayment = async (order, clearCart, navigate) => {
 
   try {
 
@@ -6,9 +45,19 @@ export const handleRazorpayPayment = async (order,clearCart,navigate) => {
       localStorage.getItem("userInfo")
     );
 
+    if (!userInfo || !userInfo.token) {
+      alert("Please login to continue");
+      return;
+    }
+
+    if (!order || !order.totalPrice) {
+      alert("Order total is invalid. Please try again.");
+      return;
+    }
+
     // Create Razorpay Order
     const response = await fetch(
-      "http://localhost:5000/api/payment/create-order",
+      `${API_URL}/payment/create-order`,
       {
         method: "POST",
 
@@ -19,16 +68,30 @@ export const handleRazorpayPayment = async (order,clearCart,navigate) => {
 
         body: JSON.stringify({
           amount: order.totalPrice,
-          orderId:order._id,
+          orderId: order._id,
         }),
       }
     );
 
     const razorpayOrder = await response.json();
     if (!response.ok) {
-  alert("Unable to create Razorpay order");
-  return;
-}
+      alert(
+        razorpayOrder.message ||
+        "Unable to create Razorpay order"
+      );
+      return;
+    }
+
+    // Make sure the checkout script is available
+    try {
+      await loadRazorpayCheckout();
+    } catch {
+      alert(
+        "Could not load Razorpay checkout. Check your connection or disable any ad blocker, then retry."
+      );
+      return;
+    }
+
     const options = {
   key: import.meta.env.VITE_RAZORPAY_KEY,
 
@@ -51,7 +114,7 @@ export const handleRazorpayPayment = async (order,clearCart,navigate) => {
     );
 
     const verifyResponse = await fetch(
-      "http://localhost:5000/api/payment/verify",
+      `${API_URL}/payment/verify`,
       {
         method: "POST",
 

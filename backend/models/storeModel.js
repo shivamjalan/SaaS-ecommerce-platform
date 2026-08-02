@@ -36,12 +36,6 @@ const storeSchema = new mongoose.Schema(
         default:"default",
     },
 
-    subscription:{
-        type:String,
-        enum:["free","basic","pro","enterprise"],
-        default:"free",
-    },
-
 },
 
 {timestamps:true}

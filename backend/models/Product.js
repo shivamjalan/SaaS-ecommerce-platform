@@ -42,6 +42,4 @@ const Product = mongoose.model(
   "Product",
   productSchema
 );
-console.log("PRODUCT SCHEMA:");
-console.log(Product.schema.obj);
 export default Product;

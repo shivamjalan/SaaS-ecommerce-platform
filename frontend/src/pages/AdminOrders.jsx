@@ -6,13 +6,13 @@ import {
 import { motion } from "framer-motion";
 
 import {
-  FaCheckCircle,
-  FaClock,
   FaTruck,
   FaBoxOpen,
   FaTimesCircle,
   FaMoneyBillWave,
 } from "react-icons/fa";
+
+import { API_URL } from "../utils/api";
 
 const AdminOrders = () => {
 
@@ -33,7 +33,7 @@ const AdminOrders = () => {
       );
 
       const response = await fetch(
-        "http://localhost:5000/api/orders",
+        `${API_URL}/orders`,
         {
           headers: {
             Authorization: `Bearer ${userInfo.token}`,
@@ -59,7 +59,13 @@ const AdminOrders = () => {
 
   useEffect(() => {
 
-    fetchOrders();
+    const loadOrders = async () => {
+
+      await fetchOrders();
+
+    };
+
+    loadOrders();
 
   }, []);
 
@@ -81,7 +87,7 @@ const AdminOrders = () => {
 
       const response = await fetch(
 
-        `http://localhost:5000/api/orders/${id}/${endpoint}`,
+        `${API_URL}/orders/${id}/${endpoint}`,
 
         {
 

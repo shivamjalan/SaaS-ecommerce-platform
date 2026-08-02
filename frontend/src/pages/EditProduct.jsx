@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { API_URL } from "../utils/api";
 
 const EditProduct = () => {
 
@@ -18,10 +19,13 @@ const EditProduct = () => {
   const [description, setDescription] =
     useState("");
 
+  const [uploading, setUploading] =
+    useState(false);
+
   // FETCH PRODUCT
   useEffect(() => {
 
-    fetch(`http://localhost:5000/api/products/${id}`)
+    fetch(`${API_URL}/products/${id}`)
       .then((res) => res.json())
       .then((data) => {
 
@@ -37,6 +41,63 @@ const EditProduct = () => {
 
   }, [id]);
 
+  // HANDLE IMAGE UPLOAD
+  const uploadImage = async (e) => {
+
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    const imageData = new FormData();
+
+    imageData.append("image", file);
+
+    try {
+
+      setUploading(true);
+
+      const storedUser =
+        JSON.parse(localStorage.getItem("userInfo"));
+
+      const response = await fetch(
+        `${API_URL}/upload`,
+        {
+          method: "POST",
+
+          headers: {
+            Authorization: `Bearer ${storedUser.token}`,
+          },
+
+          body: imageData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+
+        setImage(data.image);
+
+      } else {
+
+        alert(data.error || "Image upload failed");
+
+      }
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Image upload failed");
+
+    } finally {
+
+      setUploading(false);
+
+    }
+
+  };
+
   // UPDATE PRODUCT
   const handleUpdate = async (e) => {
 
@@ -51,7 +112,7 @@ const EditProduct = () => {
       console.log("STORED USER:", storedUser);
 
       const response = await fetch(
-        `http://localhost:5000/api/products/${id}`,
+        `${API_URL}/products/${id}`,
         {
           method: "PUT",
 
@@ -127,15 +188,43 @@ const EditProduct = () => {
           required
         />
 
-        {/* IMAGE URL */}
-        <input
-          type="text"
-          value={image}
-          onChange={(e) => setImage(e.target.value)}
-          className="w-full border p-3 rounded"
-          placeholder="Image URL"
-          required
-        />
+        {/* PRODUCT IMAGE UPLOAD */}
+        <div>
+
+          <label className="block font-semibold mb-2">
+            Product Image
+          </label>
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={uploadImage}
+            className="w-full border p-3 rounded"
+          />
+
+          {uploading && (
+            <p className="text-blue-500 mt-2">
+              Uploading image...
+            </p>
+          )}
+
+          {image && (
+            <div className="mt-4">
+
+              <p className="font-medium mb-2">
+                Preview
+              </p>
+
+              <img
+                src={image}
+                alt="Preview"
+                className="w-48 rounded shadow"
+              />
+
+            </div>
+          )}
+
+        </div>
 
         {/* CATEGORY */}
         <input

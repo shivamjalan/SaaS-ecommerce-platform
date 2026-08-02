@@ -2,7 +2,7 @@ import express from "express";
 
 import protect from "../middleware/authMiddleware.js";
 
-import admin from "../middleware/adminMiddleware.js";
+import adminOrMerchant from "../middleware/adminOrMerchant.js";
 
 import upload from "../middleware/uploadMiddleware.js";
 
@@ -19,7 +19,7 @@ router.post(
 
   protect,
 
-  admin,
+  adminOrMerchant,
 
   upload.single("image"),
 

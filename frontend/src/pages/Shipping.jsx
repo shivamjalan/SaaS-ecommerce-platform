@@ -9,7 +9,7 @@ import {
 
 import {
   CartContext,
-} from "../store/CartContext";
+} from "../store/cartContext";
 
 const Shipping = () => {
 

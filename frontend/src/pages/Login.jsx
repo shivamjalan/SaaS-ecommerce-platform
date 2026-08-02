@@ -1,7 +1,8 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { AuthContext } from "../store/AuthContext";
+import { AuthContext } from "../store/authContext";
+import { API_URL } from "../utils/api";
 
 const Login = () => {
 
@@ -19,7 +20,7 @@ const Login = () => {
     try {
 
       const response = await fetch(
-        "http://localhost:5000/api/users/login",
+        `${API_URL}/users/login`,
         {
           method: "POST",
 

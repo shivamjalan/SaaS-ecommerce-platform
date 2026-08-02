@@ -8,7 +8,6 @@ export const placeOrder = async (req, res) => {
     const {
       orderItems,
       shippingAddress,
-      totalPrice,
       paymentMethod,
     } = req.body;
 
@@ -45,24 +44,45 @@ if (!sameStore) {
     error: "All products must belong to the same store",
   });
 }
+
+// Build order items server-side from DB prices
+const sanitizedItems = orderItems.map((item) => {
+
+  const product = products.find(
+    p => p._id.toString() === item.product
+  );
+
+  const quantity = Number(item.quantity);
+
+  if (!Number.isInteger(quantity) || quantity < 1) {
+    throw new Error("Invalid quantity");
+  }
+
+  return {
+    name: product.name,
+    quantity,
+    image: product.image,
+    price: product.price,
+    product: product._id,
+  };
+});
+
+// Recompute total server-side (subtotal + 5% GST)
+const subtotal = sanitizedItems.reduce(
+  (sum, item) => sum + item.price * item.quantity,
+  0
+);
+
+const totalPrice = Math.round(subtotal * 1.05);
+
     const order = new Order({
       user: req.user._id,
       store,
-      orderItems,
+      orderItems: sanitizedItems,
       shippingAddress,
       totalPrice,
       paymentMethod,
     });
-const total = products.reduce(
-    (sum, product) => {
-        const item = orderItems.find(
-            i => i.product === product._id.toString()
-        );
-
-        return sum + product.price * item.quantity;
-    },
-    0
-);
     const createdOrder = await order.save();
     
 
@@ -75,8 +95,17 @@ const total = products.reduce(
 
     console.log(error);
 
+    if (
+      error.name === "ValidationError" ||
+      error.name === "CastError"
+    ) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+
     return res.status(500).json({
-      error: "Server error",
+      error: error.message || "Server error",
     });
 
   }
@@ -153,7 +182,11 @@ export const getAllOrders = async (req, res) => {
 
   try {
 
-    const orders = await Order.find({store: req.store._id,})
+    const query = req.store
+      ? { store: req.store._id }
+      : {};
+
+    const orders = await Order.find(query)
       .populate(
         "user",
         "id name email"
@@ -190,7 +223,9 @@ export const markOrderPaid = async (
     const order = await Order.findOne(
       {
     _id: req.params.id,
-    store: req.store._id,
+    ...(req.store && {
+      store: req.store._id,
+    }),
 }
     );
 
@@ -251,7 +286,9 @@ export const updateOrderStatus = async (
 
     const order = await Order.findOne({
     _id: req.params.id,
-    store: req.store._id,
+    ...(req.store && {
+      store: req.store._id,
+    }),
 });
 
     if (!order) {
@@ -301,7 +338,9 @@ export const cancelOrder = async (
 
     const order = await Order.findOne({
     _id: req.params.id,
-    user: req.user._id,
+    ...(req.store && {
+      store: req.store._id,
+    }),
 });
 
     if (!order) {
@@ -344,7 +383,9 @@ export const markOrderDelivered = async (
 
     const order = await Order.findOne({
     _id: req.params.id,
-    store: req.store._id,
+    ...(req.store && {
+      store: req.store._id,
+    }),
 });
 
     if (!order) {

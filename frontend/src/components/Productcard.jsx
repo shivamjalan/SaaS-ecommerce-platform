@@ -11,7 +11,9 @@ import {
   FaTrash,
 } from "react-icons/fa";
 
-import { AuthContext } from "../store/AuthContext";
+import { AuthContext } from "../store/authContext";
+
+import { API_URL } from "../utils/api";
 
 const ProductCard = ({
   product,
@@ -49,7 +51,7 @@ const ProductCard = ({
 
         const response =
           await fetch(
-            `http://localhost:5000/api/products/${product._id}`,
+            `${API_URL}/products/${product._id}`,
             {
               method:
                 "DELETE",
@@ -114,6 +116,18 @@ const ProductCard = ({
         `/edit-product/${product._id}`
       );
     };
+
+  /* ===================================================== */
+  /* ============ OWNER / ADMIN ACTIONS GATE ============= */
+  /* ===================================================== */
+
+  const isOwnerOrAdmin =
+    userInfo?.user?.role ===
+      "admin" ||
+    (userInfo?.user?.role ===
+      "merchant" &&
+      userInfo?.user?.store ===
+        product.store?._id);
 
   return (
 
@@ -227,12 +241,10 @@ const ProductCard = ({
         </div>
 
         {/* ===================================================== */}
-        {/* ================= ADMIN ACTIONS ==================== */}
+        {/* ============ OWNER / ADMIN ACTIONS ================= */}
         {/* ===================================================== */}
 
-        {userInfo?.user
-          ?.role ===
-          "admin" && (
+        {isOwnerOrAdmin && (
 
           <div className="flex gap-3 mt-6">
 

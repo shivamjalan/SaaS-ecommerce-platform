@@ -32,6 +32,12 @@ import AdminOrders from "./pages/AdminOrders";
 import PlaceOrder from "./pages/PlaceOrder";
 import Stores from "./pages/Stores";
 import StorePage from "./pages/StorePage";
+import CreateStore from "./pages/CreateStore";
+import MerchantDashboard from "./pages/MerchantDashboard";
+import MerchantOrders from "./pages/MerchantOrders";
+import MerchantProducts from "./pages/MerchantProducts";
+import StoreSettings from "./pages/StoreSettings";
+import MerchantCustomers from "./pages/MerchantCustomers";
 
 /* ===================================================== */
 /* ================= ROUTE PROTECTION ================== */
@@ -40,6 +46,8 @@ import StorePage from "./pages/StorePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import AdminRoute from "./components/AdminRoute";
+
+import MerchantRoute from "./components/MerchantRoute";
 
 function App() {
 
@@ -134,15 +142,93 @@ function App() {
         />
 
         {/* ===================================================== */}
+        {/* ==================== CREATE STORE =================== */}
+        {/* ===================================================== */}
+
+        <Route
+          path="create-store"
+          element={
+            <ProtectedRoute>
+              <CreateStore />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ===================================================== */}
+        {/* ================= MERCHANT DASHBOARD ================ */}
+        {/* ===================================================== */}
+
+        <Route
+          path="merchant/dashboard"
+          element={
+            <MerchantRoute>
+              <MerchantDashboard />
+            </MerchantRoute>
+          }
+        />
+
+        {/* ===================================================== */}
+        {/* ================= MERCHANT ORDERS =================== */}
+        {/* ===================================================== */}
+
+        <Route
+          path="merchant/orders"
+          element={
+            <MerchantRoute>
+              <MerchantOrders />
+            </MerchantRoute>
+          }
+        />
+
+        {/* ===================================================== */}
+        {/* ================= MERCHANT PRODUCTS ================= */}
+        {/* ===================================================== */}
+
+        <Route
+          path="merchant/products"
+          element={
+            <MerchantRoute>
+              <MerchantProducts />
+            </MerchantRoute>
+          }
+        />
+
+        {/* ===================================================== */}
+        {/* ================= MERCHANT CUSTOMERS ================ */}
+        {/* ===================================================== */}
+
+        <Route
+          path="merchant/customers"
+          element={
+            <MerchantRoute>
+              <MerchantCustomers />
+            </MerchantRoute>
+          }
+        />
+
+        {/* ===================================================== */}
+        {/* ================= STORE SETTINGS ==================== */}
+        {/* ===================================================== */}
+
+        <Route
+          path="merchant/settings"
+          element={
+            <MerchantRoute>
+              <StoreSettings />
+            </MerchantRoute>
+          }
+        />
+
+        {/* ===================================================== */}
         {/* ==================== ADMIN ROUTES =================== */}
         {/* ===================================================== */}
 
         <Route
           path="add-product"
           element={
-            <AdminRoute>
+            <MerchantRoute>
               <AddProduct />
-            </AdminRoute>
+            </MerchantRoute>
           }
         />
 
@@ -158,9 +244,9 @@ function App() {
         <Route
           path="edit-product/:id"
           element={
-            <AdminRoute>
+            <MerchantRoute>
               <EditProduct />
-            </AdminRoute>
+            </MerchantRoute>
           }
         />
 

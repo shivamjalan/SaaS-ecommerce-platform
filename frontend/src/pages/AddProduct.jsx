@@ -1,6 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { API_URL } from "../utils/api";
 
 const AddProduct = () => {
+
+  const storedUser =
+    JSON.parse(
+      localStorage.getItem(
+        "userInfo"
+      )
+    );
+
+  const isAdmin =
+    storedUser?.user?.role ===
+    "admin";
+
+  const [stores, setStores] = useState([]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -8,9 +22,39 @@ const AddProduct = () => {
     image: "",
     category: "",
     description: "",
+    store: "",
   });
 
   const [uploading, setUploading] = useState(false);
+
+  // FETCH STORES FOR THE STORE PICKER
+  useEffect(() => {
+
+    const fetchStores =
+      async () => {
+
+        try {
+
+          const response =
+            await fetch(
+              `${API_URL}/stores`
+            );
+
+          const data =
+            await response.json();
+
+          setStores(data);
+
+        } catch (error) {
+
+          console.log(error);
+
+        }
+      };
+
+    fetchStores();
+
+  }, []);
 
   // HANDLE INPUT CHANGE
   const handleChange = (e) => {
@@ -42,7 +86,7 @@ const AddProduct = () => {
       );
 
       const response = await fetch(
-        "http://localhost:5000/api/upload",
+        `${API_URL}/upload`,
         {
           method: "POST",
 
@@ -95,7 +139,7 @@ const AddProduct = () => {
       );
 
       const response = await fetch(
-        "http://localhost:5000/api/products",
+        `${API_URL}/products`,
         {
           method: "POST",
 
@@ -123,6 +167,7 @@ const AddProduct = () => {
           image: "",
           category: "",
           description: "",
+          store: "",
         });
 
       } else {
@@ -151,6 +196,44 @@ const AddProduct = () => {
         onSubmit={handleSubmit}
         className="space-y-4"
       >
+
+        {/* STORE PICKER — ADMINS ONLY */}
+        {isAdmin && (
+        <div>
+
+          <label className="block font-semibold mb-2">
+            Store
+          </label>
+
+          <select
+            name="store"
+            value={formData.store}
+            onChange={handleChange}
+            className="w-full border p-3 rounded"
+            required
+          >
+
+            <option value="">
+              Select a store
+            </option>
+
+            {stores.map((store) => (
+
+              <option
+                key={store._id}
+                value={store._id}
+              >
+
+                {store.name}
+
+              </option>
+
+            ))}
+
+          </select>
+
+        </div>
+        )}
 
         {/* PRODUCT NAME */}
         <input

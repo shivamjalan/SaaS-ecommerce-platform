@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import axios from "axios";
 import { motion } from "framer-motion";
+import { API_URL } from "../utils/api";
+import { getTheme } from "../utils/themes";
 
 const StorePage = () => {
   const { slug } = useParams();
@@ -14,12 +15,15 @@ const StorePage = () => {
     const fetchStore = async () => {
       try {
         const [storeRes, productRes] = await Promise.all([
-          axios.get(`/api/stores/${slug}`),
-          axios.get(`/api/products/store/${slug}`),
+          fetch(`${API_URL}/stores/${slug}`),
+          fetch(`${API_URL}/products/store/${slug}`),
         ]);
 
-        setStore(storeRes.data);
-        setProducts(productRes.data);
+        const storeData = await storeRes.json();
+        const productsData = await productRes.json();
+
+        setStore(storeData);
+        setProducts(productsData);
       } catch (err) {
         console.error(err);
       } finally {
@@ -46,6 +50,8 @@ const StorePage = () => {
     );
   }
 
+  const theme = getTheme(store.theme);
+
   return (
     <div className="bg-gray-50 min-h-screen">
 
@@ -62,7 +68,7 @@ const StorePage = () => {
           className="w-full h-full object-cover"
         />
 
-        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+        <div className={`absolute inset-0 ${theme.banner} flex items-center justify-center`}>
 
           <div className="text-center text-white">
 
@@ -144,7 +150,7 @@ const StorePage = () => {
 
                     <Link
                       to={`/product/${product._id}`}
-                      className="bg-black text-white px-4 py-2 rounded-lg hover:bg-pink-600 transition"
+                      className={`text-white px-4 py-2 rounded-lg ${theme.btn} transition`}
                     >
                       View
                     </Link>

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 import ProductCard from "../components/Productcard";
+import { API_URL } from "../utils/api";
 
 const Products = () => {
 
@@ -32,7 +33,7 @@ const Products = () => {
 
           const response =
             await fetch(
-              "http://localhost:5000/api/products"
+              `${API_URL}/products`
             );
 
           const data =

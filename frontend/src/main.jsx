@@ -8,7 +8,6 @@ import "./index.css";
 
 import AuthProvider from "./store/AuthContext.jsx";
 import CartProvider from "./store/CartContext.jsx";
-console.log(CartProvider);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

@@ -9,8 +9,8 @@ import {
   FaUserCircle,
 } from "react-icons/fa";
 
-import { CartContext } from "../store/CartContext";
-import { AuthContext } from "../store/AuthContext";
+import { CartContext } from "../store/cartContext";
+import { AuthContext } from "../store/authContext";
 
 const Navbar = () => {
 
@@ -154,6 +154,67 @@ const Navbar = () => {
     </Link>
 
   </div>
+)}
+
+          {/* MERCHANT */}
+
+          {userInfo?.user?.role ===
+  "merchant" && (
+
+  <div className="flex items-center gap-6">
+
+    <Link
+      to="/merchant/dashboard"
+      className="text-gray-200 hover:text-pink-400 transition duration-300 font-medium"
+    >
+
+      Dashboard
+
+    </Link>
+
+    <Link
+      to="/merchant/orders"
+      className="text-gray-200 hover:text-pink-400 transition duration-300 font-medium"
+    >
+
+      Orders
+
+    </Link>
+
+    <Link
+      to="/merchant/products"
+      className="text-gray-200 hover:text-pink-400 transition duration-300 font-medium"
+    >
+
+      Products
+
+    </Link>
+
+    <Link
+      to="/merchant/settings"
+      className="text-gray-200 hover:text-pink-400 transition duration-300 font-medium"
+    >
+
+      Store
+
+    </Link>
+
+  </div>
+)}
+
+          {/* OPEN A STORE (regular users) */}
+
+          {userInfo?.user?.role ===
+  "user" && (
+
+  <Link
+    to="/create-store"
+    className="bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-90 px-4 py-2 rounded-xl text-sm font-medium shadow-md transition"
+  >
+
+    Open a Store
+
+  </Link>
 )}
 
         </div>
