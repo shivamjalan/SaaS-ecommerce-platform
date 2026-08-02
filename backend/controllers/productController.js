@@ -4,36 +4,6 @@ import Product from "../models/Product.js";
 import Store from "../models/storeModel.js";
 
 /* ===================================================== */
-/* ================= GET ALL PRODUCTS ================== */
-/* ===================================================== */
-
-export const getProducts = async (
-  req,
-  res
-) => {
-
-  try {
-
-    const products =
-      await Product.find().populate("store", "name slug logo").sort({
-    createdAt:-1
-})
-.lean();
-
-    res.json(products);
-
-  } catch (error) {
-
-    console.log(error);
-
-    res.status(500).json({
-      error: "Server error",
-    });
-
-  }
-};
-
-/* ===================================================== */
 /* ================= GET SINGLE PRODUCT ================ */
 /* ===================================================== */
 
@@ -383,6 +353,92 @@ export const getMerchantProducts = async (req, res) => {
 
     }
 };
+/* ===================================================== */
+/* ============== PRODUCT RECOMMENDATIONS ============== */
+/* ===================================================== */
+
+export const getProductRecommendations = async (
+  req,
+  res
+) => {
+
+  try {
+
+    const { id } = req.params;
+
+    if (
+      !mongoose.Types.ObjectId.isValid(id)
+    ) {
+
+      return res.status(400).json({
+        error: "Invalid product ID",
+      });
+
+    }
+
+    const product =
+      await Product.findById(id);
+
+    if (!product) {
+
+      return res.status(404).json({
+        error: "Product not found",
+      });
+
+    }
+
+    let recommendations =
+      await Product.find({
+        store: product.store,
+        category: product.category,
+        _id: { $ne: product._id },
+      })
+        .limit(4)
+        .lean();
+
+    if (
+      recommendations.length < 4
+    ) {
+
+      const existingIds =
+        recommendations.map(
+          (item) => item._id
+        );
+
+      const fallback =
+        await Product.find({
+          store: product.store,
+          _id: {
+            $ne: product._id,
+            $nin: existingIds,
+          },
+        })
+          .limit(
+            4 - recommendations.length
+          )
+          .lean();
+
+      recommendations = [
+        ...recommendations,
+        ...fallback,
+      ];
+
+    }
+
+    res.json(recommendations);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      error: "Server error",
+    });
+
+  }
+
+};
+
 /* ===================================================== */
 /* ============== GET STORE PRODUCTS =================== */
 /* ===================================================== */

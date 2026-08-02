@@ -118,12 +118,12 @@ const ProductCard = ({
     };
 
   /* ===================================================== */
-  /* ============ OWNER / ADMIN ACTIONS GATE ============= */
+  /* ======== OWNER / SUPERADMIN ACTIONS GATE ============ */
   /* ===================================================== */
 
   const isOwnerOrAdmin =
     userInfo?.user?.role ===
-      "admin" ||
+      "superadmin" ||
     (userInfo?.user?.role ===
       "merchant" &&
       userInfo?.user?.store ===

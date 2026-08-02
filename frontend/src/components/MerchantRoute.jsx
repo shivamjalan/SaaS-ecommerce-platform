@@ -12,10 +12,10 @@ const MerchantRoute = ({ children }) => {
     return <Navigate to="/login" />;
   }
 
-  // Merchant or admin only
+  // Merchant or superadmin only
   const role = userInfo?.user?.role;
 
-  if (role !== "merchant" && role !== "admin") {
+  if (role !== "merchant" && role !== "superadmin") {
     return <Navigate to="/" />;
   }
 

@@ -238,11 +238,11 @@ const Home = () => {
           </div>
 
           <Link
-            to="/products"
+            to="/stores"
             className="bg-white text-black px-8 py-4 rounded-xl font-semibold hover:bg-gray-200 transition inline-block"
           >
 
-            Explore Now
+            Explore Stores
 
           </Link>
 

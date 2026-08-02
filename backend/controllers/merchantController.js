@@ -1,6 +1,8 @@
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
 
+import { getStoreAnalytics } from "../services/analyticsService.js";
+
 /* ===================================================== */
 /* ============== MERCHANT DASHBOARD =================== */
 /* ===================================================== */
@@ -78,6 +80,35 @@ export const getMerchantDashboard = async (
 
     res.status(500).json({
       message: error.message,
+    });
+
+  }
+
+};
+
+/* ===================================================== */
+/* ============== MERCHANT ANALYTICS =================== */
+/* ===================================================== */
+
+export const getMerchantAnalytics = async (
+  req,
+  res
+) => {
+
+  try {
+
+    const analytics = await getStoreAnalytics(
+      req.store._id
+    );
+
+    res.json(analytics);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      error: error.message,
     });
 
   }

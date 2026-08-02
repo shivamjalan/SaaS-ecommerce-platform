@@ -272,7 +272,7 @@ const AdminOrders = () => {
 
             <p className="uppercase tracking-[5px] text-rose-500 font-semibold mb-3">
 
-              Admin Dashboard
+              Superadmin Dashboard
 
             </p>
 

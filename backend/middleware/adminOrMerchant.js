@@ -9,7 +9,7 @@ const adminOrMerchant = (req, res, next) => {
   }
 
   if (
-    req.user.role === "admin" ||
+    req.user.role === "superadmin" ||
     req.user.role === "merchant"
   ) {
 
@@ -18,7 +18,7 @@ const adminOrMerchant = (req, res, next) => {
   }
 
   return res.status(403).json({
-    message: "Admin or Merchant access only",
+    message: "Superadmin or Merchant access only",
   });
 
 };

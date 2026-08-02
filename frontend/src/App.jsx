@@ -11,8 +11,6 @@ import MainLayout from "./layouts/MainLayout";
 
 import Home from "./pages/Home";
 
-import Products from "./pages/Products";
-
 import MyOrders from "./pages/MyOrders";
 
 import ProductDetail from "./pages/ProductDetail";
@@ -38,6 +36,7 @@ import MerchantOrders from "./pages/MerchantOrders";
 import MerchantProducts from "./pages/MerchantProducts";
 import StoreSettings from "./pages/StoreSettings";
 import MerchantCustomers from "./pages/MerchantCustomers";
+import MerchantAnalytics from "./pages/MerchantAnalytics";
 
 /* ===================================================== */
 /* ================= ROUTE PROTECTION ================== */
@@ -67,15 +66,6 @@ function App() {
         <Route
           index
           element={<Home />}
-        />
-
-        {/* ===================================================== */}
-        {/* ==================== PRODUCTS ======================= */}
-        {/* ===================================================== */}
-
-        <Route
-          path="products"
-          element={<Products />}
         />
 
         {/* ===================================================== */}
@@ -189,6 +179,19 @@ function App() {
           element={
             <MerchantRoute>
               <MerchantProducts />
+            </MerchantRoute>
+          }
+        />
+
+        {/* ===================================================== */}
+        {/* ================= MERCHANT ANALYTICS ================ */}
+        {/* ===================================================== */}
+
+        <Route
+          path="merchant/analytics"
+          element={
+            <MerchantRoute>
+              <MerchantAnalytics />
             </MerchantRoute>
           }
         />

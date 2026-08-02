@@ -5,12 +5,12 @@ import admin from "../middleware/adminMiddleware.js";
 import { getStoreProducts } from "../controllers/productController.js";
 import { merchantStore } from "../middleware/storeMiddleware.js";
 import {
-  getProducts,
   getProductById,
   createProduct,
   updateProduct,
   deleteProduct,
   seedProducts,
+  getProductRecommendations,
 } from "../controllers/productController.js";
 
 const router = express.Router();
@@ -27,13 +27,8 @@ router.get(
 );
 
 /* ===================================================== */
-/* ================= GET ALL PRODUCTS ================== */
+/* ============ GET STORE PRODUCTS (by slug) =========== */
 /* ===================================================== */
-
-router.get(
-  "/",
-  getProducts
-);
 
 router.get(
     "/store/:slug",
@@ -47,6 +42,15 @@ router.get(
 router.get(
   "/:id",
   getProductById
+);
+
+/* ===================================================== */
+/* ============= GET PRODUCT RECOMMENDATIONS =========== */
+/* ===================================================== */
+
+router.get(
+  "/:id/recommendations",
+  getProductRecommendations
 );
 
 /* ===================================================== */

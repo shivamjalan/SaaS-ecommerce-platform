@@ -8,6 +8,8 @@ import {
   FaRupeeSign,
   FaHourglassHalf,
   FaStore,
+  FaChartLine,
+  FaMagic,
 } from "react-icons/fa";
 
 import { API_URL } from "../utils/api";
@@ -19,6 +21,10 @@ const MerchantDashboard = () => {
   const [stats, setStats] = useState(null);
 
   const [loading, setLoading] = useState(true);
+
+  const [insight, setInsight] = useState("");
+
+  const [loadingInsight, setLoadingInsight] = useState(false);
 
   /* ===================================================== */
   /* ================== FETCH DASHBOARD ================== */
@@ -67,6 +73,59 @@ const MerchantDashboard = () => {
     fetchDashboard();
 
   }, []);
+
+  /* ===================================================== */
+  /* ================ GENERATE AI SUMMARY ================ */
+  /* ===================================================== */
+
+  const generateInsight = async () => {
+
+    try {
+
+      setLoadingInsight(true);
+
+      setInsight("");
+
+      const userInfo = JSON.parse(
+        localStorage.getItem("userInfo")
+      );
+
+      const response = await fetch(
+        `${API_URL}/ai/sales-insights`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userInfo.token}`,
+          },
+
+          body: JSON.stringify({}),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.error || "Failed to generate summary");
+        return;
+      }
+
+      setInsight(data.insight);
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Failed to generate summary");
+
+    } finally {
+
+      setLoadingInsight(false);
+
+    }
+
+  };
 
   /* ===================================================== */
   /* ==================== LOADING ======================== */
@@ -190,9 +249,63 @@ const MerchantDashboard = () => {
 
         </div>
 
+        {/* AI INSIGHTS */}
+
+        <div className="bg-white rounded-3xl shadow-xl p-8 mb-12">
+
+          <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
+
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+
+              <FaMagic className="text-rose-500" />
+
+              AI Insights
+
+            </h2>
+
+            <button
+              onClick={generateInsight}
+              disabled={loadingInsight}
+              className={`px-6 py-3 rounded-xl font-semibold text-white transition ${
+                loadingInsight
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-pink-500 to-rose-500 hover:opacity-90"
+              }`}
+            >
+
+              {loadingInsight
+                ? "Thinking..."
+                : insight
+                  ? "Regenerate Summary"
+                  : "Generate AI Summary"}
+
+            </button>
+
+          </div>
+
+          {insight ? (
+
+            <p className="text-gray-600 leading-relaxed">
+
+              {insight}
+
+            </p>
+
+          ) : (
+
+            <p className="text-gray-400">
+
+              Generate an AI-written summary of your store's recent performance.
+
+            </p>
+
+          )}
+
+        </div>
+
         {/* QUICK LINKS */}
 
-        <div className="grid md:grid-cols-4 gap-6 mb-12">
+        <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-6 mb-12">
 
           <Link
             to="/merchant/products"
@@ -246,6 +359,27 @@ const MerchantDashboard = () => {
             <p className="text-gray-500 text-sm">
 
               See who is buying from your store.
+
+            </p>
+
+          </Link>
+
+          <Link
+            to="/merchant/analytics"
+            className="bg-white rounded-3xl shadow-lg p-6 hover:shadow-2xl transition"
+          >
+
+            <p className="font-bold text-lg mb-2 flex items-center gap-2">
+
+              <FaChartLine className="text-rose-500" />
+
+              Analytics
+
+            </p>
+
+            <p className="text-gray-500 text-sm">
+
+              Charts for revenue, products and categories.
 
             </p>
 

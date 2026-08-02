@@ -6,6 +6,7 @@ import { merchantStore } from "../middleware/storeMiddleware.js";
 
 import {
   getMerchantDashboard,
+  getMerchantAnalytics,
   getMerchantCustomers,
 } from "../controllers/merchantController.js";
 
@@ -27,6 +28,18 @@ router.get(
   merchant,
   merchantStore,
   getMerchantDashboard
+);
+
+/* ===================================================== */
+/* =============== MERCHANT ANALYTICS ================== */
+/* ===================================================== */
+
+router.get(
+  "/analytics",
+  protect,
+  merchant,
+  merchantStore,
+  getMerchantAnalytics
 );
 
 /* ===================================================== */

@@ -12,6 +12,7 @@ import userRoutes from "./routes/userRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import storeRoutes from "./routes/storeRoutes.js";
 import merchantRoutes from "./routes/merchantRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
 const app = express();
 
@@ -60,6 +61,10 @@ app.use("/api/stores", storeRoutes);
 app.use(
   "/api/merchant",
   merchantRoutes
+);
+app.use(
+  "/api/ai",
+  aiRoutes
 );
 /* ===================================================== */
 /* ==================== USER ROUTES ==================== */

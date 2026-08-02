@@ -9,8 +9,8 @@ export const merchantStore = async (req, res, next) => {
       });
     }
 
-    // Admin (super admin) manages all stores
-    if (req.user.role === "admin") {
+    // Superadmin manages all stores
+    if (req.user.role === "superadmin") {
       return next();
     }
 

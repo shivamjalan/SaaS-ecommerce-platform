@@ -2,7 +2,7 @@ const admin = (req, res, next) => {
 
   if (
     req.user &&
-    req.user.role === "admin"
+    req.user.role === "superadmin"
   ) {
 
     next();
@@ -10,7 +10,7 @@ const admin = (req, res, next) => {
   } else {
 
     res.status(403).json({
-      error: "Admin access only",
+      error: "Superadmin access only",
     });
   }
 };

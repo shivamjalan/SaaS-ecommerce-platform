@@ -50,26 +50,26 @@ try {
 
   if (existing) {
 
-    existing.role = "admin";
+    existing.role = "superadmin";
     existing.password = hashedPassword;
 
     await existing.save();
 
     console.log(
-      `Admin promoted: ${email}`
+      `Superadmin promoted: ${email}`
     );
 
   } else {
 
     await User.create({
-      name: "Admin",
+      name: "Superadmin",
       email,
       password: hashedPassword,
-      role: "admin",
+      role: "superadmin",
     });
 
     console.log(
-      `Admin created: ${email}`
+      `Superadmin created: ${email}`
     );
 
   }

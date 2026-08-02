@@ -12,7 +12,7 @@ const AddProduct = () => {
 
   const isAdmin =
     storedUser?.user?.role ===
-    "admin";
+    "superadmin";
 
   const [stores, setStores] = useState([]);
 
@@ -26,6 +26,8 @@ const AddProduct = () => {
   });
 
   const [uploading, setUploading] = useState(false);
+
+  const [generating, setGenerating] = useState(false);
 
   // FETCH STORES FOR THE STORE PICKER
   useEffect(() => {
@@ -122,6 +124,68 @@ const AddProduct = () => {
     } finally {
 
       setUploading(false);
+
+    }
+
+  };
+
+  // HANDLE AI DESCRIPTION
+  const generateDescription = async () => {
+
+    if (!formData.name) {
+
+      alert("Enter a product name first");
+
+      return;
+
+    }
+
+    try {
+
+      setGenerating(true);
+
+      const storedUser = JSON.parse(
+        localStorage.getItem("userInfo")
+      );
+
+      const response = await fetch(
+        `${API_URL}/ai/product-description`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${storedUser.token}`,
+          },
+
+          body: JSON.stringify({
+            name: formData.name,
+            category: formData.category,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.error || "AI generation failed");
+        return;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        description: data.description,
+      }));
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("AI generation failed");
+
+    } finally {
+
+      setGenerating(false);
 
     }
 
@@ -308,15 +372,40 @@ const AddProduct = () => {
         />
 
         {/* DESCRIPTION */}
-        <textarea
-          name="description"
-          placeholder="Product Description"
-          value={formData.description}
-          onChange={handleChange}
-          className="w-full border p-3 rounded"
-          rows="4"
-          required
-        />
+        <div>
+
+          <div className="flex items-center justify-between mb-2">
+
+            <label className="block font-semibold">
+              Product Description
+            </label>
+
+            <button
+              type="button"
+              onClick={generateDescription}
+              disabled={generating}
+              className="text-sm font-semibold text-rose-500 hover:text-rose-600 transition disabled:text-gray-400"
+            >
+
+              {generating
+                ? "Generating..."
+                : "✨ Generate with AI"}
+
+            </button>
+
+          </div>
+
+          <textarea
+            name="description"
+            placeholder="Product Description"
+            value={formData.description}
+            onChange={handleChange}
+            className="w-full border p-3 rounded"
+            rows="4"
+            required
+          />
+
+        </div>
 
         {/* SUBMIT BUTTON */}
         <button

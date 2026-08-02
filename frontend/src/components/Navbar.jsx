@@ -33,6 +33,14 @@ const Navbar = () => {
       0
     );
 
+  // ================= ROLE =================
+
+  const role = userInfo?.user?.role;
+
+  const isMerchant = role === "merchant";
+
+  const isAdmin = role === "superadmin";
+
   return (
 
     <motion.nav
@@ -51,7 +59,13 @@ const Navbar = () => {
         duration: 0.5,
       }}
 
-      className="sticky top-0 z-50 backdrop-blur-md bg-black/80 border-b border-white/10 shadow-lg"
+      className={`sticky top-0 z-50 backdrop-blur-md border-b shadow-lg ${
+        isMerchant
+          ? "bg-gradient-to-r from-indigo-950/90 via-black/85 to-black/85 border-indigo-500/30"
+          : isAdmin
+          ? "bg-gradient-to-r from-purple-950/90 via-black/85 to-black/85 border-purple-500/30"
+          : "bg-black/80 border-white/10"
+      }`}
     >
 
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -63,7 +77,13 @@ const Navbar = () => {
           className="flex items-center gap-3"
         >
 
-          <div className="bg-gradient-to-r from-pink-500 to-rose-400 p-3 rounded-xl shadow-lg">
+          <div className={`p-3 rounded-xl shadow-lg ${
+            isMerchant
+              ? "bg-gradient-to-r from-amber-500 to-orange-500"
+              : isAdmin
+              ? "bg-gradient-to-r from-purple-500 to-indigo-500"
+              : "bg-gradient-to-r from-pink-500 to-rose-400"
+          }`}>
 
             <FaStore
               className="text-white"
@@ -82,7 +102,11 @@ const Navbar = () => {
 
             <p className="text-xs text-gray-400">
 
-              Luxury Fashion Store
+              {isMerchant
+                ? "Merchant Workspace"
+                : isAdmin
+                ? "Superadmin Console"
+                : "Luxury Fashion Store"}
 
             </p>
 
@@ -105,33 +129,82 @@ const Navbar = () => {
         Stores
     </Link>
 
-    <Link
-        to="/products"
-        className="text-gray-200 hover:text-pink-400 transition duration-300 font-medium"
-    >
-        Products
-    </Link>
-
 </div>
 
-          {/* MY ORDERS */}
-
-          {userInfo && (
-
-            <Link
-              to="/myorders"
-              className="text-gray-200 hover:text-pink-400 transition duration-300 font-medium"
-            >
-
-              My Orders
-
-            </Link>
-          )}
-
-          {/* ADMIN */}
+          {/* MY ORDERS (normal users) */}
 
           {userInfo?.user?.role ===
-  "admin" && (
+  "user" && (
+
+  <Link
+    to="/myorders"
+    className="text-gray-200 hover:text-pink-400 transition duration-300 font-medium"
+  >
+
+    My Orders
+
+  </Link>
+)}
+
+          {/* MERCHANT */}
+
+          {userInfo?.user?.role ===
+  "merchant" && (
+
+  <div className="flex items-center gap-6">
+
+    <Link
+      to="/merchant/dashboard"
+      className="text-gray-200 hover:text-amber-300 transition duration-300 font-medium"
+    >
+
+      Dashboard
+
+    </Link>
+
+    <Link
+      to="/merchant/orders"
+      className="text-gray-200 hover:text-amber-300 transition duration-300 font-medium"
+    >
+
+      Orders
+
+    </Link>
+
+    <Link
+      to="/merchant/analytics"
+      className="text-gray-200 hover:text-amber-300 transition duration-300 font-medium"
+    >
+
+      Analytics
+
+    </Link>
+
+    <Link
+      to="/merchant/products"
+      className="text-gray-200 hover:text-amber-300 transition duration-300 font-medium"
+    >
+
+      Products
+
+    </Link>
+
+    <Link
+      to="/merchant/settings"
+      className="text-gray-200 hover:text-amber-300 transition duration-300 font-medium"
+    >
+
+      Store
+
+    </Link>
+
+  </div>
+)}
+
+          {/* SUPERADMIN */}
+
+          {userInfo?.user?.role ===
+  "superadmin" && (
 
   <div className="flex items-center gap-6">
 
@@ -150,52 +223,6 @@ const Navbar = () => {
     >
 
       Manage Orders
-
-    </Link>
-
-  </div>
-)}
-
-          {/* MERCHANT */}
-
-          {userInfo?.user?.role ===
-  "merchant" && (
-
-  <div className="flex items-center gap-6">
-
-    <Link
-      to="/merchant/dashboard"
-      className="text-gray-200 hover:text-pink-400 transition duration-300 font-medium"
-    >
-
-      Dashboard
-
-    </Link>
-
-    <Link
-      to="/merchant/orders"
-      className="text-gray-200 hover:text-pink-400 transition duration-300 font-medium"
-    >
-
-      Orders
-
-    </Link>
-
-    <Link
-      to="/merchant/products"
-      className="text-gray-200 hover:text-pink-400 transition duration-300 font-medium"
-    >
-
-      Products
-
-    </Link>
-
-    <Link
-      to="/merchant/settings"
-      className="text-gray-200 hover:text-pink-400 transition duration-300 font-medium"
-    >
-
-      Store
 
     </Link>
 
@@ -223,7 +250,9 @@ const Navbar = () => {
 
         <div className="flex items-center gap-5">
 
-          {/* CART */}
+          {/* CART (hidden for merchants) */}
+
+          {!isMerchant && (
 
           <Link
             to="/cart"
@@ -259,6 +288,7 @@ const Navbar = () => {
             )}
 
           </Link>
+          )}
 
           {/* USER */}
 
@@ -281,6 +311,18 @@ const Navbar = () => {
                   }
 
                 </span>
+
+                {isMerchant && (
+                  <span className="hidden md:inline-flex text-[11px] font-bold uppercase tracking-wide bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full">
+                    Merchant
+                  </span>
+                )}
+
+                {isAdmin && (
+                  <span className="hidden md:inline-flex text-[11px] font-bold uppercase tracking-wide bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full">
+                    Superadmin
+                  </span>
+                )}
 
               </div>
 
