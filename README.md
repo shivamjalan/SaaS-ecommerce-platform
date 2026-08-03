@@ -123,6 +123,40 @@ Copy `.env.example` in each app and fill it in. Never commit real `.env` files
 | Frontend | `npm run build` | Production build |
 | Frontend | `npm run lint` | ESLint |
 
+## Deployment (Render + Vercel)
+
+The backend runs as a Render Web Service, the frontend on Vercel. Both read from the
+same repo (monorepo — each dashboard points at its own subfolder).
+
+### Backend on Render
+
+1. Push the repo to GitHub.
+2. Render dashboard → New → **Web Service** → connect the repo → **Root Directory**: `backend`.
+3. **Build command**: `npm install` · **Start command**: `node server.js`
+   (`server.js` already honors Render's `PORT` env var; it falls back to 5000 locally).
+4. **Environment** → add every variable from `backend/.env`:
+   `MONGO_URI`, `JWT_SECRET`, `CLOUDINARY_*`, `RAZORPAY_*`, `OPENAI_*`, `EMAIL_*`,
+   and `FRONTEND_URL` = your Vercel URL (e.g. `https://saree.vercel.app`) so
+   password-reset emails link to the deployed site.
+5. MongoDB Atlas → **Network Access** → allow `0.0.0.0/0` (Render uses rotating egress IPs).
+6. Deploy. Your API base becomes `https://<service>.onrender.com/api`.
+
+> Render's free tier sleeps after ~15 min idle; the first request can take 30–60s to wake.
+
+### Frontend on Vercel
+
+1. Vercel → **Add New Project** → import the same repo.
+2. Framework preset **Vite** · **Root Directory**: `frontend` (build `npm run build`,
+   output `dist` are auto-detected).
+3. **Environment variables**: `VITE_API_URL` = `https://<service>.onrender.com/api`,
+   `VITE_RAZORPAY_KEY` = your Razorpay key.
+4. Deploy. `vercel.json` rewrites handle client-side routing for react-router.
+
+### After deploy
+
+- Admin account: run `npm run seed:admin -- <email> <password>` against the same Atlas
+  DB (locally or from a Render Shell).
+
 ## Roles
 
 - **user** — browse, cart, order, track own orders

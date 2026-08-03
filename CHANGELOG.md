@@ -679,6 +679,32 @@ Framer Motion animations.
 
 ---
 
+## 14. Deployment prep — Render (backend) + Vercel (frontend)
+
+Per the user's decision to deploy on Render + Vercel instead of Docker: removed all
+Docker/Cloudflare work and prepared the repo for a serverless deployment.
+
+### 14.1 Cleanup (Docker / Cloudflare removed)
+- Deleted `backend/Dockerfile`, `frontend/Dockerfile`, `frontend/nginx.conf`,
+  `docker-compose.yml`, both `.dockerignore`, and the gitignored root `.env`.
+- Stopped/removed the Docker containers (`docker compose down`); Docker Desktop app kept
+  installed per the user.
+- Stopped the cloudflared quick tunnel and **uninstalled cloudflared** (winget).
+- Removed the README "Running with Docker" section and the CHANGELOG Docker section.
+- Verified: `git grep` finds zero docker/compose/nginx/cloudflared references; tree clean.
+
+### 14.2 Changes for deployment
+- `backend/server.js` — `const PORT = process.env.PORT || 5000;` so Render can inject its
+  own port (local dev still defaults to 5000). Verified both paths: nodemon on 5000 → 200,
+  and a `PORT=5010` boot → 200.
+- `frontend/vercel.json` (new) — rewrite `/(.*)` → `/index.html` for react-router SPA
+  routing on Vercel.
+- Verified Vercel-style build: `VITE_API_URL=https://saree-backend.onrender.com/api` +
+  `VITE_RAZORPAY_KEY` → build passes, bundle contains the API base.
+- README gained a "Deployment (Render + Vercel)" section with dashboard steps.
+
+---
+
 ## Verification status
 
 - Backend: all changed files pass `node --check` (syntax); running server verified on 5000.
@@ -688,4 +714,6 @@ Framer Motion animations.
 - Live API verified: `GET /api/stores` 200, `POST /api/users/forgot-password` 200.
 - **Password-reset email delivered** to a real Gmail inbox (SMTP via nodemailer).
 - Blank-page bug reproduced & fixed (corrupt `localStorage` no longer crashes the app).
+- **Deploy prep verified** (section 14): `PORT` env honored by backend; frontend builds
+  with a production `VITE_API_URL` baked in.
 - Nothing has been committed to git since `031361d` ("fixed the vite proxy server"); the entire backlog above is uncommitted.
