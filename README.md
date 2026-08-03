@@ -1,4 +1,4 @@
-# Saree SaaS
+# SaaS
 
 A multi-tenant e-commerce platform for premium saree stores. Every merchant owns a
 store and manages its products and orders; a superadmin oversees all stores. Built as
