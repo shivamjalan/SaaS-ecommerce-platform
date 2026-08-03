@@ -8,6 +8,7 @@ import { LOW_STOCK_THRESHOLD } from "../utils/constants";
 import usePageMeta from "../hooks/usePageMeta";
 import ProductCard from "../components/Productcard";
 import ImageLightbox from "../components/ImageLightbox";
+import ProductDetailSkeleton from "../components/skeletons/ProductDetailSkeleton";
 import { Button } from "../components/ui/button";
 import { SectionLabel } from "../components/ui/badge";
 
@@ -86,16 +87,7 @@ const ProductDetail = () => {
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="min-h-[60vh] flex justify-center items-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 rounded-full border-2 border-border border-t-accent animate-spin" />
-          <p className="font-mono text-xs uppercase tracking-[0.15em] text-muted-foreground">
-            Loading...
-          </p>
-        </div>
-      </div>
-    );
+    return <ProductDetailSkeleton />;
   }
 
   if (error) {

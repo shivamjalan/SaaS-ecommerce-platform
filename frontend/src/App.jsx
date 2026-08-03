@@ -8,6 +8,8 @@ import {
   Route,
 } from "react-router-dom";
 
+import { motion } from "framer-motion";
+
 import MainLayout from "./layouts/MainLayout";
 
 /* ===================================================== */
@@ -73,7 +75,12 @@ import MerchantRoute from "./components/MerchantRoute";
 /* ===================================================== */
 
 const PageLoader = () => (
-  <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 0.3 }}
+    className="min-h-[60vh] flex flex-col items-center justify-center gap-4"
+  >
 
     <div className="h-12 w-12 rounded-full border-2 border-border border-t-accent animate-spin" />
 
@@ -83,7 +90,7 @@ const PageLoader = () => (
 
     </p>
 
-  </div>
+  </motion.div>
 );
 
 function App() {

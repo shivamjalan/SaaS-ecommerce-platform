@@ -631,10 +631,60 @@ production upgrade.
 
 ---
 
+## 13. Motion & UI polish — page transitions, skeletons, micro animations
+
+Per the user request: Framer Motion, smooth page transitions, loading skeletons, hover
+effects, and micro animations across the homepage and overall UI.
+
+### 13.1 Smooth page transitions
+
+- New `components/AnimatedOutlet.jsx` — `AnimatePresence mode="wait"` + `useOutlet()`
+  keyed by `location.pathname`: every route fades/slides out then the next fades in
+  (0.35s, custom `easeOut` cubic-bezier). Also `window.scrollTo(0, 0)` on every navigation.
+- `layouts/MainLayout.jsx` now renders `<AnimatedOutlet />` instead of a bare `<Outlet />`.
+- Suspense `PageLoader` in `App.jsx` got a fade-in so lazy-chunk loads feel smooth too.
+
+### 13.2 Loading skeletons
+
+- New `components/ui/skeleton.jsx` — shimmer block primitive
+  (`bg-muted` + `animate-shimmer` sweep).
+- New skeletons that mirror real layouts: `skeletons/ProductCardSkeleton.jsx`,
+  `StoreCardSkeleton.jsx`, `StorePageSkeleton.jsx` (banner + filters + 8-card grid),
+  `ProductDetailSkeleton.jsx` (image + thumbs + details).
+- Wired in: `Stores.jsx`, `StorePage.jsx`, `ProductDetail.jsx` replace the old centered
+  spinner with layout-matching skeletons.
+
+### 13.3 Hover effects & micro animations
+
+- `Productcard.jsx` — richer hover: `hover:shadow-2xl hover:shadow-accent/10
+  hover:border-accent/40`, plus a "Quick View" pill that slides up over the image.
+- `Stores.jsx` cards — `whileHover` lift (`y: -8`) + accent shadow/border on hover.
+- `Home.jsx` — feature-icon tiles now scale + rotate on hover; hero/CTA buttons get an
+  `active:scale-[0.98]` press effect.
+- `tailwind.config.js` — new `shimmer` and `marquee` keyframes + `animate-shimmer` /
+  `animate-marquee`.
+
+### 13.4 Homepage upgrades
+
+- **Count-up stats:** new `components/CountUp.jsx` (`useInView` + `animate`) — the
+  inverted stats band now counts 0 → target (5000+, 200+, 50+, 4.9) when scrolled into
+  view instead of showing static numbers.
+- **Marquee strip:** an infinite-scrolling category band (Silk Sarees, Banarasi,
+  Kanjivaram, …) between the hero and features; pauses on hover.
+
+**Why:** bring the landing page and shopping pages to life with polished, performant
+Framer Motion animations.
+**Impact:** 6 new files, 8 edited; build output clean — shared motion lib extracted to a
+`utils` chunk (36 KB).
+
+---
+
 ## Verification status
 
 - Backend: all changed files pass `node --check` (syntax); running server verified on 5000.
 - Frontend: `eslint` → **0 errors**; `vite build` → passes (lazy route chunks confirmed).
+- Dev server restarted on 5173 (picks up new Tailwind keyframes); `/` 200, `/api` proxy 200.
+- Compiled CSS verified to contain `animate-marquee` and `animate-shimmer`.
 - Live API verified: `GET /api/stores` 200, `POST /api/users/forgot-password` 200.
 - **Password-reset email delivered** to a real Gmail inbox (SMTP via nodemailer).
 - Blank-page bug reproduced & fixed (corrupt `localStorage` no longer crashes the app).

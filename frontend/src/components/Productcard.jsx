@@ -148,7 +148,7 @@ const ProductCard = ({
         duration: 0.3,
       }}
 
-      className="group relative bg-card border border-border rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
+      className="group relative bg-card border border-border rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:shadow-accent/10 hover:border-accent/40 transition-all duration-300"
     >
 
       {/* ===================================================== */}
@@ -186,6 +186,23 @@ const ProductCard = ({
         {/* OVERLAY */}
 
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/30 to-transparent opacity-0 group-hover:opacity-100 transition duration-500" />
+
+        {/* QUICK VIEW */}
+
+        <button
+          onClick={handleView}
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 gradient-bg text-white text-sm font-semibold px-6 py-3 rounded-xl shadow-accent-lg hover:brightness-110"
+        >
+
+          <span className="flex items-center gap-2">
+
+            <FaEye size={14} />
+
+            Quick View
+
+          </span>
+
+        </button>
 
       </div>
 

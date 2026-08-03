@@ -12,6 +12,8 @@ import {
 
 import { SectionLabel } from "../components/ui/badge";
 
+import CountUp from "../components/CountUp";
+
 import usePageMeta from "../hooks/usePageMeta";
 
 /* ===================================================== */
@@ -69,10 +71,25 @@ const FEATURES = [
 /* ===================================================== */
 
 const STATS = [
-  { value: "5000+", label: "Happy Customers" },
-  { value: "200+", label: "Curated Sarees" },
-  { value: "50+", label: "Partner Stores" },
-  { value: "4.9", label: "Average Rating" },
+  { value: 5000, suffix: "+", label: "Happy Customers" },
+  { value: 200, suffix: "+", label: "Curated Sarees" },
+  { value: 50, suffix: "+", label: "Partner Stores" },
+  { value: 4.9, decimals: 1, label: "Average Rating" },
+];
+
+/* ===================================================== */
+/* ================== MARQUEE DATA ===================== */
+/* ===================================================== */
+
+const MARQUEE = [
+  "Silk Sarees",
+  "Banarasi",
+  "Kanjivaram",
+  "Chanderi",
+  "Handloom",
+  "Bridal Wear",
+  "Cotton Sarees",
+  "Designer Drapes",
 ];
 
 const Home = () => {
@@ -151,7 +168,7 @@ const Home = () => {
 
               <Link
                 to="/stores"
-                className="gradient-bg text-white h-14 px-8 inline-flex items-center justify-center gap-2 rounded-xl text-base font-medium shadow-sm hover:shadow-accent hover:-translate-y-0.5 hover:brightness-110 transition-all duration-200 group"
+                className="gradient-bg text-white h-14 px-8 inline-flex items-center justify-center gap-2 rounded-xl text-base font-medium shadow-sm hover:shadow-accent hover:-translate-y-0.5 hover:brightness-110 transition-all duration-200 group active:scale-[0.98]"
               >
 
                 Shop Now
@@ -162,7 +179,7 @@ const Home = () => {
 
               <Link
                 to="/stores"
-                className="h-14 px-8 inline-flex items-center justify-center rounded-xl text-base font-medium border border-border bg-transparent text-foreground hover:border-accent/30 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200"
+                className="h-14 px-8 inline-flex items-center justify-center rounded-xl text-base font-medium border border-border bg-transparent text-foreground hover:border-accent/30 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
               >
 
                 Explore Collection
@@ -278,6 +295,31 @@ const Home = () => {
       </section>
 
       {/* ===================================================== */}
+      {/* ==================== MARQUEE STRIP ================== */}
+      {/* ===================================================== */}
+
+      <section className="relative overflow-hidden border-y border-border bg-muted/50 py-6">
+
+        <div className="flex w-max animate-marquee gap-12 hover:[animation-play-state:paused]">
+
+          {[...MARQUEE, ...MARQUEE].map((item, i) => (
+            <span
+              key={i}
+              className="flex items-center gap-12 whitespace-nowrap font-display text-2xl text-muted-foreground/70"
+            >
+
+              {item}
+
+              <span className="h-2 w-2 rounded-full gradient-bg opacity-60" />
+
+            </span>
+          ))}
+
+        </div>
+
+      </section>
+
+      {/* ===================================================== */}
       {/* ================= FEATURE SECTION =================== */}
       {/* ===================================================== */}
 
@@ -341,7 +383,7 @@ const Home = () => {
 
               <div className="relative">
 
-                <div className="gradient-bg h-14 w-14 rounded-2xl flex items-center justify-center shadow-accent mb-6 group-hover:scale-110 transition-transform duration-300">
+                <div className="gradient-bg h-14 w-14 rounded-2xl flex items-center justify-center shadow-accent mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
 
                   <feature.icon
                     className="text-white"
@@ -408,7 +450,11 @@ const Home = () => {
 
                 <p className="font-display text-5xl md:text-6xl gradient-text">
 
-                  {stat.value}
+                  <CountUp
+                    value={stat.value}
+                    decimals={stat.decimals || 0}
+                    suffix={stat.suffix || ""}
+                  />
 
                 </p>
 
@@ -490,7 +536,7 @@ const Home = () => {
 
             <Link
               to="/stores"
-              className="gradient-bg text-white h-14 px-10 inline-flex items-center justify-center gap-2 rounded-xl text-base font-medium shadow-sm hover:shadow-accent hover:-translate-y-0.5 hover:brightness-110 transition-all duration-200 group"
+              className="gradient-bg text-white h-14 px-10 inline-flex items-center justify-center gap-2 rounded-xl text-base font-medium shadow-sm hover:shadow-accent hover:-translate-y-0.5 hover:brightness-110 transition-all duration-200 group active:scale-[0.98]"
             >
 
               <FaStore className="text-white" />

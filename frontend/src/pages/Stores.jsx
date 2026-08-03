@@ -6,6 +6,8 @@ import { API_URL, apiErrorMessage } from "../utils/api";
 import { SectionLabel } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
+import Skeleton from "../components/ui/skeleton";
+import StoreCardSkeleton from "../components/skeletons/StoreCardSkeleton";
 import usePageMeta from "../hooks/usePageMeta";
 
 const Stores = () => {
@@ -79,13 +81,30 @@ const Stores = () => {
   if (loading) {
 
     return (
-      <div className="min-h-[60vh] flex justify-center items-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 rounded-full border-2 border-border border-t-accent animate-spin" />
-          <p className="font-mono text-xs uppercase tracking-[0.15em] text-muted-foreground">
-            Loading Stores...
-          </p>
-        </div>
+      <div className="min-h-screen bg-background">
+        <section className="max-w-6xl mx-auto px-6 py-20">
+
+          <div className="text-center">
+            <Skeleton className="h-5 w-36 mx-auto rounded-full" />
+
+            <Skeleton className="mt-6 h-16 w-72 max-w-full mx-auto" />
+
+            <Skeleton className="mt-5 h-5 w-80 max-w-full mx-auto" />
+
+          </div>
+
+          <div className="max-w-2xl mx-auto mt-10">
+            <Skeleton className="h-12 w-full rounded-xl" />
+
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+            {[...Array(6)].map((_, i) => (
+              <StoreCardSkeleton key={i} />
+            ))}
+          </div>
+
+        </section>
       </div>
     );
 
@@ -232,7 +251,8 @@ const Stores = () => {
               initial={{ opacity: 0, y: 60 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.12 }}
-              className="group relative bg-card border border-border rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              whileHover={{ y: -8 }}
+              className="group relative bg-card border border-border rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:shadow-accent/10 hover:border-accent/40 transition-all duration-300"
             >
 
               <div className="relative overflow-hidden">

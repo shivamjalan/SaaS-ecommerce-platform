@@ -54,11 +54,29 @@ export default {
             transform: "rotate(360deg)",
           },
         },
+        shimmer: {
+          "0%": {
+            transform: "translateX(-100%)",
+          },
+          "100%": {
+            transform: "translateX(100%)",
+          },
+        },
+        marquee: {
+          "0%": {
+            transform: "translateX(0)",
+          },
+          "100%": {
+            transform: "translateX(-50%)",
+          },
+        },
       },
       animation: {
         "pulse-dot": "pulse-dot 2s ease-in-out infinite",
         float: "float 5s ease-in-out infinite",
         "spin-slow": "spin-slow 60s linear infinite",
+        shimmer: "shimmer 1.8s ease-in-out infinite",
+        marquee: "marquee 28s linear infinite",
       },
     },
   },
