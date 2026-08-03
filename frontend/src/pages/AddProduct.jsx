@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { API_URL } from "../utils/api";
 
 import { Card } from "../components/ui/card";
@@ -7,6 +8,8 @@ import { Button } from "../components/ui/button";
 import { SectionLabel } from "../components/ui/badge";
 
 const AddProduct = () => {
+
+  const navigate = useNavigate();
 
   const storedUser =
     JSON.parse(
@@ -309,16 +312,7 @@ const AddProduct = () => {
 
         alert("Product added successfully!");
 
-        setFormData({
-          name: "",
-          price: "",
-          image: "",
-          images: [],
-          category: "",
-          description: "",
-          stock: "",
-          store: "",
-        });
+        navigate("/merchant/products");
 
       } else {
 

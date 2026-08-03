@@ -1,5 +1,6 @@
 import Store from "../models/storeModel.js";
 import User from "../models/User.js";
+import Product from "../models/Product.js";
 
 export const createStore = async (req, res) => {
   try {
@@ -180,6 +181,53 @@ export const getStoreBySlug = async (req, res) => {
     }
 
     res.json(store);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+/* ===================================================== */
+/* =============== DELETE STORE (ADMIN) ================= */
+/* ===================================================== */
+
+export const deleteStore = async (req, res) => {
+  try {
+
+    const store = await Store.findById(
+      req.params.id
+    );
+
+    if (!store) {
+      return res.status(404).json({
+        message: "Store not found",
+      });
+    }
+
+    // Delete all products belonging to the store
+    await Product.deleteMany({
+      store: store._id,
+    });
+
+    // Reset the owner back to a regular user
+    await User.findByIdAndUpdate(
+      store.owner,
+      {
+        role: "user",
+        store: null,
+      },
+      { new: true }
+    );
+
+    await store.deleteOne();
+
+    res.json({
+      message: `Store "${store.name}" deleted`,
+    });
+
   } catch (error) {
     console.error(error);
 

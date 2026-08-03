@@ -23,7 +23,7 @@ Two independent apps in one repo (no root package.json, no shared tooling): `bac
 - Roles: `admin` is a super admin with access to every store's products/orders. `merchantStore` middleware (`middleware/storeMiddleware.js`) lets merchants through with their own store (`req.store`) and lets admins through without one; controllers then treat `req.store` as optional (admin → all stores / any product). `adminOrMerchant` (`middleware/adminOrMerchant.js`) gates uploads. Merchant-only routes (`/api/merchant/products`) still require `merchant` + `merchantStore`.
 - Admin creates a product by picking a `store` in the POST body (AddProduct page has a store picker); merchants omit it and use `req.store`. `/api/products/seed` wipes all products and is admin-only.
 - Order management routes use `admin`; controllers fall back to all orders / any order when `req.store` is absent. `placeOrder` recomputes `totalPrice` server-side (subtotal + 5% GST, rounded) and rebuilds order items from DB prices, ignoring client totals.
-- Public storefront: `/api/stores` and `/api/stores/:slug`; merchant creates store via `POST /api/stores` (protected).
+- Public storefront: `/api/stores` and `/api/stores/:slug`; merchant creates store via `POST /api/stores` (protected); superadmin deletes a store (plus its products, owner reset to `user`) via `DELETE /api/stores/:id` (`protect` + `admin`).
 - Razorpay: checkout script is loaded globally in `frontend/index.html`; the whole flow (create-order → verify → clearCart → navigate to `/myorders`) lives in `frontend/src/utils/razorpay.js`. Amount is in rupees on the frontend; backend multiplies by 100 for paise. Both payment endpoints are behind `protect`; `verify` checks order ownership.
 
 ## Style

@@ -1,7 +1,7 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useContext } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaArrowRight, FaSearch, FaStore } from "react-icons/fa";
+import { FaArrowRight, FaSearch, FaStore, FaTrash } from "react-icons/fa";
 import { API_URL, apiErrorMessage } from "../utils/api";
 import { SectionLabel } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
@@ -9,6 +9,7 @@ import { Input } from "../components/ui/input";
 import Skeleton from "../components/ui/skeleton";
 import StoreCardSkeleton from "../components/skeletons/StoreCardSkeleton";
 import usePageMeta from "../hooks/usePageMeta";
+import { AuthContext } from "../store/authContext";
 
 const Stores = () => {
   const [stores, setStores] = useState([]);
@@ -16,6 +17,12 @@ const Stores = () => {
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
+
+  const { userInfo } =
+    useContext(AuthContext);
+
+  const isAdmin =
+    userInfo?.user?.role === "superadmin";
 
   usePageMeta(
     "Browse Stores | Saree SaaS",
@@ -65,6 +72,64 @@ const Stores = () => {
     setStores([]);
 
     fetchStores();
+
+  };
+
+  /* ===================================================== */
+  /* =============== DELETE STORE (ADMIN) ================ */
+  /* ===================================================== */
+
+  const deleteStore = async (store) => {
+
+    const confirmDelete =
+      window.confirm(
+        `Delete "${store.name}"? All of its products will be permanently removed.`
+      );
+
+    if (!confirmDelete) return;
+
+    try {
+
+      const storedUser = JSON.parse(
+        localStorage.getItem("userInfo")
+      );
+
+      const response = await fetch(
+        `${API_URL}/stores/${store._id}`,
+        {
+          method: "DELETE",
+
+          headers: {
+            Authorization: `Bearer ${storedUser.token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+
+        setStores((prev) =>
+          prev.filter(
+            (s) => s._id !== store._id
+          )
+        );
+
+        alert(data.message || "Store deleted");
+
+      } else {
+
+        alert(data.error || data.message || "Failed to delete store");
+
+      }
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Failed to delete store");
+
+    }
 
   };
 
@@ -294,6 +359,25 @@ const Stores = () => {
                   <FaArrowRight className="transition-transform duration-200 group-hover/link:translate-x-1" />
 
                 </Link>
+
+                {isAdmin && (
+
+                  <div className="mt-4 pt-4 border-t border-border">
+
+                    <button
+                      onClick={() => deleteStore(store)}
+                      className="inline-flex items-center gap-2 text-red-500 hover:text-red-600 text-sm font-medium transition-colors"
+                    >
+
+                      <FaTrash className="text-xs" />
+
+                      Delete Store
+
+                    </button>
+
+                  </div>
+
+                )}
 
               </div>
 

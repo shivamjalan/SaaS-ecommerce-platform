@@ -1,7 +1,8 @@
 import express from "express";
-import {createStore,getAllStores, getStoreBySlug, getMyStore, updateMyStore,} from "../controllers/storeController.js";
+import {createStore,getAllStores, getStoreBySlug, getMyStore, updateMyStore, deleteStore,} from "../controllers/storeController.js";
 import protect from "../middleware/authMiddleware.js";
 import merchant from "../middleware/merchantMiddleware.js";
+import admin from "../middleware/adminMiddleware.js";
 import { getStoreProducts,} from "../controllers/productController.js";
 const router = express.Router();
 
@@ -17,5 +18,8 @@ router.get("/:slug", getStoreBySlug);
 
 /* Merchant Route */
 router.post("/", protect, createStore);
+
+/* Superadmin Route */
+router.delete("/:id", protect, admin, deleteStore);
 
 export default router;
