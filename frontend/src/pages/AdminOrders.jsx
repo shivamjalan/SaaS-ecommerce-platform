@@ -14,11 +14,17 @@ import {
 
 import { API_URL } from "../utils/api";
 
+import { SectionLabel, Badge } from "../components/ui/badge";
+import { Button } from "../components/ui/button";
+import { Card } from "../components/ui/card";
+
 const AdminOrders = () => {
 
   const [orders, setOrders] = useState([]);
 
   const [loading, setLoading] = useState(true);
+
+  const [storeFilter, setStoreFilter] = useState("all");
 
   /* ===================================================== */
   /* ================= FETCH ALL ORDERS ================== */
@@ -68,6 +74,56 @@ const AdminOrders = () => {
     loadOrders();
 
   }, []);
+
+  /* ===================================================== */
+  /* ============== STORE FILTER + STATS ================= */
+  /* ===================================================== */
+
+  const storeMap = {};
+
+  orders.forEach((order) => {
+
+    const store = order.store;
+
+    if (store && typeof store === "object" && store._id) {
+
+      storeMap[store._id] = store;
+
+    }
+
+  });
+
+  const storeOptions = [
+    { id: "all", name: "All Stores" },
+    ...Object.values(storeMap).map((s) => ({
+      id: s._id,
+      name: s.name || s.slug,
+    })),
+  ];
+
+  const filteredOrders =
+    storeFilter === "all"
+      ? orders
+      : orders.filter(
+          (order) =>
+            (order.store?._id || order.store) ===
+            storeFilter
+        );
+
+  const totalRevenue =
+    orders
+      .filter((order) => order.isPaid)
+      .reduce((sum, order) => sum + order.totalPrice, 0);
+
+  const unpaidCount =
+    orders.filter((order) => !order.isPaid).length;
+
+  const pendingCount =
+    orders.filter(
+      (order) =>
+        !order.isDelivered &&
+        order.status !== "Cancelled"
+    ).length;
 
   /* ===================================================== */
   /* =============== REUSABLE UPDATE API ================= */
@@ -240,17 +296,28 @@ const AdminOrders = () => {
     }
 
   };
+
+  /* ===================================================== */
+  /* ==================== LOADING ======================== */
+  /* ===================================================== */
+
   if (loading) {
 
     return (
 
-      <div className="min-h-screen flex items-center justify-center bg-[#faf7f2]">
+      <div className="min-h-screen flex items-center justify-center bg-background">
 
-        <h1 className="text-3xl font-bold">
+        <div className="flex flex-col items-center gap-4">
 
-          Loading Orders...
+          <div className="h-12 w-12 rounded-full border-2 border-border border-t-accent animate-spin" />
 
-        </h1>
+          <p className="font-mono text-xs uppercase tracking-[0.15em] text-muted-foreground">
+
+            Loading Orders...
+
+          </p>
+
+        </div>
 
       </div>
     );
@@ -258,7 +325,7 @@ const AdminOrders = () => {
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-b from-[#faf7f2] via-white to-[#f8f5f0]">
+    <div className="min-h-screen bg-background">
 
       <div className="max-w-7xl mx-auto px-6 py-16">
 
@@ -266,39 +333,98 @@ const AdminOrders = () => {
         {/* ===================== HEADER ======================== */}
         {/* ===================================================== */}
 
-        <div className="flex items-center justify-between flex-wrap gap-4 mb-12">
+        <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
 
           <div>
 
-            <p className="uppercase tracking-[5px] text-rose-500 font-semibold mb-3">
+            <SectionLabel>
 
               Superadmin Dashboard
 
-            </p>
+            </SectionLabel>
 
-            <h1 className="text-5xl font-bold text-gray-900">
+            <h1 className="mt-4 text-5xl font-display text-foreground">
 
-              Manage Orders
+              Manage{" "}
+
+              <span className="gradient-text">
+
+                Orders
+
+              </span>
 
             </h1>
 
-          </div>
+            <p className="mt-3 text-muted-foreground max-w-xl">
 
-          <div className="bg-white shadow-lg rounded-2xl px-6 py-4">
-
-            <p className="text-gray-500 text-sm">
-
-              Total Orders
+              You're viewing orders across every store on the platform.
 
             </p>
 
-            <h2 className="text-3xl font-bold text-rose-500">
-
-              {orders.length}
-
-            </h2>
-
           </div>
+
+          <select
+            value={storeFilter}
+            onChange={(e) => setStoreFilter(e.target.value)}
+            className="h-12 rounded-xl border border-border bg-card px-4 font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+
+            {storeOptions.map((option) => (
+              <option
+                key={option.id}
+                value={option.id}
+              >
+
+                {option.name}
+
+              </option>
+            ))}
+
+          </select>
+
+        </div>
+
+        {/* SUPERADMIN STATS */}
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+
+          {[
+            {
+              label: "Total Orders",
+              value: orders.length,
+            },
+            {
+              label: "Total Revenue",
+              value: `₹${totalRevenue}`,
+            },
+            {
+              label: "Unpaid",
+              value: unpaidCount,
+            },
+            {
+              label: "Pending",
+              value: pendingCount,
+            },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              className="bg-card border border-border shadow-md rounded-2xl px-6 py-5"
+            >
+
+              <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+
+                {stat.label}
+
+              </p>
+
+              <h2 className="mt-1 text-3xl font-display gradient-text">
+
+                {stat.value}
+
+              </h2>
+
+            </div>
+          ))}
 
         </div>
 
@@ -308,25 +434,47 @@ const AdminOrders = () => {
 
         {orders.length === 0 ? (
 
-          <div className="bg-white rounded-3xl shadow-xl p-16 text-center">
+          <Card className="p-16 text-center">
 
-            <FaBoxOpen
-              className="mx-auto text-6xl text-gray-300 mb-6"
-            />
+            <div className="gradient-bg h-20 w-20 rounded-2xl mx-auto flex items-center justify-center shadow-accent mb-8">
 
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">
+              <FaBoxOpen
+                className="text-white text-4xl"
+              />
+
+            </div>
+
+            <h2 className="text-3xl font-display text-foreground mb-4">
 
               No Orders Found
 
             </h2>
 
-          </div>
+          </Card>
+
+        ) : filteredOrders.length === 0 ? (
+
+          <Card className="p-16 text-center">
+
+            <h2 className="text-3xl font-display text-foreground mb-4">
+
+              No Orders For This Store
+
+            </h2>
+
+            <p className="text-muted-foreground">
+
+              Try a different store filter.
+
+            </p>
+
+          </Card>
 
         ) : (
 
           <div className="space-y-10">
 
-            {orders.map(
+            {filteredOrders.map(
               (order, index) => (
 
                 <motion.div
@@ -349,123 +497,149 @@ const AdminOrders = () => {
                       index * 0.1,
                   }}
 
-                  className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100"
+                  className="bg-card border border-border rounded-[2rem] shadow-lg overflow-hidden"
                 >
 
                   {/* ===================================================== */}
                   {/* ================= ORDER HEADER ====================== */}
                   {/* ===================================================== */}
 
-                  <div className="bg-black text-white px-8 py-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                  <div className="relative bg-foreground text-background px-8 py-6">
 
-                    {/* USER */}
+                    <div className="absolute inset-0 dot-pattern" />
 
-                    <div>
+                    <div className="relative grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
 
-                      <p className="text-sm text-gray-300 mb-2">
+                      {/* ORDER ID */}
 
-                        Customer
+                      <div>
 
-                      </p>
+                        <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/50 mb-2">
 
-                      <h2 className="text-xl font-bold">
+                          Order ID
 
-                        {order.user?.name}
+                        </p>
 
-                      </h2>
+                        <h3 className="font-semibold break-all text-lg">
 
-                      <p className="text-gray-400">
+                          {order._id}
 
-                        {order.user?.email}
+                        </h3>
 
-                      </p>
+                      </div>
+
+                      {/* STORE */}
+
+                      <div>
+
+                        <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/50 mb-2">
+
+                          Store
+
+                        </p>
+
+                        <h3 className="font-semibold">
+
+                          {order.store?.name || order.store}
+
+                        </h3>
+
+                      </div>
+
+                      {/* CUSTOMER */}
+
+                      <div>
+
+                        <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/50 mb-2">
+
+                          Customer
+
+                        </p>
+
+                        <h3 className="font-semibold">
+
+                          {order.user?.name}
+
+                        </h3>
+
+                        <p className="text-sm text-white/60">
+
+                          {order.user?.email}
+
+                        </p>
+
+                      </div>
+
+                      {/* DATE */}
+
+                      <div>
+
+                        <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/50 mb-2">
+
+                          Ordered On
+
+                        </p>
+
+                        <h3 className="font-semibold">
+
+                          {new Date(
+                            order.createdAt
+                          ).toLocaleDateString()}
+
+                        </h3>
+
+                      </div>
+
+                      {/* TOTAL */}
+
+                      <div>
+
+                        <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/50 mb-2">
+
+                          Total Amount
+
+                        </p>
+
+                        <h3 className="text-3xl font-display gradient-text">
+
+                          ₹
+                          {order.totalPrice}
+
+                        </h3>
+
+                      </div>
+
+                      {/* PAYMENT + STATUS */}
+
+                      <div className="flex flex-col gap-2">
+
+                        <Badge
+                          className={
+                            order.isPaid
+                              ? "bg-emerald-100 text-emerald-700"
+                              : "bg-orange-100 text-orange-700"
+                          }
+                        >
+
+                          <FaMoneyBillWave />
+
+                          {order.isPaid ? "Paid" : "Unpaid"}
+
+                        </Badge>
+
+                        <Badge
+                          className={getStatusColor(
+                            order.status
+                          )}
+                        >
+
+                          {order.status}
+
+                        </Badge>
+
+                      </div>
 
                     </div>
-
-                    {/* DATE */}
-
-                    <div>
-
-                      <p className="text-sm text-gray-300 mb-2">
-
-                        Ordered On
-
-                      </p>
-
-                      <h3 className="font-semibold">
-
-                        {new Date(
-                          order.createdAt
-                        ).toLocaleDateString()}
-
-                      </h3>
-
-                    </div>
-
-                    {/* TOTAL */}
-
-                    <div>
-
-                      <p className="text-sm text-gray-300 mb-2">
-
-                        Total Amount
-
-                      </p>
-
-                      <h3 className="text-3xl font-bold text-rose-400">
-
-                        ₹
-                        {order.totalPrice}
-
-                      </h3>
-
-                    </div>
-
-                    {/* PAYMENT */}
-
-<div>
-
-  <p className="text-sm text-gray-300 mb-2">
-
-    Payment
-
-  </p>
-
-  <div
-    className={`px-5 py-3 rounded-xl font-semibold ${
-      order.isPaid
-        ? "bg-green-500/20 text-green-300"
-        : "bg-red-500/20 text-red-300"
-    }`}
-  >
-
-    {order.isPaid ? "Paid" : "Unpaid"}
-
-  </div>
-
-</div>
-
-{/* ORDER STATUS */}
-
-<div>
-
-  <p className="text-sm text-gray-300 mb-2">
-
-    Order Status
-
-  </p>
-
-  <div
-    className={`px-5 py-3 rounded-xl font-semibold ${getStatusColor(
-      order.status
-    )}`}
-  >
-
-    {order.status}
-
-  </div>
-
-</div>
 
                   </div>
 
@@ -479,13 +653,13 @@ const AdminOrders = () => {
 
                     <div className="mb-10">
 
-                      <h3 className="text-2xl font-bold mb-4">
+                      <h3 className="text-xl font-semibold mb-4 text-foreground">
 
                         Shipping Address
 
                       </h3>
 
-                      <div className="bg-gray-50 rounded-2xl p-6 text-gray-600 leading-relaxed">
+                      <div className="bg-muted rounded-2xl p-6 text-muted-foreground leading-relaxed">
 
                         {
                           order
@@ -525,7 +699,7 @@ const AdminOrders = () => {
 
                     <div>
 
-                      <h3 className="text-2xl font-bold mb-6">
+                      <h3 className="text-xl font-semibold mb-6 text-foreground">
 
                         Ordered Items
 
@@ -541,7 +715,7 @@ const AdminOrders = () => {
 
                             <div
                               key={idx}
-                              className="flex gap-5 bg-gray-50 rounded-2xl p-5"
+                              className="flex gap-5 bg-muted rounded-2xl p-5"
                             >
 
                               <img
@@ -556,7 +730,7 @@ const AdminOrders = () => {
 
                               <div className="flex flex-col justify-center">
 
-                                <h4 className="text-xl font-bold mb-2">
+                                <h4 className="text-lg font-semibold text-foreground mb-2">
 
                                   {
                                     item.name
@@ -564,7 +738,7 @@ const AdminOrders = () => {
 
                                 </h4>
 
-                                <p className="text-gray-500">
+                                <p className="text-muted-foreground">
 
                                   Quantity:
                                   {" "}
@@ -574,7 +748,7 @@ const AdminOrders = () => {
 
                                 </p>
 
-                                <p className="text-rose-500 text-2xl font-bold mt-2">
+                                <p className="text-2xl font-bold gradient-text mt-2">
 
                                   ₹
                                   {
@@ -594,108 +768,106 @@ const AdminOrders = () => {
                     </div>
 
                     {/* ===================================================== */}
-                    {/* ================= DELIVERY BUTTON ================== */}
+                    {/* ===================== ACTIONS ======================= */}
                     {/* ===================================================== */}
 
-                    {/* ACTIONS */}
+                    <div className="mt-10 flex flex-wrap gap-4">
 
-<div className="mt-10 flex flex-wrap gap-4">
+                      {/* MARK PAID */}
 
-  {/* MARK PAID */}
+                      {!order.isPaid && (
 
-  {!order.isPaid && (
+                        <Button
+                          onClick={() =>
+                            markPaid(order._id)
+                          }
+                          variant="primary"
+                        >
 
-    <button
-      onClick={() =>
-        markPaid(order._id)
-      }
-      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition"
-    >
+                          <FaMoneyBillWave />
 
-      <FaMoneyBillWave />
+                          Mark Paid
 
-      Mark Paid
+                        </Button>
 
-    </button>
+                      )}
 
-  )}
+                      {/* STATUS DROPDOWN */}
 
-  {/* STATUS DROPDOWN */}
+                      {order.status !== "Cancelled" && (
 
-  {order.status !== "Cancelled" && (
+                        <select
+                          value={order.status}
+                          onChange={(e) =>
+                            updateStatus(
+                              order._id,
+                              e.target.value
+                            )
+                          }
+                          className="h-12 rounded-xl border border-border bg-card px-4 font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                        >
 
-    <select
-      value={order.status}
-      onChange={(e) =>
-        updateStatus(
-          order._id,
-          e.target.value
-        )
-      }
-      className="border rounded-xl px-5 py-3 font-semibold"
-    >
+                          <option value="Placed">
+                            Placed
+                          </option>
 
-      <option value="Placed">
-        Placed
-      </option>
+                          <option value="Packed">
+                            Packed
+                          </option>
 
-      <option value="Packed">
-        Packed
-      </option>
+                          <option value="Shipped">
+                            Shipped
+                          </option>
 
-      <option value="Shipped">
-        Shipped
-      </option>
+                          <option value="Delivered">
+                            Delivered
+                          </option>
 
-      <option value="Delivered">
-        Delivered
-      </option>
+                        </select>
 
-    </select>
+                      )}
 
-  )}
+                      {/* MARK DELIVERED */}
 
-  {/* MARK DELIVERED */}
+                      {!order.isDelivered &&
+                        order.status !== "Cancelled" && (
 
-  {!order.isDelivered &&
-    order.status !== "Cancelled" && (
+                          <Button
+                            onClick={() =>
+                              markDelivered(order._id)
+                            }
+                            variant="outline"
+                          >
 
-      <button
-        onClick={() =>
-          markDelivered(order._id)
-        }
-        className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition"
-      >
+                            <FaTruck />
 
-        <FaTruck />
+                            Mark Delivered
 
-        Mark Delivered
+                          </Button>
 
-      </button>
+                        )}
 
-    )}
+                      {/* CANCEL */}
 
-  {/* CANCEL */}
+                      {order.status !== "Cancelled" &&
+                        order.status !== "Delivered" && (
 
-  {order.status !== "Cancelled" &&
-    order.status !== "Delivered" && (
+                          <Button
+                            onClick={() =>
+                              cancelOrder(order._id)
+                            }
+                            variant="danger"
+                          >
 
-      <button
-        onClick={() =>
-          cancelOrder(order._id)
-        }
-        className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition"
-      >
+                            <FaTimesCircle />
 
-        <FaTimesCircle />
+                            Cancel Order
 
-        Cancel Order
+                          </Button>
 
-      </button>
+                        )}
 
-    )}
-
-</div>
+                    </div>
 
                   </div>
 

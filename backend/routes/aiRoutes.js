@@ -8,6 +8,7 @@ import { merchantStore } from "../middleware/storeMiddleware.js";
 import {
   generateProductDescription,
   generateSalesInsights,
+  chatReply,
 } from "../controllers/aiController.js";
 
 const router = express.Router();
@@ -34,6 +35,15 @@ router.post(
   merchant,
   merchantStore,
   generateSalesInsights
+);
+
+/* ===================================================== */
+/* ============== CUSTOMER SUPPORT CHAT ================ */
+/* ===================================================== */
+
+router.post(
+  "/chat",
+  chatReply
 );
 
 export default router;

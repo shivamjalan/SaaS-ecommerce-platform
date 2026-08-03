@@ -1,6 +1,7 @@
 import {
   useEffect,
   useState,
+  useCallback,
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { handleRazorpayPayment } from "../utils/razorpay";
@@ -17,6 +18,9 @@ import {
   FaMoneyBillWave,
 } from "react-icons/fa";
 
+import { SectionLabel, Badge } from "../components/ui/badge";
+import { Button } from "../components/ui/button";
+
 const statusSteps = [
   "Placed",
   "Packed",
@@ -25,10 +29,10 @@ const statusSteps = [
 ];
 
 const statusColors = {
-  Placed: "bg-yellow-100 text-yellow-700",
+  Placed: "bg-amber-100 text-amber-700",
   Packed: "bg-blue-100 text-blue-700",
   Shipped: "bg-purple-100 text-purple-700",
-  Delivered: "bg-green-100 text-green-700",
+  Delivered: "bg-emerald-100 text-emerald-700",
   Cancelled: "bg-red-100 text-red-700",
 };
 
@@ -47,56 +51,109 @@ const MyOrders = () => {
 
   const [loading, setLoading] =
     useState(true);
+
   const navigate = useNavigate();
+
   /* ===================================================== */
   /* ================= FETCH ORDERS ====================== */
   /* ===================================================== */
 
-  useEffect(() => {
+  const fetchOrders = useCallback(async () => {
 
-    const fetchOrders =
-      async () => {
+    try {
 
-        try {
+      const userInfo =
+        JSON.parse(
+          localStorage.getItem(
+            "userInfo"
+          )
+        );
 
-          const userInfo =
-            JSON.parse(
-              localStorage.getItem(
-                "userInfo"
-              )
-            );
+      const response =
+        await fetch(
+          `${API_URL}/orders/myorders`,
+          {
+            headers: {
+              Authorization: `Bearer ${userInfo.token}`,
+            },
+          }
+        );
 
-          const response =
-            await fetch(
-              `${API_URL}/orders/myorders`,
-              {
-                headers: {
-                  Authorization: `Bearer ${userInfo.token}`,
-                },
-              }
-            );
+      const data =
+        await response.json();
 
-          const data =
-            await response.json();
+      setOrders(data);
 
-          console.log(data);
+    } catch (error) {
 
-          setOrders(data);
+      console.log(error);
 
-        } catch (error) {
+    } finally {
 
-          console.log(error);
+      setLoading(false);
 
-        } finally {
-
-          setLoading(false);
-
-        }
-      };
-
-    fetchOrders();
-
+    }
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      await fetchOrders();
+    })();
+  }, [fetchOrders]);
+
+  /* ===================================================== */
+  /* ================= CANCEL ORDER ====================== */
+  /* ===================================================== */
+
+  const cancelOrder = async (id) => {
+
+    const confirmCancel =
+      window.confirm(
+        "Cancel this order? Stock will be returned to the store."
+      );
+
+    if (!confirmCancel) return;
+
+    try {
+
+      const userInfo =
+        JSON.parse(
+          localStorage.getItem(
+            "userInfo"
+          )
+        );
+
+      const response =
+        await fetch(
+          `${API_URL}/orders/${id}/cancel`,
+          {
+            method: "PUT",
+
+            headers: {
+              Authorization: `Bearer ${userInfo.token}`,
+            },
+          }
+        );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        alert(data.error || "Failed to cancel order");
+        return;
+      }
+
+      alert(data.message || "Order cancelled");
+
+      await fetchOrders();
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Failed to cancel order");
+    }
+  };
 
   /* ===================================================== */
   /* ==================== LOADING ======================== */
@@ -106,29 +163,37 @@ const MyOrders = () => {
 
     return (
 
-      <div className="min-h-screen flex items-center justify-center bg-[#faf7f2]">
+      <div className="min-h-screen flex items-center justify-center bg-background">
 
-        <div className="text-2xl font-semibold text-gray-700">
+        <div className="flex flex-col items-center gap-4">
 
-          Loading Orders...
+          <div className="h-12 w-12 rounded-full border-2 border-border border-t-accent animate-spin" />
+
+          <p className="font-mono text-xs uppercase tracking-[0.15em] text-muted-foreground">
+
+            Loading Orders...
+
+          </p>
 
         </div>
 
       </div>
-    );  
+    );
   }
+
   const retryPayment = async (order) => {
     await handleRazorpayPayment(
-    order,
-    null,
-    navigate
-  );
-};
+      order,
+      null,
+      navigate
+    );
+  };
+
   return (
 
-    <div className="min-h-screen bg-gradient-to-b from-[#faf7f2] via-white to-[#f8f5f0]">
+    <div className="min-h-screen bg-background">
 
-      <div className="max-w-7xl mx-auto px-6 py-16">
+      <div className="max-w-6xl mx-auto px-6 py-16">
 
         {/* ===================================================== */}
         {/* ==================== PAGE HEADER ==================== */}
@@ -138,29 +203,35 @@ const MyOrders = () => {
 
           <div>
 
-            <p className="uppercase tracking-[5px] text-rose-500 font-semibold mb-3">
+            <SectionLabel>
 
               Purchase History
 
-            </p>
+            </SectionLabel>
 
-            <h1 className="text-5xl font-bold text-gray-900">
+            <h1 className="mt-4 text-5xl font-display text-foreground">
 
-              My Orders
+              My{" "}
+
+              <span className="gradient-text">
+
+                Orders
+
+              </span>
 
             </h1>
 
           </div>
 
-          <div className="bg-white shadow-lg rounded-2xl px-6 py-4">
+          <div className="bg-card border border-border shadow-md rounded-2xl px-8 py-5">
 
-            <p className="text-gray-500 text-sm">
+            <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
 
               Total Orders
 
             </p>
 
-            <h2 className="text-3xl font-bold text-rose-500">
+            <h2 className="mt-1 text-4xl font-display gradient-text">
 
               {orders.length}
 
@@ -176,19 +247,23 @@ const MyOrders = () => {
 
         {orders.length === 0 ? (
 
-          <div className="bg-white rounded-3xl shadow-xl p-16 text-center">
+          <div className="bg-card border border-border rounded-[2rem] shadow-lg p-16 text-center">
 
-            <FaBoxOpen
-              className="mx-auto text-6xl text-gray-300 mb-6"
-            />
+            <div className="gradient-bg h-20 w-20 rounded-2xl mx-auto flex items-center justify-center shadow-accent mb-8">
 
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">
+              <FaBoxOpen
+                className="text-white text-4xl"
+              />
+
+            </div>
+
+            <h2 className="text-3xl font-display text-foreground mb-4">
 
               No Orders Yet
 
             </h2>
 
-            <p className="text-gray-500 text-lg">
+            <p className="text-muted-foreground text-lg">
 
               Your purchased products will
               appear here.
@@ -224,20 +299,20 @@ const MyOrders = () => {
                       index * 0.1,
                   }}
 
-                  className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100"
+                  className="bg-card border border-border rounded-[2rem] shadow-lg overflow-hidden"
                 >
 
                   {/* ===================================================== */}
                   {/* ==================== ORDER TOP ====================== */}
                   {/* ===================================================== */}
 
-                  <div className="bg-black text-white px-8 py-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                  <div className="relative bg-foreground text-background px-8 py-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
 
-                    {/* ORDER INFO */}
+                    <div className="absolute inset-0 dot-pattern" />
 
-                    <div>
+                    <div className="relative">
 
-                      <p className="text-sm text-gray-300 mb-2">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/50 mb-2">
 
                         Order ID
 
@@ -251,11 +326,9 @@ const MyOrders = () => {
 
                     </div>
 
-                    {/* DATE */}
+                    <div className="relative">
 
-                    <div>
-
-                      <p className="text-sm text-gray-300 mb-2">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/50 mb-2">
 
                         Ordered On
 
@@ -271,17 +344,15 @@ const MyOrders = () => {
 
                     </div>
 
-                    {/* TOTAL */}
+                    <div className="relative">
 
-                    <div>
-
-                      <p className="text-sm text-gray-300 mb-2">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/50 mb-2">
 
                         Total Amount
 
                       </p>
 
-                      <h3 className="text-3xl font-bold text-rose-400">
+                      <h3 className="text-3xl font-display gradient-text">
 
                         ₹
                         {order.totalPrice}
@@ -290,92 +361,98 @@ const MyOrders = () => {
 
                     </div>
 
-                    <div>
-  <div>
+                    <div className="relative flex flex-col gap-2">
 
-  <div
-    className={`flex items-center gap-2 px-5 py-3 rounded-xl font-semibold ${
-      statusColors[order.status]
-    }`}
-  >
-    {statusIcons[order.status]}
-    {order.status}
-  </div>
+                      <Badge
+                        className={statusColors[order.status]}
+                      >
+                        {statusIcons[order.status]}
+                        {order.status}
+                      </Badge>
 
-  <div
-  className={`mt-3 px-4 py-2 rounded-xl font-medium ${
-    order.isPaid
-      ? "bg-green-100 text-green-700"
-      : "bg-orange-100 text-orange-700"
-  }`}
->
-  <FaMoneyBillWave className="inline mr-2" />
+                      <Badge
+                        className={
+                          order.isPaid
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-orange-100 text-orange-700"
+                        }
+                      >
+                        <FaMoneyBillWave />
+                        {order.isPaid ? "Paid" : "Pending"}
+                      </Badge>
 
-  {order.isPaid ? "Paid" : "Pending"}
-</div>
-<p className="mt-2 text-sm text-gray-600">
-  <span className="font-semibold">Method:</span>{" "}
-  {order.paymentMethod}
-</p>
-{order.isPaid && (
-  <p className="text-sm text-gray-600 mt-1">
-    <span className="font-semibold">Paid On:</span>{" "}
-    {new Date(order.paidAt).toLocaleString()}
-  </p>
-)}
-</div>
-</div>
+                      <p className="text-sm text-white/60">
+                        <span className="font-semibold text-white/80">Method:</span>{" "}
+                        {order.paymentMethod}
+                      </p>
+
+                      {order.isPaid && (
+                        <p className="text-sm text-white/60">
+                          <span className="font-semibold text-white/80">Paid On:</span>{" "}
+                          {new Date(order.paidAt).toLocaleString()}
+                        </p>
+                      )}
+
+                    </div>
 
                   </div>
-                  
-<div className="px-8 py-8 border-b">
 
-  <div className="flex flex-col md:flex-row justify-between gap-6">
+                  {/* ===================================================== */}
+                  {/* ================= PROGRESS TRACKER ================== */}
+                  {/* ===================================================== */}
 
-    {statusSteps.map((step, index) => {
+                  <div className="px-8 py-8 border-b border-border">
 
-      const current =
-  order.status === "Cancelled"
-    ? 0
-    : statusSteps.indexOf(order.status);
+                    <div className="flex flex-col md:flex-row justify-between gap-6">
 
-      const completed = current >= index;
+                      {statusSteps.map((step, index) => {
 
-      return (
+                        const current =
+                          order.status === "Cancelled"
+                            ? 0
+                            : statusSteps.indexOf(order.status);
 
-        <div
-          key={step}
-          className="flex flex-col items-center flex-1"
-        >
+                        const completed = current >= index;
 
-          <div
-            className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold
-            ${
-              completed
-                ? "bg-green-500"
-                : "bg-gray-300"
-            }`}
-          >
+                        return (
 
-            {completed ? "✓" : index + 1}
+                          <div
+                            key={step}
+                            className="flex flex-col items-center flex-1"
+                          >
 
-          </div>
+                            <div
+                              className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold shadow-sm ${
+                                completed
+                                  ? "gradient-bg shadow-accent"
+                                  : "bg-muted text-muted-foreground"
+                              }`}
+                            >
 
-          <p className="mt-3 text-sm font-semibold">
+                              {completed ? "✓" : index + 1}
 
-            {step}
+                            </div>
 
-          </p>
+                            <p className={`mt-3 text-sm font-semibold ${
+                              completed
+                                ? "text-foreground"
+                                : "text-muted-foreground"
+                            }`}>
 
-        </div>
+                              {step}
 
-      );
+                            </p>
 
-    })}
+                          </div>
 
-  </div>
+                        );
 
-</div>
+                      })}
+
+                    </div>
+
+                  </div>
+
                   {/* ===================================================== */}
                   {/* ==================== CONTENT ======================== */}
                   {/* ===================================================== */}
@@ -386,13 +463,13 @@ const MyOrders = () => {
 
                     <div className="mb-10">
 
-                      <h3 className="text-2xl font-bold mb-4 text-gray-800">
+                      <h3 className="text-xl font-semibold mb-4 text-foreground">
 
                         Shipping Address
 
                       </h3>
 
-                      <div className="bg-gray-50 rounded-2xl p-6 text-gray-600 leading-relaxed">
+                      <div className="bg-muted rounded-2xl p-6 text-muted-foreground leading-relaxed">
 
                         {
                           order
@@ -427,44 +504,48 @@ const MyOrders = () => {
                       </div>
 
                     </div>
-                    <div className="bg-green-50 rounded-2xl p-5 mb-8">
 
-  <h3 className="font-bold text-lg mb-2">
+                    {/* DELIVERY INFO */}
 
-    Delivery Information
+                    <div className="bg-muted rounded-2xl p-5 mb-8">
 
-  </h3>
+                      <h3 className="font-semibold text-lg mb-2 text-foreground">
 
-  {order.isDelivered ? (
+                        Delivery Information
 
-    <p>
+                      </h3>
 
-      Delivered on{" "}
-      {new Date(order.deliveredAt).toLocaleDateString()}
+                      {order.isDelivered ? (
 
-    </p>
+                        <p className="text-muted-foreground">
 
-  ) : (
+                          Delivered on{" "}
+                          {new Date(order.deliveredAt).toLocaleDateString()}
 
-    <p>
+                        </p>
 
-      Current Status:
-      <span className="font-semibold ml-2">
+                      ) : (
 
-        {order.status}
+                        <p className="text-muted-foreground">
 
-      </span>
+                          Current Status:
+                          <span className="font-semibold ml-2 text-foreground">
 
-    </p>
+                            {order.status}
 
-  )}
+                          </span>
 
-</div>
+                        </p>
+
+                      )}
+
+                    </div>
+
                     {/* ITEMS */}
 
                     <div>
 
-                      <h3 className="text-2xl font-bold mb-6 text-gray-800">
+                      <h3 className="text-xl font-semibold mb-6 text-foreground">
 
                         Ordered Items
 
@@ -482,7 +563,7 @@ const MyOrders = () => {
                               key={
                                 itemIndex
                               }
-                              className="flex gap-5 bg-gray-50 rounded-2xl p-5 hover:shadow-lg transition"
+                              className="flex gap-5 bg-muted rounded-2xl p-5 hover:shadow-lg transition"
                             >
 
                               {/* IMAGE */}
@@ -501,7 +582,7 @@ const MyOrders = () => {
 
                               <div className="flex flex-col justify-center">
 
-                                <h4 className="text-xl font-bold text-gray-900 mb-2">
+                                <h4 className="text-lg font-semibold text-foreground mb-2">
 
                                   {
                                     item.name
@@ -509,7 +590,7 @@ const MyOrders = () => {
 
                                 </h4>
 
-                                <p className="text-gray-500 mb-1">
+                                <p className="text-muted-foreground mb-1">
 
                                   Quantity:
                                   {" "}
@@ -519,7 +600,7 @@ const MyOrders = () => {
 
                                 </p>
 
-                                <p className="text-rose-500 text-2xl font-bold">
+                                <p className="text-2xl font-bold gradient-text">
 
                                   ₹
                                   {
@@ -537,57 +618,86 @@ const MyOrders = () => {
                       </div>
 
                     </div>
-                    <div className="mt-10 bg-gray-50 rounded-2xl p-6">
 
-  <h3 className="text-xl font-bold mb-5">
+                    {/* SUMMARY */}
 
-    Order Summary
+                    <div className="mt-10 bg-muted rounded-2xl p-6">
 
-  </h3>
+                      <h3 className="text-xl font-semibold mb-5 text-foreground">
 
-  <div className="flex justify-between mb-3">
+                        Order Summary
 
-    <span>Total Items</span>
+                      </h3>
 
-    <span>{order.orderItems.length}</span>
+                      <div className="flex justify-between mb-3 text-muted-foreground">
 
-  </div>
+                        <span>Total Items</span>
 
-  <div className="flex justify-between mb-3">
+                        <span className="text-foreground">{order.orderItems.length}</span>
 
-    <span>Total Amount</span>
+                      </div>
 
-    <span>₹{order.totalPrice}</span>
+                      <div className="flex justify-between mb-3 text-muted-foreground">
 
-  </div>
+                        <span>Total Amount</span>
 
-  <div className="flex justify-between mb-3">
-  <span>Payment Status</span>
-  <span>{order.isPaid ? "Paid" : "Pending"}</span>
-</div>
+                        <span className="font-semibold text-foreground">₹{order.totalPrice}</span>
 
-<div className="flex justify-between mb-3">
-  <span>Payment Method</span>
-  <span>{order.paymentMethod}</span>
-</div>
+                      </div>
 
-{order.isPaid && (
-  <div className="flex justify-between">
-    <span>Paid On</span>
-    <span>
-      {new Date(order.paidAt).toLocaleDateString()}
-    </span>
-  </div>
-)}
-{!order.isPaid && order.paymentMethod === "Razorpay" && (
-  <button
-    onClick={() => retryPayment(order)}
-    className="mt-4 w-full bg-rose-500 hover:bg-rose-600 text-white py-2 rounded-xl transition"
-  >
-    Retry Payment
-  </button>
-)}
-</div>
+                      <div className="flex justify-between mb-3 text-muted-foreground">
+
+                        <span>Payment Status</span>
+                        <span className="text-foreground">{order.isPaid ? "Paid" : "Pending"}</span>
+                      </div>
+
+                      <div className="flex justify-between mb-3 text-muted-foreground">
+
+                        <span>Payment Method</span>
+                        <span className="text-foreground">{order.paymentMethod}</span>
+                      </div>
+
+                      {order.isPaid && (
+                        <div className="flex justify-between text-muted-foreground">
+                          <span>Paid On</span>
+                          <span className="text-foreground">
+                            {new Date(order.paidAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                      )}
+
+                      {!order.isPaid && order.paymentMethod === "Razorpay" && (
+                        <Button
+                          onClick={() => retryPayment(order)}
+                          className="mt-6 w-full"
+                        >
+                          Retry Payment
+                        </Button>
+                      )}
+
+                    </div>
+
+                    {/* CANCEL ACTION */}
+
+                    {!order.isDelivered &&
+                      order.status !== "Cancelled" &&
+                      order.status !== "Delivered" && (
+                        <div className="mt-6">
+
+                          <Button
+                            onClick={() => cancelOrder(order._id)}
+                            variant="danger"
+                          >
+
+                            <FaTimesCircle />
+
+                            Cancel Order
+
+                          </Button>
+
+                        </div>
+                      )}
+
                   </div>
 
                 </motion.div>

@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
-import { THEMES } from "../utils/themes";
-
 import { API_URL } from "../utils/api";
+
+import { Card } from "../components/ui/card";
+import { Input, Textarea } from "../components/ui/input";
+import { Button } from "../components/ui/button";
+import { SectionLabel } from "../components/ui/badge";
 
 const StoreSettings = () => {
 
@@ -17,7 +20,6 @@ const StoreSettings = () => {
     slug: "",
     description: "",
     logo: "",
-    theme: "default",
   });
 
   const [loading, setLoading] = useState(true);
@@ -63,7 +65,6 @@ const StoreSettings = () => {
           slug: data.slug,
           description: data.description || "",
           logo: data.logo || "",
-          theme: data.theme || "default",
         });
 
       } catch (error) {
@@ -226,13 +227,19 @@ const StoreSettings = () => {
 
     return (
 
-      <div className="min-h-screen flex items-center justify-center bg-[#faf7f2]">
+      <div className="min-h-screen flex items-center justify-center bg-background">
 
-        <h1 className="text-3xl font-bold">
+        <div className="flex flex-col items-center gap-4">
 
-          Loading Store...
+          <div className="h-12 w-12 rounded-full border-2 border-border border-t-accent animate-spin" />
 
-        </h1>
+          <p className="font-mono text-xs uppercase tracking-[0.15em] text-muted-foreground">
+
+            Loading Store...
+
+          </p>
+
+        </div>
 
       </div>
     );
@@ -240,19 +247,19 @@ const StoreSettings = () => {
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-b from-[#faf7f2] via-white to-[#f8f5f0] py-16">
+    <div className="min-h-screen bg-background py-16">
 
       <div className="max-w-2xl mx-auto px-6">
 
         <div className="mb-10">
 
-          <p className="uppercase tracking-[5px] text-rose-500 font-semibold mb-3">
+          <SectionLabel>
 
             Store Settings
 
-          </p>
+          </SectionLabel>
 
-          <h1 className="text-4xl font-bold text-gray-900">
+          <h1 className="mt-4 text-4xl font-display text-foreground">
 
             {store.name}
 
@@ -260,184 +267,134 @@ const StoreSettings = () => {
 
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white rounded-3xl shadow-xl p-8 space-y-5"
-        >
+        <Card className="p-8">
 
-          {/* STORE NAME */}
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6"
+          >
 
-          <div>
+            {/* STORE NAME */}
 
-            <label className="block font-semibold mb-2">
+            <div>
 
-              Store Name
+              <label className="block text-sm font-medium text-foreground mb-2">
 
-            </label>
+                Store Name
 
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full border p-3 rounded"
-              required
-            />
+              </label>
 
-          </div>
-
-          {/* SLUG */}
-
-          <div>
-
-            <label className="block font-semibold mb-2">
-
-              Store Slug
-
-            </label>
-
-            <input
-              type="text"
-              name="slug"
-              value={formData.slug}
-              onChange={handleChange}
-              className="w-full border p-3 rounded"
-              required
-            />
-
-          </div>
-
-          {/* DESCRIPTION */}
-
-          <div>
-
-            <label className="block font-semibold mb-2">
-
-              Description
-
-            </label>
-
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              className="w-full border p-3 rounded"
-              rows="4"
-            />
-
-          </div>
-
-          {/* LOGO */}
-
-          <div>
-
-            <label className="block font-semibold mb-2">
-
-              Store Logo
-
-            </label>
-
-            <input
-              type="file"
-              accept="image/*"
-              onChange={uploadLogo}
-              className="w-full border p-3 rounded"
-            />
-
-            {uploading && (
-              <p className="text-blue-500 mt-2">
-
-                Uploading logo...
-
-              </p>
-            )}
-
-            {formData.logo && (
-              <div className="mt-4">
-
-                <p className="font-medium mb-2">
-
-                  Preview
-
-                </p>
-
-                <img
-                  src={formData.logo}
-                  alt="Logo Preview"
-                  className="w-48 rounded shadow"
-                />
-
-              </div>
-            )}
-
-          </div>
-
-          {/* THEME */}
-
-          <div>
-
-            <label className="block font-semibold mb-2">
-
-              Theme
-
-            </label>
-
-            <div className="grid grid-cols-2 gap-4">
-
-              {THEMES.map((theme) => (
-
-                <button
-                  type="button"
-                  key={theme.value}
-                  onClick={() =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      theme: theme.value,
-                    }))
-                  }
-                  className={`p-4 rounded-2xl border-2 text-left transition ${
-                    formData.theme === theme.value
-                      ? "border-rose-500 shadow-lg"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-
-                  <div
-                    className={`${theme.btn} h-8 rounded mb-2`}
-                  />
-
-                  <p className="font-semibold">
-
-                    {theme.label}
-
-                  </p>
-
-                </button>
-              ))}
+              <Input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
 
             </div>
 
-          </div>
+            {/* SLUG */}
 
-          {/* SUBMIT */}
+            <div>
 
-          <button
-            type="submit"
-            disabled={saving}
-            className={`w-full py-3 rounded text-white transition ${
-              saving
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-gradient-to-r from-pink-500 to-rose-500 hover:opacity-90"
-            }`}
-          >
+              <label className="block text-sm font-medium text-foreground mb-2">
 
-            {saving
-              ? "Saving..."
-              : "Save Settings"}
+                Store Slug
 
-          </button>
+              </label>
 
-        </form>
+              <Input
+                type="text"
+                name="slug"
+                value={formData.slug}
+                onChange={handleChange}
+                required
+              />
+
+            </div>
+
+            {/* DESCRIPTION */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-foreground mb-2">
+
+                Description
+
+              </label>
+
+              <Textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows="4"
+              />
+
+            </div>
+
+            {/* LOGO */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-foreground mb-2">
+
+                Store Logo
+
+              </label>
+
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={uploadLogo}
+              />
+
+              {uploading && (
+                <p className="text-accent mt-2 text-sm font-medium">
+
+                  Uploading logo...
+
+                </p>
+              )}
+
+              {formData.logo && (
+                <div className="mt-4">
+
+                  <p className="text-sm font-medium text-foreground mb-2">
+
+                    Preview
+
+                  </p>
+
+                  <img
+                    src={formData.logo}
+                    alt="Logo Preview"
+                    className="w-48 rounded-xl border border-border shadow-sm"
+                  />
+
+                </div>
+              )}
+
+            </div>
+
+            {/* SUBMIT */}
+
+            <Button
+              type="submit"
+              disabled={saving}
+              className="w-full"
+              size="lg"
+            >
+
+              {saving
+                ? "Saving..."
+                : "Save Settings"}
+
+            </Button>
+
+          </form>
+
+        </Card>
 
       </div>
 

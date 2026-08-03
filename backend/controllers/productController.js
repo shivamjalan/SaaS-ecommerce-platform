@@ -66,8 +66,10 @@ export const createProduct = async (
       name,
       price,
       image,
+      images,
       category,
       description,
+      stock,
       store,
     } = req.body;
 
@@ -101,8 +103,10 @@ export const createProduct = async (
         name,
         price,
         image,
+        images: images || [],
         category,
         description,
+        stock: Number(stock) || 0,
         store: storeId,
       });
 
@@ -142,8 +146,10 @@ export const updateProduct = async (
       name,
       price,
       image,
+      images,
       category,
       description,
+      stock,
     } = req.body;
 
     // VALIDATE OBJECT ID
@@ -157,6 +163,22 @@ export const updateProduct = async (
 
     }
 
+    const updateFields = {
+        name,
+        price,
+        image,
+        category,
+        description,
+    };
+
+    if (Array.isArray(images)) {
+      updateFields.images = images;
+    }
+
+    if (stock !== undefined && stock !== "") {
+      updateFields.stock = Number(stock);
+    }
+
     const updatedProduct =
     await Product.findOneAndUpdate(
 
@@ -166,13 +188,7 @@ export const updateProduct = async (
               store: req.store._id,
             }),
         },
-        {
-        name,
-        price,
-        image,
-        category,
-        description,
-    },
+        updateFields,
 
         {
             new: true,
@@ -194,6 +210,68 @@ export const updateProduct = async (
         "Product updated successfully",
       product: updatedProduct,
     });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      error: "Server error",
+    });
+
+  }
+};
+
+/* ===================================================== */
+/* =============== UPDATE PRODUCT STOCK ================ */
+/* ===================================================== */
+
+export const updateProductStock = async (
+  req,
+  res
+) => {
+
+  try {
+
+    const { id } = req.params;
+
+    const stock = Number(req.body.stock);
+
+    if (
+      !Number.isInteger(stock) ||
+      stock < 0
+    ) {
+
+      return res.status(400).json({
+        error: "Stock must be a non-negative integer",
+      });
+
+    }
+
+    const updatedProduct =
+      await Product.findOneAndUpdate(
+        {
+          _id: id,
+          ...(req.store && {
+            store: req.store._id,
+          }),
+        },
+        { stock },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+    if (!updatedProduct) {
+
+      return res.status(404).json({
+        error: "Product not found",
+      });
+
+    }
+
+    res.json(updatedProduct);
 
   } catch (error) {
 

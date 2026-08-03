@@ -1,6 +1,142 @@
-html {
-  scroll-behavior: smooth;
-}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ===================================================== */
+/* ================ GLOBAL BASE STYLES ================== */
+/* ===================================================== */
+
+@layer base {
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
+  }
+
+  ::selection {
+    @apply bg-accent text-white;
+  }
+
+}
+
+/* ===================================================== */
+/* ================ GRADIENT UTILITIES ================= */
+/* ===================================================== */
+
+@layer utilities {
+
+  .gradient-text {
+    background: linear-gradient(to right, #0052ff, #4d7cff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .gradient-bg {
+    background: linear-gradient(135deg, #0052ff, #4d7cff);
+  }
+
+  .gradient-border {
+    background: linear-gradient(
+      135deg,
+      #0052ff,
+      #4d7cff,
+      #0052ff
+    );
+  }
+
+  .dot-pattern {
+    background-image: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.9) 1px,
+      transparent 1px
+    );
+    background-size: 32px 32px;
+    opacity: 0.03;
+  }
+
+}
+
+/* ===================================================== */
+/* ================= MARKDOWN BUBBLES =================== */
+/* ===================================================== */
+
+@layer components {
+
+  .markdown p {
+    margin-bottom: 0.5rem;
+  }
+
+  .markdown p:last-child {
+    margin-bottom: 0;
+  }
+
+  .markdown ul,
+  .markdown ol {
+    margin: 0.25rem 0 0.5rem;
+    padding-left: 1.25rem;
+  }
+
+  .markdown ul {
+    list-style: disc;
+  }
+
+  .markdown ol {
+    list-style: decimal;
+  }
+
+  .markdown li {
+    margin-bottom: 0.25rem;
+  }
+
+  .markdown strong {
+    font-weight: 600;
+  }
+
+  .markdown em {
+    font-style: italic;
+  }
+
+  .markdown a {
+    @apply text-accent underline;
+  }
+
+  .markdown code {
+    @apply bg-muted px-1.5 py-0.5 rounded-md text-xs;
+  }
+
+  .markdown h1,
+  .markdown h2,
+  .markdown h3,
+  .markdown h4 {
+    font-weight: 600;
+    margin: 0.5rem 0 0.25rem;
+  }
+
+}
+
+/* ===================================================== */
+/* ================ REDUCED MOTION ====================== */
+/* ===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+}

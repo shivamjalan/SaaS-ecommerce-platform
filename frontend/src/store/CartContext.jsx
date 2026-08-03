@@ -9,11 +9,41 @@ const CartProvider = ({
   children,
 }) => {
 
+  // ================= SAFE PARSE =================
+
+  const parseStored = (key, fallback) => {
+
+    try {
+
+      const raw =
+        localStorage.getItem(key);
+
+      if (!raw) return fallback;
+
+      const parsed =
+        JSON.parse(raw);
+
+      return Array.isArray(parsed)
+        ? parsed
+        : parsed && typeof parsed === "object"
+          ? parsed
+          : fallback;
+
+    } catch {
+
+      localStorage.removeItem(key);
+
+      return fallback;
+
+    }
+
+  };
+
   // ================= CART =================
 
-  const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
-
-const [cart, setCart] = useState(savedCart);
+  const [cart, setCart] = useState(
+    () => parseStored("cart", [])
+  );
 
 const [cartStore, setCartStore] = useState(() => {
   return localStorage.getItem("cartStore") || null;
@@ -27,14 +57,11 @@ const [cartStore, setCartStore] = useState(() => {
   ] = useState(() => {
 
     const savedAddress =
-      localStorage.getItem(
-        "shippingAddress"
-      );
+      parseStored("shippingAddress", null);
 
-    return savedAddress
-      ? JSON.parse(
-          savedAddress
-        )
+    return savedAddress &&
+      savedAddress.address !== undefined
+      ? savedAddress
       : {
           address: "",
           city: "",
@@ -110,11 +137,22 @@ const [cartStore, setCartStore] = useState(() => {
     return;
   }
 
+  const available = product.stock ?? Infinity;
+
   const existing = cart.find(
     (item) => item._id === product._id
   );
 
   if (existing) {
+
+    if (existing.quantity + 1 > available) {
+      alert(
+        available === Infinity
+          ? "No more stock available"
+          : `Only ${available} in stock`
+      );
+      return;
+    }
 
     setCart(
       cart.map((item) =>
@@ -128,6 +166,11 @@ const [cartStore, setCartStore] = useState(() => {
     );
 
   } else {
+
+    if (available < 1) {
+      alert("This product is out of stock");
+      return;
+    }
 
     setCart([
       ...cart,
@@ -169,18 +212,27 @@ const [cartStore, setCartStore] = useState(() => {
           item._id === id
         ) {
 
+          const maxQty =
+            item.stock ?? Infinity;
+
+          const nextQty =
+            type === "increase"
+              ? item.quantity + 1
+              : item.quantity - 1;
+
           return {
             ...item,
 
             quantity:
               type ===
               "increase"
-                ? item.quantity +
-                  1
+                ? Math.min(
+                    maxQty,
+                    nextQty
+                  )
                 : Math.max(
                     1,
-                    item.quantity -
-                      1
+                    nextQty
                   ),
           };
         }

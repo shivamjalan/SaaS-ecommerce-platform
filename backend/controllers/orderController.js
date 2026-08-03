@@ -1,5 +1,12 @@
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
+
+/* ===================================================== */
+/* ================== PRICING CONSTANTS ================ */
+/* ===================================================== */
+
+const GST_RATE = 0.05;
+
 /* ===================================================== */
 /* ==================== PLACE ORDER ==================== */
 
@@ -73,7 +80,24 @@ const subtotal = sanitizedItems.reduce(
   0
 );
 
-const totalPrice = Math.round(subtotal * 1.05);
+const totalPrice = Math.round(subtotal * (1 + GST_RATE));
+
+// Validate stock before reserving inventory
+for (const item of sanitizedItems) {
+
+  const product = products.find(
+    p => p._id.toString() === item.product.toString()
+  );
+
+  const available = Number(product.stock) || 0;
+
+  if (available < item.quantity) {
+    return res.status(400).json({
+      error: `Insufficient stock for "${item.name}" — only ${available} left`,
+    });
+  }
+
+}
 
     const order = new Order({
       user: req.user._id,
@@ -84,7 +108,21 @@ const totalPrice = Math.round(subtotal * 1.05);
       paymentMethod,
     });
     const createdOrder = await order.save();
-    
+
+    // Reserve inventory atomically (never goes below zero)
+    await Promise.all(
+      sanitizedItems.map((item) =>
+        Product.updateOne(
+          {
+            _id: item.product,
+            stock: { $gte: item.quantity },
+          },
+          {
+            $inc: { stock: -item.quantity },
+          }
+        )
+      )
+    );
 
     return res.status(201).json({
       message: "Order placed successfully",
@@ -190,6 +228,10 @@ export const getAllOrders = async (req, res) => {
       .populate(
         "user",
         "id name email"
+      )
+      .populate(
+        "store",
+        "name slug logo"
       )
       .sort({
         createdAt: -1,
@@ -297,6 +339,26 @@ export const updateOrderStatus = async (
       });
     }
 
+    if (status === "Cancelled") {
+
+      if (order.isDelivered || order.status === "Delivered") {
+        return res.status(400).json({
+          error: "Delivered orders cannot be cancelled",
+        });
+      }
+
+      // Restore reserved inventory when cancelling
+      await Promise.all(
+        order.orderItems.map((item) =>
+          Product.updateOne(
+            { _id: item.product },
+            { $inc: { stock: item.quantity } }
+          )
+        )
+      );
+
+    }
+
     order.status = status;
 
     if (status === "Delivered") {
@@ -349,7 +411,45 @@ export const cancelOrder = async (
       });
     }
 
+    // Allow superadmins / merchants-of-store / the order owner
+    const isStaff =
+      req.user.role === "superadmin" ||
+      Boolean(req.store);
+
+    const isOwner =
+      order.user &&
+      order.user.toString() ===
+        req.user._id.toString();
+
+    if (!isStaff && !isOwner) {
+      return res.status(403).json({
+        error: "Not authorized to cancel this order",
+      });
+    }
+
+    if (order.status === "Cancelled") {
+      return res.status(400).json({
+        error: "Order already cancelled",
+      });
+    }
+
+    if (order.isDelivered || order.status === "Delivered") {
+      return res.status(400).json({
+        error: "Delivered orders cannot be cancelled",
+      });
+    }
+
     order.status = "Cancelled";
+
+    // Restore reserved inventory
+    await Promise.all(
+      order.orderItems.map((item) =>
+        Product.updateOne(
+          { _id: item.product },
+          { $inc: { stock: item.quantity } }
+        )
+      )
+    );
 
     const updatedOrder = await order.save();
 

@@ -65,7 +65,7 @@ export const getMyStore = async (req, res) => {
 
     const store = await Store.findOne({
       owner: req.user._id,
-    }).select("name slug logo description theme");
+    }).select("name slug logo description");
 
     if (!store) {
       return res.status(404).json({
@@ -96,7 +96,6 @@ export const updateMyStore = async (req, res) => {
       slug,
       description,
       logo,
-      theme,
     } = req.body;
 
     const store = await Store.findOne({
@@ -128,7 +127,6 @@ export const updateMyStore = async (req, res) => {
         ? description
         : store.description;
     store.logo = logo || store.logo;
-    store.theme = theme || store.theme;
 
     const updatedStore = await store.save();
 
@@ -150,7 +148,7 @@ export const updateMyStore = async (req, res) => {
 export const getAllStores = async (req, res) => {
   try {
     const stores = await Store.find({})
-      .select("name slug logo description theme")
+      .select("name slug logo description")
       .sort({ createdAt: -1 });
 
     res.json(stores);
@@ -172,7 +170,7 @@ export const getStoreBySlug = async (req, res) => {
     const store = await Store.findOne({
       slug: req.params.slug,
     }).select(
-      "name slug logo description theme"
+      "name slug logo description"
     );
 
     if (!store) {

@@ -1,53 +1,180 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { API_URL } from "../utils/api";
+import { FaArrowRight, FaSearch, FaStore } from "react-icons/fa";
+import { API_URL, apiErrorMessage } from "../utils/api";
+import { SectionLabel } from "../components/ui/badge";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import usePageMeta from "../hooks/usePageMeta";
 
 const Stores = () => {
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
 
-  useEffect(() => {
-    const fetchStores = async () => {
-      try {
-        const response = await fetch(`${API_URL}/stores`);
-        const data = await response.json();
-        setStores(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+  usePageMeta(
+    "Browse Stores | Saree SaaS",
+    "Explore independent saree stores and shop directly from merchants on Saree SaaS."
+  );
+
+  const fetchStores = useCallback(async () => {
+
+    try {
+
+      const response = await fetch(`${API_URL}/stores`);
+
+      const data = await response.json();
+
+      if (!response.ok) {
+
+        throw new Error(
+          data.error || data.message || "Failed to load stores"
+        );
+
       }
-    };
 
-    fetchStores();
+      setStores(data);
+
+    } catch (err) {
+
+      console.error(err);
+
+      setError(
+        apiErrorMessage()
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
   }, []);
 
+  const handleRetry = () => {
+
+    setLoading(true);
+
+    setError("");
+
+    setStores([]);
+
+    fetchStores();
+
+  };
+
+  useEffect(() => {
+
+    (async () => {
+
+      await fetchStores();
+
+    })();
+
+  }, [fetchStores]);
+
   if (loading) {
+
     return (
-      <div className="min-h-screen flex justify-center items-center text-2xl font-semibold">
-        Loading Stores...
+      <div className="min-h-[60vh] flex justify-center items-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 rounded-full border-2 border-border border-t-accent animate-spin" />
+          <p className="font-mono text-xs uppercase tracking-[0.15em] text-muted-foreground">
+            Loading Stores...
+          </p>
+        </div>
       </div>
     );
+
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-[#faf7f2] via-white to-[#f8f5f0]">
+  if (error) {
 
-      <section className="max-w-7xl mx-auto px-6 py-16">
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6">
+
+        <div className="gradient-bg h-16 w-16 rounded-2xl flex items-center justify-center shadow-accent mb-8">
+
+          <FaStore className="text-white" size={28} />
+
+        </div>
+
+        <h1 className="text-3xl font-display text-foreground mb-4">
+          Oops, something went wrong
+        </h1>
+
+        <p className="text-muted-foreground mb-8 max-w-md">
+          {error}
+        </p>
+
+        <Button
+          onClick={handleRetry}
+          variant="primary"
+        >
+
+          Retry
+
+        </Button>
+
+      </div>
+    );
+
+  }
+
+  const filteredStores =
+    stores
+      .filter(
+        (store) =>
+          store.name
+            .toLowerCase()
+            .includes(query.trim().toLowerCase()) ||
+          (store.description || "")
+            .toLowerCase()
+            .includes(query.trim().toLowerCase())
+      )
+      .sort((a, b) => {
+        if (sortBy === "name") return a.name.localeCompare(b.name);
+        if (sortBy === "name-desc") return b.name.localeCompare(a.name);
+        return 0;
+      });
+
+  return (
+    <div className="min-h-screen bg-background">
+
+      <section className="max-w-6xl mx-auto px-6 py-20">
 
         <motion.div
           initial={{ opacity: 0, y: -40 }}
           animate={{ opacity: 1, y: 0 }}
+          className="text-center"
         >
 
-          <h1 className="text-5xl font-bold text-center text-gray-900">
+          <div className="flex justify-center">
 
-            Discover Stores
+            <SectionLabel>
+
+              Marketplace
+
+            </SectionLabel>
+
+          </div>
+
+          <h1 className="mt-6 text-5xl md:text-6xl font-display text-foreground">
+
+            Discover{" "}
+
+            <span className="gradient-text">
+
+              Stores
+
+            </span>
 
           </h1>
 
-          <p className="text-center text-gray-500 mt-4 text-lg">
+          <p className="text-center text-muted-foreground mt-5 text-lg">
 
             Shop directly from independent merchants.
 
@@ -55,36 +182,83 @@ const Stores = () => {
 
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-10 mt-14">
+        {/* ============ SEARCH + SORT CONTROLS ============ */}
 
-          {stores.map((store, index) => (
+        <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto mt-10">
+
+          <div className="relative flex-1">
+
+            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+
+            <Input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search stores..."
+              className="pl-11"
+            />
+
+          </div>
+
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="h-12 rounded-xl border border-border bg-card px-4 font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+
+            <option value="newest">Newest First</option>
+
+            <option value="name">Name (A-Z)</option>
+
+            <option value="name-desc">Name (Z-A)</option>
+
+          </select>
+
+        </div>
+
+        {filteredStores.length === 0 ? (
+          <div className="text-center mt-16 text-muted-foreground">
+
+            No stores match your search.
+
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+
+          {filteredStores.map((store, index) => (
 
             <motion.div
               key={store._id}
               initial={{ opacity: 0, y: 60 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.12 }}
-              className="bg-white rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl duration-300"
+              className="group relative bg-card border border-border rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
             >
 
-              <img
-                src={
-                  store.logo ||
-                  "https://placehold.co/800x500?text=Store"
-                }
-                className="h-60 w-full object-cover"
-                alt={store.name}
-              />
+              <div className="relative overflow-hidden">
+
+                <img
+                  src={
+                    store.logo ||
+                    "https://placehold.co/800x500?text=Store"
+                  }
+                  className="h-56 w-full object-cover transition duration-700 group-hover:scale-110"
+                  alt={store.name}
+                />
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition duration-500" />
+
+              </div>
 
               <div className="p-6">
 
-                <h2 className="text-2xl font-bold">
+                <h2 className="text-xl font-semibold tracking-[-0.01em] text-foreground">
 
                   {store.name}
 
                 </h2>
 
-                <p className="mt-3 text-gray-600 line-clamp-3">
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed line-clamp-2">
 
                   {store.description || "Premium Merchant"}
 
@@ -92,10 +266,12 @@ const Stores = () => {
 
                 <Link
                   to={`/store/${store.slug}`}
-                  className="inline-block mt-6 bg-black text-white px-6 py-3 rounded-xl hover:bg-rose-600 duration-300"
+                  className="mt-6 inline-flex items-center gap-2 text-accent font-semibold text-sm group/link"
                 >
 
-                  Visit Store →
+                  Visit Store
+
+                  <FaArrowRight className="transition-transform duration-200 group-hover/link:translate-x-1" />
 
                 </Link>
 
@@ -105,7 +281,8 @@ const Stores = () => {
 
           ))}
 
-        </div>
+          </div>
+        )}
 
       </section>
 

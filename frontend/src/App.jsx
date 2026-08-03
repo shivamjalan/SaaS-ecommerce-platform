@@ -1,4 +1,9 @@
 import {
+  lazy,
+  Suspense,
+} from "react";
+
+import {
   Routes,
   Route,
 } from "react-router-dom";
@@ -6,37 +11,52 @@ import {
 import MainLayout from "./layouts/MainLayout";
 
 /* ===================================================== */
-/* ====================== PAGES ======================== */
+/* =================== LAZY PAGES ====================== */
 /* ===================================================== */
 
-import Home from "./pages/Home";
+const Home = lazy(() => import("./pages/Home"));
 
-import MyOrders from "./pages/MyOrders";
+const MyOrders = lazy(() => import("./pages/MyOrders"));
 
-import ProductDetail from "./pages/ProductDetail";
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 
-import AddProduct from "./pages/AddProduct";
+const AddProduct = lazy(() => import("./pages/AddProduct"));
 
-import EditProduct from "./pages/EditProduct";
+const EditProduct = lazy(() => import("./pages/EditProduct"));
 
-import Cart from "./pages/Cart";
+const Cart = lazy(() => import("./pages/Cart"));
 
-import Login from "./pages/Login";
+const Login = lazy(() => import("./pages/Login"));
 
-import Register from "./pages/Register";
+const Register = lazy(() => import("./pages/Register"));
 
-import Shipping from "./pages/Shipping";
-import AdminOrders from "./pages/AdminOrders";
-import PlaceOrder from "./pages/PlaceOrder";
-import Stores from "./pages/Stores";
-import StorePage from "./pages/StorePage";
-import CreateStore from "./pages/CreateStore";
-import MerchantDashboard from "./pages/MerchantDashboard";
-import MerchantOrders from "./pages/MerchantOrders";
-import MerchantProducts from "./pages/MerchantProducts";
-import StoreSettings from "./pages/StoreSettings";
-import MerchantCustomers from "./pages/MerchantCustomers";
-import MerchantAnalytics from "./pages/MerchantAnalytics";
+const Shipping = lazy(() => import("./pages/Shipping"));
+
+const AdminOrders = lazy(() => import("./pages/AdminOrders"));
+
+const PlaceOrder = lazy(() => import("./pages/PlaceOrder"));
+
+const Stores = lazy(() => import("./pages/Stores"));
+
+const StorePage = lazy(() => import("./pages/StorePage"));
+
+const CreateStore = lazy(() => import("./pages/CreateStore"));
+
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+
+const MerchantDashboard = lazy(() => import("./pages/MerchantDashboard"));
+
+const MerchantOrders = lazy(() => import("./pages/MerchantOrders"));
+
+const MerchantProducts = lazy(() => import("./pages/MerchantProducts"));
+
+const StoreSettings = lazy(() => import("./pages/StoreSettings"));
+
+const MerchantCustomers = lazy(() => import("./pages/MerchantCustomers"));
+
+const MerchantAnalytics = lazy(() => import("./pages/MerchantAnalytics"));
 
 /* ===================================================== */
 /* ================= ROUTE PROTECTION ================== */
@@ -48,234 +68,208 @@ import AdminRoute from "./components/AdminRoute";
 
 import MerchantRoute from "./components/MerchantRoute";
 
+/* ===================================================== */
+/* =============== SUSPENSE FALLBACK =================== */
+/* ===================================================== */
+
+const PageLoader = () => (
+  <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+
+    <div className="h-12 w-12 rounded-full border-2 border-border border-t-accent animate-spin" />
+
+    <p className="font-mono text-xs uppercase tracking-[0.15em] text-muted-foreground">
+
+      Loading...
+
+    </p>
+
+  </div>
+);
+
 function App() {
 
   return (
 
-    <Routes>
+    <Suspense fallback={<PageLoader />}>
 
-      <Route
-        path="/"
-        element={<MainLayout />}
-      >
-
-        {/* ===================================================== */}
-        {/* ===================== HOME PAGE ===================== */}
-        {/* ===================================================== */}
+      <Routes>
 
         <Route
-          index
-          element={<Home />}
-        />
+          path="/"
+          element={<MainLayout />}
+        >
 
-        {/* ===================================================== */}
-        {/* ================= PRODUCT DETAILS =================== */}
-        {/* ===================================================== */}
+          <Route
+            index
+            element={<Home />}
+          />
 
-        <Route
-          path="product/:id"
-          element={
-            <ProductDetail />
-          }
-        />
+          <Route
+            path="product/:id"
+            element={<ProductDetail />}
+          />
 
-        {/* ===================================================== */}
-        {/* ======================= CART ======================== */}
-        {/* ===================================================== */}
+          <Route
+            path="cart"
+            element={
+              <ProtectedRoute>
+                <Cart />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="cart"
-          element={
-            <ProtectedRoute>
-              <Cart />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="shipping"
+            element={
+              <ProtectedRoute>
+                <Shipping />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* ===================================================== */}
-        {/* ===================== SHIPPING ====================== */}
-        {/* ===================================================== */}
+          <Route
+            path="placeorder"
+            element={
+              <ProtectedRoute>
+                <PlaceOrder />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="shipping"
-          element={
-            <ProtectedRoute>
-              <Shipping />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="myorders"
+            element={
+              <ProtectedRoute>
+                <MyOrders />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* ===================================================== */}
-        {/* ==================== PLACE ORDER ==================== */}
-        {/* ===================================================== */}
+          <Route
+            path="create-store"
+            element={
+              <ProtectedRoute>
+                <CreateStore />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="placeorder"
-          element={
-            <ProtectedRoute>
-              <PlaceOrder />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="merchant/dashboard"
+            element={
+              <MerchantRoute>
+                <MerchantDashboard />
+              </MerchantRoute>
+            }
+          />
 
-        {/* ===================================================== */}
-        {/* ==================== MY ORDERS ====================== */}
-        {/* ===================================================== */}
+          <Route
+            path="merchant/orders"
+            element={
+              <MerchantRoute>
+                <MerchantOrders />
+              </MerchantRoute>
+            }
+          />
 
-        <Route
-          path="myorders"
-          element={
-            <ProtectedRoute>
-              <MyOrders />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="merchant/products"
+            element={
+              <MerchantRoute>
+                <MerchantProducts />
+              </MerchantRoute>
+            }
+          />
 
-        {/* ===================================================== */}
-        {/* ==================== CREATE STORE =================== */}
-        {/* ===================================================== */}
+          <Route
+            path="merchant/analytics"
+            element={
+              <MerchantRoute>
+                <MerchantAnalytics />
+              </MerchantRoute>
+            }
+          />
 
-        <Route
-          path="create-store"
-          element={
-            <ProtectedRoute>
-              <CreateStore />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="merchant/customers"
+            element={
+              <MerchantRoute>
+                <MerchantCustomers />
+              </MerchantRoute>
+            }
+          />
 
-        {/* ===================================================== */}
-        {/* ================= MERCHANT DASHBOARD ================ */}
-        {/* ===================================================== */}
+          <Route
+            path="merchant/settings"
+            element={
+              <MerchantRoute>
+                <StoreSettings />
+              </MerchantRoute>
+            }
+          />
 
-        <Route
-          path="merchant/dashboard"
-          element={
-            <MerchantRoute>
-              <MerchantDashboard />
-            </MerchantRoute>
-          }
-        />
+          <Route
+            path="add-product"
+            element={
+              <MerchantRoute>
+                <AddProduct />
+              </MerchantRoute>
+            }
+          />
 
-        {/* ===================================================== */}
-        {/* ================= MERCHANT ORDERS =================== */}
-        {/* ===================================================== */}
+          <Route
+            path="admin/orders"
+            element={
+              <AdminRoute>
+                <AdminOrders />
+              </AdminRoute>
+            }
+          />
 
-        <Route
-          path="merchant/orders"
-          element={
-            <MerchantRoute>
-              <MerchantOrders />
-            </MerchantRoute>
-          }
-        />
+          <Route
+            path="edit-product/:id"
+            element={
+              <MerchantRoute>
+                <EditProduct />
+              </MerchantRoute>
+            }
+          />
 
-        {/* ===================================================== */}
-        {/* ================= MERCHANT PRODUCTS ================= */}
-        {/* ===================================================== */}
+          <Route
+            path="login"
+            element={<Login />}
+          />
 
-        <Route
-          path="merchant/products"
-          element={
-            <MerchantRoute>
-              <MerchantProducts />
-            </MerchantRoute>
-          }
-        />
+          <Route
+            path="forgot-password"
+            element={<ForgotPassword />}
+          />
 
-        {/* ===================================================== */}
-        {/* ================= MERCHANT ANALYTICS ================ */}
-        {/* ===================================================== */}
+          <Route
+            path="reset-password/:token"
+            element={<ResetPassword />}
+          />
 
-        <Route
-          path="merchant/analytics"
-          element={
-            <MerchantRoute>
-              <MerchantAnalytics />
-            </MerchantRoute>
-          }
-        />
+          <Route
+            path="register"
+            element={<Register />}
+          />
 
-        {/* ===================================================== */}
-        {/* ================= MERCHANT CUSTOMERS ================ */}
-        {/* ===================================================== */}
+          <Route
+            path="/store/:slug"
+            element={<StorePage />}
+          />
 
-        <Route
-          path="merchant/customers"
-          element={
-            <MerchantRoute>
-              <MerchantCustomers />
-            </MerchantRoute>
-          }
-        />
+          <Route
+            path="/stores"
+            element={<Stores />}
+          />
 
-        {/* ===================================================== */}
-        {/* ================= STORE SETTINGS ==================== */}
-        {/* ===================================================== */}
+        </Route>
 
-        <Route
-          path="merchant/settings"
-          element={
-            <MerchantRoute>
-              <StoreSettings />
-            </MerchantRoute>
-          }
-        />
+      </Routes>
 
-        {/* ===================================================== */}
-        {/* ==================== ADMIN ROUTES =================== */}
-        {/* ===================================================== */}
-
-        <Route
-          path="add-product"
-          element={
-            <MerchantRoute>
-              <AddProduct />
-            </MerchantRoute>
-          }
-        />
-
-        <Route
-  path="admin/orders"
-  element={
-    <AdminRoute>
-      <AdminOrders />
-    </AdminRoute>
-  }
-/>
-
-        <Route
-          path="edit-product/:id"
-          element={
-            <MerchantRoute>
-              <EditProduct />
-            </MerchantRoute>
-          }
-        />
-
-        {/* ===================================================== */}
-        {/* ================= AUTH ROUTES ======================= */}
-        {/* ===================================================== */}
-
-        <Route
-          path="login"
-          element={<Login />}
-        />
-        <Route
-    path="/store/:slug"
-    element={<StorePage />}
-/>
-        <Route
-          path="register"
-          element={<Register />}
-        />
-        <Route
-    path="/stores"
-    element={<Stores />}
-/>
-      </Route>
-
-    </Routes>
+    </Suspense>
   );
 }
 

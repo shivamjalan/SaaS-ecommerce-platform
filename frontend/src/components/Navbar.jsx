@@ -12,6 +12,8 @@ import {
 import { CartContext } from "../store/cartContext";
 import { AuthContext } from "../store/authContext";
 
+import { Button } from "./ui/button";
+
 const Navbar = () => {
 
   // ================= CART =================
@@ -59,13 +61,7 @@ const Navbar = () => {
         duration: 0.5,
       }}
 
-      className={`sticky top-0 z-50 backdrop-blur-md border-b shadow-lg ${
-        isMerchant
-          ? "bg-gradient-to-r from-indigo-950/90 via-black/85 to-black/85 border-indigo-500/30"
-          : isAdmin
-          ? "bg-gradient-to-r from-purple-950/90 via-black/85 to-black/85 border-purple-500/30"
-          : "bg-black/80 border-white/10"
-      }`}
+      className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md"
     >
 
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -74,16 +70,10 @@ const Navbar = () => {
 
         <Link
           to="/"
-          className="flex items-center gap-3"
+          className="flex items-center gap-3 group"
         >
 
-          <div className={`p-3 rounded-xl shadow-lg ${
-            isMerchant
-              ? "bg-gradient-to-r from-amber-500 to-orange-500"
-              : isAdmin
-              ? "bg-gradient-to-r from-purple-500 to-indigo-500"
-              : "bg-gradient-to-r from-pink-500 to-rose-400"
-          }`}>
+          <div className="gradient-bg p-3 rounded-xl shadow-accent group-hover:shadow-accent-lg transition-shadow">
 
             <FaStore
               className="text-white"
@@ -94,13 +84,13 @@ const Navbar = () => {
 
           <div>
 
-            <h1 className="text-2xl font-bold tracking-wide text-white">
+            <h1 className="font-display text-2xl text-foreground leading-tight">
 
               Saree SaaS
 
             </h1>
 
-            <p className="text-xs text-gray-400">
+            <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
 
               {isMerchant
                 ? "Merchant Workspace"
@@ -118,130 +108,129 @@ const Navbar = () => {
 
         <div className="hidden md:flex items-center gap-8">
 
-          {/* PRODUCTS */}
+          {/* STORES (hidden for merchants) */}
 
-          <div className="flex items-center gap-8">
+          {!isMerchant && (
 
-    <Link
-        to="/stores"
-        className="text-gray-200 hover:text-pink-400 transition duration-300 font-medium"
-    >
-        Stores
-    </Link>
-
-</div>
+            <Link
+              to="/stores"
+              className="text-muted-foreground hover:text-accent transition-colors font-medium"
+            >
+              Stores
+            </Link>
+          )}
 
           {/* MY ORDERS (normal users) */}
 
           {userInfo?.user?.role ===
-  "user" && (
+"user" && (
 
-  <Link
-    to="/myorders"
-    className="text-gray-200 hover:text-pink-400 transition duration-300 font-medium"
-  >
+<Link
+  to="/myorders"
+  className="text-muted-foreground hover:text-accent transition-colors font-medium"
+>
 
-    My Orders
+  My Orders
 
-  </Link>
+</Link>
 )}
 
           {/* MERCHANT */}
 
           {userInfo?.user?.role ===
-  "merchant" && (
+"merchant" && (
 
-  <div className="flex items-center gap-6">
+<div className="flex items-center gap-6">
 
-    <Link
-      to="/merchant/dashboard"
-      className="text-gray-200 hover:text-amber-300 transition duration-300 font-medium"
-    >
+  <Link
+    to="/merchant/dashboard"
+    className="text-muted-foreground hover:text-accent transition-colors font-medium"
+  >
 
-      Dashboard
+    Dashboard
 
-    </Link>
+  </Link>
 
-    <Link
-      to="/merchant/orders"
-      className="text-gray-200 hover:text-amber-300 transition duration-300 font-medium"
-    >
+  <Link
+    to="/merchant/orders"
+    className="text-muted-foreground hover:text-accent transition-colors font-medium"
+  >
 
-      Orders
+    Orders
 
-    </Link>
+  </Link>
 
-    <Link
-      to="/merchant/analytics"
-      className="text-gray-200 hover:text-amber-300 transition duration-300 font-medium"
-    >
+  <Link
+    to="/merchant/analytics"
+    className="text-muted-foreground hover:text-accent transition-colors font-medium"
+  >
 
-      Analytics
+    Analytics
 
-    </Link>
+  </Link>
 
-    <Link
-      to="/merchant/products"
-      className="text-gray-200 hover:text-amber-300 transition duration-300 font-medium"
-    >
+  <Link
+    to="/merchant/products"
+    className="text-muted-foreground hover:text-accent transition-colors font-medium"
+  >
 
-      Products
+    Products
 
-    </Link>
+  </Link>
 
-    <Link
-      to="/merchant/settings"
-      className="text-gray-200 hover:text-amber-300 transition duration-300 font-medium"
-    >
+  <Link
+    to="/merchant/settings"
+    className="text-muted-foreground hover:text-accent transition-colors font-medium"
+  >
 
-      Store
+    Store
 
-    </Link>
+  </Link>
 
-  </div>
+</div>
 )}
 
           {/* SUPERADMIN */}
 
           {userInfo?.user?.role ===
-  "superadmin" && (
+"superadmin" && (
 
-  <div className="flex items-center gap-6">
+<div className="flex items-center gap-6">
 
-    <Link
-      to="/add-product"
-      className="text-gray-200 hover:text-pink-400 transition duration-300 font-medium"
-    >
+  <Link
+    to="/add-product"
+    className="text-muted-foreground hover:text-accent transition-colors font-medium"
+  >
 
-      Add Product
+    Add Product
 
-    </Link>
+  </Link>
 
-    <Link
-      to="/admin/orders"
-      className="text-gray-200 hover:text-pink-400 transition duration-300 font-medium"
-    >
+  <Link
+    to="/admin/orders"
+    className="text-muted-foreground hover:text-accent transition-colors font-medium"
+  >
 
-      Manage Orders
+    Manage Orders
 
-    </Link>
+  </Link>
 
-  </div>
+</div>
 )}
 
           {/* OPEN A STORE (regular users) */}
 
           {userInfo?.user?.role ===
-  "user" && (
+"user" && (
 
-  <Link
-    to="/create-store"
-    className="bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-90 px-4 py-2 rounded-xl text-sm font-medium shadow-md transition"
-  >
+<Link
+  to="/create-store"
+  className="gradient-bg text-white px-4 py-2 rounded-xl text-sm font-medium shadow-sm hover:shadow-accent hover:-translate-y-0.5 transition-all duration-200"
+>
 
-    Open a Store
+  Open a Store
 
-  </Link>
+</Link>
 )}
 
         </div>
@@ -256,7 +245,7 @@ const Navbar = () => {
 
           <Link
             to="/cart"
-            className="relative flex items-center gap-2 text-white hover:text-pink-400 transition"
+            className="relative flex items-center gap-2 text-muted-foreground hover:text-accent transition-colors"
           >
 
             <FaShoppingCart size={22} />
@@ -279,7 +268,7 @@ const Navbar = () => {
                   scale: 1,
                 }}
 
-                className="absolute -top-3 -right-3 bg-pink-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full shadow-md"
+                className="absolute -top-3 -right-3 gradient-bg text-white text-xs w-5 h-5 flex items-center justify-center rounded-full shadow-accent"
               >
 
                 {totalItems}
@@ -296,11 +285,11 @@ const Navbar = () => {
 
             <div className="flex items-center gap-4">
 
-              <div className="flex items-center gap-2 text-gray-200">
+              <div className="flex items-center gap-2 text-foreground">
 
                 <FaUserCircle
                   size={24}
-                  className="text-pink-400"
+                  className="text-accent"
                 />
 
                 <span className="hidden md:block font-medium">
@@ -313,27 +302,28 @@ const Navbar = () => {
                 </span>
 
                 {isMerchant && (
-                  <span className="hidden md:inline-flex text-[11px] font-bold uppercase tracking-wide bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full">
+                  <span className="hidden md:inline-flex font-mono text-[11px] uppercase tracking-wide bg-accent/10 text-accent border border-accent/30 px-2 py-0.5 rounded-full">
                     Merchant
                   </span>
                 )}
 
                 {isAdmin && (
-                  <span className="hidden md:inline-flex text-[11px] font-bold uppercase tracking-wide bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full">
+                  <span className="hidden md:inline-flex font-mono text-[11px] uppercase tracking-wide bg-accent/10 text-accent border border-accent/30 px-2 py-0.5 rounded-full">
                     Superadmin
                   </span>
                 )}
 
               </div>
 
-              <button
+              <Button
                 onClick={logout}
-                className="bg-gradient-to-r from-red-500 to-rose-500 hover:opacity-90 px-4 py-2 rounded-xl text-sm font-medium shadow-md transition"
+                variant="outline"
+                size="sm"
               >
 
                 Logout
 
-              </button>
+              </Button>
 
             </div>
 
@@ -343,7 +333,7 @@ const Navbar = () => {
 
               <Link
                 to="/login"
-                className="text-gray-200 hover:text-pink-400 transition"
+                className="text-muted-foreground hover:text-accent transition-colors"
               >
 
                 Login
@@ -352,7 +342,7 @@ const Navbar = () => {
 
               <Link
                 to="/register"
-                className="bg-gradient-to-r from-pink-500 to-rose-500 px-4 py-2 rounded-xl text-sm font-medium shadow-md hover:opacity-90 transition"
+                className="gradient-bg text-white px-5 py-2 rounded-xl text-sm font-medium shadow-sm hover:shadow-accent hover:-translate-y-0.5 transition-all duration-200"
               >
 
                 Register

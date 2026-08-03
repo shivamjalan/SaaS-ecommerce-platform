@@ -8,8 +8,16 @@ import {
 } from "react-router-dom";
 
 import {
+  FaMapMarkerAlt,
+} from "react-icons/fa";
+
+import {
   CartContext,
 } from "../store/cartContext";
+
+import { Button } from "../components/ui/button";
+import { Card } from "../components/ui/card";
+import { Input } from "../components/ui/input";
 
 const Shipping = () => {
 
@@ -71,88 +79,154 @@ const Shipping = () => {
 
   return (
 
-    <div className="max-w-xl mx-auto p-6">
+    <div className="min-h-screen bg-background">
 
-      <h1 className="text-3xl font-bold mb-6">
+      <div className="max-w-xl mx-auto px-6 py-16">
 
-        Shipping Address
+        <div className="flex items-center gap-3 mb-2">
 
-      </h1>
+          <div className="gradient-bg h-11 w-11 rounded-xl flex items-center justify-center shadow-accent">
 
-      <form
-        onSubmit={
-          handleSubmit
-        }
-        className="space-y-4"
-      >
+            <FaMapMarkerAlt className="text-white" />
 
-        {/* ADDRESS */}
-        <input
-          type="text"
-          placeholder="Address"
-          value={address}
-          onChange={(e) =>
-            setAddress(
-              e.target.value
-            )
-          }
-          className="w-full border p-3 rounded"
-          required
-        />
+          </div>
 
-        {/* CITY */}
-        <input
-          type="text"
-          placeholder="City"
-          value={city}
-          onChange={(e) =>
-            setCity(
-              e.target.value
-            )
-          }
-          className="w-full border p-3 rounded"
-          required
-        />
+          <h1 className="text-3xl md:text-4xl font-display text-foreground">
 
-        {/* POSTAL CODE */}
-        <input
-          type="text"
-          placeholder="Postal Code"
-          value={postalCode}
-          onChange={(e) =>
-            setPostalCode(
-              e.target.value
-            )
-          }
-          className="w-full border p-3 rounded"
-          required
-        />
+            Shipping Address
 
-        {/* COUNTRY */}
-        <input
-          type="text"
-          placeholder="Country"
-          value={country}
-          onChange={(e) =>
-            setCountry(
-              e.target.value
-            )
-          }
-          className="w-full border p-3 rounded"
-          required
-        />
+          </h1>
 
-        {/* BUTTON */}
-        <button
-          type="submit"
-          className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded transition"
-        >
+        </div>
 
-          Continue
+        <p className="text-muted-foreground mb-8">
 
-        </button>
+          Where should we deliver your order?
 
-      </form>
+        </p>
+
+        <Card className="p-8">
+
+          <form
+            onSubmit={
+              handleSubmit
+            }
+            className="space-y-5"
+          >
+
+            {/* ADDRESS */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-foreground mb-2">
+
+                Address
+
+              </label>
+
+              <Input
+                type="text"
+                placeholder="House, street, area"
+                value={address}
+                onChange={(e) =>
+                  setAddress(
+                    e.target.value
+                  )
+                }
+                required
+              />
+
+            </div>
+
+            {/* CITY */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-foreground mb-2">
+
+                City
+
+              </label>
+
+              <Input
+                type="text"
+                placeholder="City"
+                value={city}
+                onChange={(e) =>
+                  setCity(
+                    e.target.value
+                  )
+                }
+                required
+              />
+
+            </div>
+
+            {/* POSTAL CODE */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-foreground mb-2">
+
+                Postal Code
+
+              </label>
+
+              <Input
+                type="text"
+                placeholder="Postal Code"
+                value={postalCode}
+                onChange={(e) =>
+                  setPostalCode(
+                    e.target.value
+                  )
+                }
+                required
+              />
+
+            </div>
+
+            {/* COUNTRY */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-foreground mb-2">
+
+                Country
+
+              </label>
+
+              <Input
+                type="text"
+                placeholder="Country"
+                value={country}
+                onChange={(e) =>
+                  setCountry(
+                    e.target.value
+                  )
+                }
+                required
+              />
+
+            </div>
+
+            {/* BUTTON */}
+
+            <Button
+              type="submit"
+              className="w-full"
+              size="lg"
+            >
+
+              Continue
+
+            </Button>
+
+          </form>
+
+        </Card>
+
+      </div>
 
     </div>
   );

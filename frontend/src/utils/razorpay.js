@@ -187,8 +187,6 @@ rzp.on("payment.failed", function (response) {
 
   alert(response.error.description);
 
-  console.log(response.error);
-
 });
 rzp.open();
 

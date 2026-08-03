@@ -1,8 +1,14 @@
-import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useEffect, useState, useCallback } from "react";
+import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { API_URL } from "../utils/api";
-import { getTheme } from "../utils/themes";
+import { FaSearch } from "react-icons/fa";
+import { API_URL, apiErrorMessage } from "../utils/api";
+import ChatBot from "../components/ChatBot";
+import ProductCard from "../components/Productcard";
+import { SectionLabel } from "../components/ui/badge";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import usePageMeta from "../hooks/usePageMeta";
 
 const StorePage = () => {
   const { slug } = useParams();
@@ -10,54 +16,171 @@ const StorePage = () => {
   const [store, setStore] = useState(null);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("All");
+  const [sortBy, setSortBy] = useState("featured");
 
-  useEffect(() => {
-    const fetchStore = async () => {
-      try {
-        const [storeRes, productRes] = await Promise.all([
-          fetch(`${API_URL}/stores/${slug}`),
-          fetch(`${API_URL}/products/store/${slug}`),
-        ]);
+  usePageMeta(
+    store ? `${store.name} | Saree SaaS` : "Store | Saree SaaS",
+    store?.description
+      ? store.description
+      : "Browse sarees from an independent merchant store on Saree SaaS."
+  );
 
-        const storeData = await storeRes.json();
-        const productsData = await productRes.json();
+  const fetchStore = useCallback(async () => {
 
-        setStore(storeData);
-        setProducts(productsData);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+    try {
+
+      const [storeRes, productRes] = await Promise.all([
+        fetch(`${API_URL}/stores/${slug}`),
+        fetch(`${API_URL}/products/store/${slug}`),
+      ]);
+
+      if (!storeRes.ok) {
+
+        throw new Error(
+          storeRes.status === 404
+            ? "Store not found."
+            : "Failed to load store."
+        );
+
       }
-    };
 
-    fetchStore();
+      const storeData = await storeRes.json();
+      const productsData = await productRes.ok
+        ? await productRes.json()
+        : [];
+
+      setStore(storeData);
+      setProducts(productsData);
+
+    } catch (err) {
+
+      console.error(err);
+
+      setError(
+        apiErrorMessage()
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
   }, [slug]);
 
+  const handleRetry = () => {
+
+    setLoading(true);
+
+    setError("");
+
+    setStore(null);
+
+    setProducts([]);
+
+    fetchStore();
+
+  };
+
+  useEffect(() => {
+
+    (async () => {
+
+      await fetchStore();
+
+    })();
+
+  }, [fetchStore]);
+
   if (loading) {
+
     return (
-      <div className="h-screen flex justify-center items-center text-2xl">
-        Loading Store...
+      <div className="min-h-[60vh] flex justify-center items-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 rounded-full border-2 border-border border-t-accent animate-spin" />
+          <p className="font-mono text-xs uppercase tracking-[0.15em] text-muted-foreground">
+            Loading Store...
+          </p>
+        </div>
       </div>
     );
+
+  }
+
+  if (error) {
+
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6">
+
+        <h1 className="text-3xl font-display text-foreground mb-4">
+          Oops, something went wrong
+        </h1>
+
+        <p className="text-muted-foreground mb-8 max-w-md">
+          {error}
+        </p>
+
+        <Button
+          onClick={handleRetry}
+        >
+
+          Retry
+
+        </Button>
+
+      </div>
+    );
+
   }
 
   if (!store) {
+
     return (
-      <div className="h-screen flex justify-center items-center text-2xl">
+      <div className="min-h-[60vh] flex justify-center items-center text-2xl font-display text-muted-foreground">
         Store not found.
       </div>
     );
+
   }
 
-  const theme = getTheme(store.theme);
+  const categories = [
+    "All",
+    ...new Set(
+      products.map((p) => p.category).filter(Boolean)
+    ),
+  ];
+
+  const filteredProducts =
+    products
+      .filter(
+        (p) =>
+          category === "All" ||
+          p.category === category
+      )
+      .filter(
+        (p) =>
+          p.name
+            .toLowerCase()
+            .includes(query.trim().toLowerCase())
+      )
+      .sort((a, b) => {
+        if (sortBy === "price-low") return a.price - b.price;
+        if (sortBy === "price-high") return b.price - a.price;
+        if (sortBy === "name") return a.name.localeCompare(b.name);
+        return 0;
+      });
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-background min-h-screen">
 
-      {/* Banner */}
+      {/* ===================================================== */}
+      {/* ===================== BANNER ======================== */}
+      {/* ===================================================== */}
 
-      <div className="relative h-80">
+      <div className="relative h-96 overflow-hidden">
 
         <img
           src={
@@ -68,23 +191,37 @@ const StorePage = () => {
           className="w-full h-full object-cover"
         />
 
-        <div className={`absolute inset-0 ${theme.banner} flex items-center justify-center`}>
+        <div className="absolute inset-0 bg-gradient-to-b from-foreground/50 via-foreground/70 to-foreground" />
 
-          <div className="text-center text-white">
+        <div className="relative h-full max-w-6xl mx-auto px-6 flex items-end pb-16">
+
+          <div>
+
+            <div className="flex items-center gap-3 mb-4">
+
+              <span className="h-2 w-2 rounded-full bg-accent animate-pulse-dot" />
+
+              <span className="font-mono text-xs uppercase tracking-[0.15em] text-white/70">
+
+                Store
+
+              </span>
+
+            </div>
 
             <motion.h1
               initial={{ opacity: 0, y: -30 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-6xl font-bold"
+              className="text-5xl md:text-6xl font-display text-white"
             >
               {store.name}
             </motion.h1>
 
-            <p className="mt-4 text-lg">
-
-              {store.description}
-
-            </p>
+            {store.description && (
+              <p className="mt-4 text-lg text-white/80 max-w-2xl">
+                {store.description}
+              </p>
+            )}
 
           </div>
 
@@ -92,74 +229,132 @@ const StorePage = () => {
 
       </div>
 
-      <div className="max-w-7xl mx-auto py-14 px-6">
+      {/* ===================================================== */}
+      {/* ===================== PRODUCTS ====================== */}
+      {/* ===================================================== */}
 
-        <h2 className="text-3xl font-bold mb-10">
+      <div className="max-w-6xl mx-auto py-16 px-6">
 
-          Products
+        <div className="flex items-center gap-4 mb-10">
 
-        </h2>
+          <SectionLabel>
+
+            Collection
+
+          </SectionLabel>
+
+          <span className="font-mono text-xs uppercase tracking-[0.15em] text-muted-foreground">
+
+            {filteredProducts.length} items
+
+          </span>
+
+        </div>
+
+        {/* ============ SEARCH / FILTER / SORT ============ */}
+
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-10">
+
+          <div className="relative flex-1 max-w-md">
+
+            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+
+            <Input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search products..."
+              className="pl-11"
+            />
+
+          </div>
+
+          {categories.length > 1 && (
+            <div className="flex flex-wrap gap-2">
+
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setCategory(cat)}
+                  className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
+                    category === cat
+                      ? "gradient-bg text-white shadow-accent"
+                      : "bg-card border border-border text-muted-foreground hover:text-accent"
+                  }`}
+                >
+
+                  {cat}
+
+                </button>
+              ))}
+
+            </div>
+          )}
+
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="h-12 rounded-xl border border-border bg-card px-4 font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-ring lg:ml-auto"
+          >
+
+            <option value="featured">Featured</option>
+
+            <option value="price-low">Price: Low to High</option>
+
+            <option value="price-high">Price: High to Low</option>
+
+            <option value="name">Name (A-Z)</option>
+
+          </select>
+
+        </div>
 
         {products.length === 0 ? (
 
-          <div className="text-gray-500 text-lg">
+          <div className="bg-card border border-border rounded-2xl p-16 text-center shadow-md">
 
-            No products available.
+            <p className="font-display text-2xl text-foreground">
+
+              No products available.
+
+            </p>
+
+            <p className="mt-3 text-muted-foreground">
+
+              Check back soon — this store is restocking.
+
+            </p>
+
+          </div>
+
+        ) : filteredProducts.length === 0 ? (
+
+          <div className="bg-card border border-border rounded-2xl p-16 text-center shadow-md">
+
+            <p className="font-display text-2xl text-foreground">
+
+              No products match your search.
+
+            </p>
+
+            <p className="mt-3 text-muted-foreground">
+
+              Try a different category or keyword.
+
+            </p>
 
           </div>
 
         ) : (
 
-          <div className="grid md:grid-cols-4 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
 
-              <motion.div
+              <ProductCard
                 key={product._id}
-                whileHover={{ y: -6 }}
-                className="bg-white rounded-2xl shadow-md overflow-hidden"
-              >
-
-                <img
-                  src={product.image}
-                  className="w-full h-64 object-cover"
-                  alt={product.name}
-                />
-
-                <div className="p-5">
-
-                  <h3 className="font-semibold text-xl">
-
-                    {product.name}
-
-                  </h3>
-
-                  <p className="mt-2 text-gray-600 line-clamp-2">
-
-                    {product.description}
-
-                  </p>
-
-                  <div className="mt-4 flex justify-between items-center">
-
-                    <span className="font-bold text-xl">
-
-                      ₹{product.price}
-
-                    </span>
-
-                    <Link
-                      to={`/product/${product._id}`}
-                      className={`text-white px-4 py-2 rounded-lg ${theme.btn} transition`}
-                    >
-                      View
-                    </Link>
-
-                  </div>
-
-                </div>
-
-              </motion.div>
+                product={product}
+              />
 
             ))}
 
@@ -168,6 +363,11 @@ const StorePage = () => {
         )}
 
       </div>
+
+      <ChatBot
+        storeSlug={slug}
+        storeName={store.name}
+      />
 
     </div>
   );

@@ -7,8 +7,21 @@ import {
 } from "react-router-dom";
 
 import {
+  FaMinus,
+  FaPlus,
+  FaTrash,
+} from "react-icons/fa";
+
+import {
   CartContext,
 } from "../store/cartContext";
+
+import {
+  roundGstTotal,
+} from "../utils/pricing";
+
+import { Button } from "../components/ui/button";
+import { Card } from "../components/ui/card";
 
 const Cart = () => {
 
@@ -45,231 +58,254 @@ const Cart = () => {
 
   // Matches the backend (subtotal + 5% GST, rounded)
   const total =
-    Math.round(subtotal * 1.05);
+    roundGstTotal(subtotal);
 
   const gst =
     total - subtotal;
 
   return (
 
-    <div className="max-w-5xl mx-auto p-6">
+    <div className="min-h-screen bg-background">
 
-      <h1 className="text-3xl font-bold mb-6">
+      <div className="max-w-6xl mx-auto px-6 py-16">
 
-        Shopping Cart
+        <h1 className="text-4xl md:text-5xl font-display text-foreground">
 
-      </h1>
+          Shopping{" "}
 
-      {cart.length === 0 ? (
+          <span className="gradient-text">
 
-        <div className="text-center mt-10">
+            Cart
 
-          <p className="text-gray-500 text-lg">
+          </span>
 
-            Your cart is empty
+        </h1>
 
-          </p>
+        {cart.length === 0 ? (
 
-        </div>
+          <Card className="mt-12 p-16 text-center">
 
-      ) : (
+            <p className="font-display text-2xl text-foreground">
 
-        <div className="grid md:grid-cols-3 gap-8">
+              Your cart is empty
 
-          {/* LEFT SIDE */}
+            </p>
 
-          <div className="md:col-span-2 space-y-4">
+            <p className="mt-3 text-muted-foreground">
 
-            {cart.map((item) => (
+              Head to the stores and discover something you love.
 
-              <div
-                key={item._id}
-                className="border rounded-xl p-4 flex items-center justify-between shadow-sm bg-white"
-              >
+            </p>
 
-                {/* PRODUCT INFO */}
+            <Button
+              onClick={() =>
+                navigate("/stores")
+              }
+              className="mt-8"
+            >
 
-                <div className="flex items-center gap-4">
+              Explore Stores
 
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-24 h-24 object-cover rounded"
-                  />
+            </Button>
 
-                  <div>
+          </Card>
 
-                    <h2 className="text-xl font-semibold">
+        ) : (
 
-                      {item.name}
+          <div className="grid md:grid-cols-3 gap-8 mt-10">
 
-                    </h2>
+            {/* LEFT SIDE */}
 
-                    <p className="text-gray-500">
+            <div className="md:col-span-2 space-y-4">
 
-                      ₹{item.price}
+              {cart.map((item) => (
 
-                    </p>
+                <Card
+                  key={item._id}
+                  className="p-5 flex items-center justify-between gap-4 hover:shadow-lg transition-shadow"
+                >
 
-                    <p className="font-medium mt-1">
+                  {/* PRODUCT INFO */}
 
-                      Total:
-                      ₹
-                      {item.price *
-                        item.quantity}
+                  <div className="flex items-center gap-4">
 
-                    </p>
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-24 h-24 object-cover rounded-xl"
+                    />
 
-                  </div>
+                    <div>
 
-                </div>
+                      <h2 className="text-lg font-semibold text-foreground">
 
-                {/* RIGHT SIDE */}
+                        {item.name}
 
-                <div className="flex flex-col items-center gap-3">
+                      </h2>
 
-                  {/* QUANTITY */}
+                      <p className="text-muted-foreground">
 
-                  <div className="flex items-center gap-3">
+                        ₹{item.price}
 
-                    <button
-                      onClick={() =>
-                        updateQuantity(
-                          item._id,
-                          "decrease"
-                        )
-                      }
-                      className="bg-gray-300 px-3 py-1 rounded"
-                    >
+                      </p>
 
-                      -
+                      <p className="font-semibold text-foreground mt-1">
 
-                    </button>
+                        Total:
+                        ₹
+                        {item.price *
+                          item.quantity}
 
-                    <span className="font-semibold text-lg">
+                      </p>
 
-                      {item.quantity}
-
-                    </span>
-
-                    <button
-                      onClick={() =>
-                        updateQuantity(
-                          item._id,
-                          "increase"
-                        )
-                      }
-                      className="bg-gray-300 px-3 py-1 rounded"
-                    >
-
-                      +
-
-                    </button>
+                    </div>
 
                   </div>
 
-                  {/* REMOVE */}
+                  {/* RIGHT SIDE */}
 
-                  <button
-                    onClick={() =>
-                      removeFromCart(
-                        item._id
-                      )
-                    }
-                    className="text-red-500 hover:text-red-700"
-                  >
+                  <div className="flex flex-col items-center gap-4">
 
-                    Remove
+                    {/* QUANTITY */}
 
-                  </button>
+                    <div className="flex items-center gap-3">
 
-                </div>
+                      <button
+                        onClick={() =>
+                          updateQuantity(
+                            item._id,
+                            "decrease"
+                          )
+                        }
+                        className="h-10 w-10 flex items-center justify-center rounded-xl border border-border text-foreground hover:bg-muted hover:border-accent/30 transition"
+                      >
 
-              </div>
-            ))}
+                        <FaMinus size={12} />
 
-          </div>
+                      </button>
 
-          {/* ORDER SUMMARY */}
+                      <span className="font-semibold text-lg w-8 text-center">
 
-          <div className="border rounded-xl p-6 shadow bg-white h-fit">
+                        {item.quantity}
 
-            <h2 className="text-2xl font-bold mb-4">
+                      </span>
 
-              Order Summary
+                      <button
+                        onClick={() =>
+                          updateQuantity(
+                            item._id,
+                            "increase"
+                          )
+                        }
+                        className="h-10 w-10 flex items-center justify-center rounded-xl gradient-bg text-white shadow-sm hover:shadow-accent transition"
+                      >
 
-            </h2>
+                        <FaPlus size={12} />
 
-            <div className="space-y-3">
+                      </button>
 
-              <div className="flex justify-between">
+                    </div>
 
-                <span>
-                  Subtotal
-                </span>
+                    {/* REMOVE */}
 
-                <span>
-                  ₹
-                  {subtotal}
-                </span>
+                    <button
+                      onClick={() =>
+                        removeFromCart(
+                          item._id
+                        )
+                      }
+                      className="inline-flex items-center gap-2 text-red-600 hover:text-red-700 font-medium"
+                    >
 
-              </div>
+                      <FaTrash size={14} />
 
-              <div className="flex justify-between">
+                      Remove
 
-                <span>
-                  GST (5%)
-                </span>
+                    </button>
 
-                <span>
-                  ₹
-                  {gst}
-                </span>
+                  </div>
 
-              </div>
-
-              <hr />
-
-              <div className="flex justify-between text-xl font-bold">
-
-                <span>
-                  Total
-                </span>
-
-                <span>
-                  ₹
-                  {total}
-                </span>
-
-              </div>
+                </Card>
+              ))}
 
             </div>
 
-            {/* CHECKOUT BUTTON */}
+            {/* ORDER SUMMARY */}
 
-            <button
-              onClick={() => {
+            <Card className="p-8 h-fit sticky top-24">
 
-                console.log(
-                  "CHECKOUT CLICKED"
-                );
+              <h2 className="text-2xl font-display text-foreground mb-6">
 
-                navigate(
-                  "/shipping"
-                );
+                Order Summary
 
-              }}
-              className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded mt-6 transition"
-            >
+              </h2>
 
-              Proceed to Checkout
+              <div className="space-y-3 text-sm">
 
-            </button>
+                <div className="flex justify-between text-muted-foreground">
+
+                  <span>
+                    Subtotal
+                  </span>
+
+                  <span>
+                    ₹
+                    {subtotal}
+                  </span>
+
+                </div>
+
+                <div className="flex justify-between text-muted-foreground">
+
+                  <span>
+                    GST (5%)
+                  </span>
+
+                  <span>
+                    ₹
+                    {gst}
+                  </span>
+
+                </div>
+
+                <div className="border-t border-border pt-4 flex justify-between text-xl font-bold text-foreground">
+
+                  <span>
+                    Total
+                  </span>
+
+                  <span className="gradient-text">
+                    ₹
+                    {total}
+                  </span>
+
+                </div>
+
+              </div>
+
+              {/* CHECKOUT BUTTON */}
+
+              <Button
+                onClick={() => {
+
+                  navigate(
+                    "/shipping"
+                  );
+
+                }}
+                className="w-full mt-6"
+              >
+
+                Proceed to Checkout
+
+              </Button>
+
+            </Card>
 
           </div>
+        )}
 
-        </div>
-      )}
+      </div>
 
     </div>
   );

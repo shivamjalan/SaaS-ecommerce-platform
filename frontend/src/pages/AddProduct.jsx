@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { API_URL } from "../utils/api";
 
+import { Card } from "../components/ui/card";
+import { Input, Textarea } from "../components/ui/input";
+import { Button } from "../components/ui/button";
+import { SectionLabel } from "../components/ui/badge";
+
 const AddProduct = () => {
 
   const storedUser =
@@ -20,8 +25,10 @@ const AddProduct = () => {
     name: "",
     price: "",
     image: "",
+    images: [],
     category: "",
     description: "",
+    stock: "",
     store: "",
   });
 
@@ -129,6 +136,85 @@ const AddProduct = () => {
 
   };
 
+  // HANDLE GALLERY IMAGE UPLOAD
+  const uploadGalleryImages = async (e) => {
+
+    const files = Array.from(e.target.files || []);
+
+    if (files.length === 0) return;
+
+    setUploading(true);
+
+    try {
+
+      const storedUser = JSON.parse(
+        localStorage.getItem("userInfo")
+      );
+
+      const uploaded = [];
+
+      for (const file of files) {
+
+        const imageData = new FormData();
+
+        imageData.append("image", file);
+
+        const response = await fetch(
+          `${API_URL}/upload`,
+          {
+            method: "POST",
+
+            headers: {
+              Authorization: `Bearer ${storedUser.token}`,
+            },
+
+            body: imageData,
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          uploaded.push(data.image);
+        }
+
+      }
+
+      if (uploaded.length > 0) {
+
+        setFormData((prev) => ({
+          ...prev,
+          images: [...prev.images, ...uploaded],
+        }));
+
+      }
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Image upload failed");
+
+    } finally {
+
+      setUploading(false);
+
+    }
+
+  };
+
+  // REMOVE GALLERY IMAGE
+  const removeGalleryImage = (url) => {
+
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter(
+        (img) => img !== url
+      ),
+    }));
+
+  };
+
   // HANDLE AI DESCRIPTION
   const generateDescription = async () => {
 
@@ -219,8 +305,6 @@ const AddProduct = () => {
 
       const data = await response.json();
 
-      console.log(data);
-
       if (response.ok) {
 
         alert("Product added successfully!");
@@ -229,8 +313,10 @@ const AddProduct = () => {
           name: "",
           price: "",
           image: "",
+          images: [],
           category: "",
           description: "",
+          stock: "",
           store: "",
         });
 
@@ -250,179 +336,334 @@ const AddProduct = () => {
 
   return (
 
-    <div className="max-w-xl mx-auto p-6">
+    <div className="min-h-screen bg-background py-16">
 
-      <h1 className="text-3xl font-bold mb-6">
-        Add Product
-      </h1>
+      <div className="max-w-2xl mx-auto px-6">
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-4"
-      >
+        {/* ===================================================== */}
+        {/* ==================== PAGE HEADER ==================== */}
+        {/* ===================================================== */}
 
-        {/* STORE PICKER — ADMINS ONLY */}
-        {isAdmin && (
-        <div>
+        <div className="mb-10">
 
-          <label className="block font-semibold mb-2">
-            Store
-          </label>
+          <SectionLabel>
 
-          <select
-            name="store"
-            value={formData.store}
-            onChange={handleChange}
-            className="w-full border p-3 rounded"
-            required
-          >
+            Product Catalogue
 
-            <option value="">
-              Select a store
-            </option>
+          </SectionLabel>
 
-            {stores.map((store) => (
+          <h1 className="mt-4 text-4xl md:text-5xl font-display text-foreground">
 
-              <option
-                key={store._id}
-                value={store._id}
-              >
+            Add a New{" "}
 
-                {store.name}
+            <span className="gradient-text">
 
-              </option>
+              Product
 
-            ))}
+            </span>
 
-          </select>
+          </h1>
 
         </div>
-        )}
 
-        {/* PRODUCT NAME */}
-        <input
-          type="text"
-          name="name"
-          placeholder="Product Name"
-          value={formData.name}
-          onChange={handleChange}
-          className="w-full border p-3 rounded"
-          required
-        />
+        <Card className="p-8">
 
-        {/* PRICE */}
-        <input
-          type="number"
-          name="price"
-          placeholder="Price"
-          value={formData.price}
-          onChange={handleChange}
-          className="w-full border p-3 rounded"
-          required
-        />
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6"
+          >
 
-        {/* IMAGE UPLOAD */}
-        <div>
+            {/* ===================================================== */}
+            {/* ================= STORE PICKER — ADMINS ============== */}
+            {/* ===================================================== */}
 
-          <label className="block font-semibold mb-2">
-            Product Image
-          </label>
+            {isAdmin && (
+            <div>
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={uploadImage}
-            className="w-full border p-3 rounded"
-            required
-          />
+              <label className="block text-sm font-medium text-foreground mb-2">
 
-          {uploading && (
-            <p className="text-blue-500 mt-2">
-              Uploading image...
-            </p>
-          )}
+                Store
 
-          {formData.image && (
-            <div className="mt-4">
+              </label>
 
-              <p className="font-medium mb-2">
-                Preview
-              </p>
+              <select
+                name="store"
+                value={formData.store}
+                onChange={handleChange}
+                className="w-full h-12 rounded-xl border border-border bg-card px-4 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                required
+              >
 
-              <img
-                src={formData.image}
-                alt="Preview"
-                className="w-48 rounded shadow"
+                <option value="">
+
+                  Select a store
+
+                </option>
+
+                {stores.map((store) => (
+
+                  <option
+                    key={store._id}
+                    value={store._id}
+                  >
+
+                    {store.name}
+
+                  </option>
+
+                ))}
+
+              </select>
+
+            </div>
+            )}
+
+            {/* ===================================================== */}
+            {/* ==================== PRODUCT NAME =================== */}
+            {/* ===================================================== */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-foreground mb-2">
+
+                Product Name
+
+              </label>
+
+              <Input
+                type="text"
+                name="name"
+                placeholder="Product Name"
+                value={formData.name}
+                onChange={handleChange}
+                required
               />
 
             </div>
-          )}
 
-        </div>
+            {/* ===================================================== */}
+            {/* ======================= PRICE ======================= */}
+            {/* ===================================================== */}
 
-        {/* CATEGORY */}
-        <input
-          type="text"
-          name="category"
-          placeholder="Category"
-          value={formData.category}
-          onChange={handleChange}
-          className="w-full border p-3 rounded"
-          required
-        />
+            <div>
 
-        {/* DESCRIPTION */}
-        <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
 
-          <div className="flex items-center justify-between mb-2">
+                Price
 
-            <label className="block font-semibold">
-              Product Description
-            </label>
+              </label>
 
-            <button
-              type="button"
-              onClick={generateDescription}
-              disabled={generating}
-              className="text-sm font-semibold text-rose-500 hover:text-rose-600 transition disabled:text-gray-400"
+              <Input
+                type="number"
+                name="price"
+                placeholder="Price"
+                value={formData.price}
+                onChange={handleChange}
+                required
+              />
+
+            </div>
+
+            {/* ===================================================== */}
+            {/* ======================= STOCK ======================= */}
+            {/* ===================================================== */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-foreground mb-2">
+
+                Stock
+
+              </label>
+
+              <Input
+                type="number"
+                name="stock"
+                placeholder="Stock (quantity available)"
+                value={formData.stock}
+                onChange={handleChange}
+                min="0"
+              />
+
+            </div>
+
+            {/* ===================================================== */}
+            {/* ==================== IMAGE UPLOAD =================== */}
+            {/* ===================================================== */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-foreground mb-2">
+
+                Product Image
+
+              </label>
+
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={uploadImage}
+                className="h-auto py-2 file:mr-4 file:rounded-lg file:border-0 file:bg-muted file:px-4 file:py-2 file:text-sm file:font-medium file:text-foreground hover:file:bg-muted/70"
+                required
+              />
+
+              {uploading && (
+                <p className="text-accent mt-2 text-sm font-medium">
+
+                  Uploading image...
+
+                </p>
+              )}
+
+              {formData.image && (
+                <div className="mt-4">
+
+                  <p className="text-sm font-medium text-foreground mb-2">
+
+                    Preview
+
+                  </p>
+
+                  <img
+                    src={formData.image}
+                    alt="Preview"
+                    className="w-48 rounded-xl border border-border shadow-sm"
+                  />
+
+                </div>
+              )}
+
+            </div>
+
+            {/* ===================================================== */}
+            {/* ================== GALLERY IMAGES =================== */}
+            {/* ===================================================== */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-foreground mb-2">
+
+                Gallery Images (optional)
+
+              </label>
+
+              <Input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={uploadGalleryImages}
+                className="h-auto py-2 file:mr-4 file:rounded-lg file:border-0 file:bg-muted file:px-4 file:py-2 file:text-sm file:font-medium file:text-foreground hover:file:bg-muted/70"
+              />
+
+              {formData.images.length > 0 && (
+                <div className="mt-4 flex gap-3 flex-wrap">
+                  {formData.images.map((img, i) => (
+                    <div key={i} className="relative">
+                      <img
+                        src={img}
+                        alt={`Gallery ${i + 1}`}
+                        className="w-24 h-24 object-cover rounded-xl border border-border shadow-sm"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeGalleryImage(img)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shadow-sm hover:bg-red-600"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+            </div>
+
+            {/* ===================================================== */}
+            {/* ===================== CATEGORY ====================== */}
+            {/* ===================================================== */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-foreground mb-2">
+
+                Category
+
+              </label>
+
+              <Input
+                type="text"
+                name="category"
+                placeholder="Category"
+                value={formData.category}
+                onChange={handleChange}
+                required
+              />
+
+            </div>
+
+            {/* ===================================================== */}
+            {/* ==================== DESCRIPTION ==================== */}
+            {/* ===================================================== */}
+
+            <div>
+
+              <div className="flex items-center justify-between mb-2">
+
+                <label className="block text-sm font-medium text-foreground">
+
+                  Product Description
+
+                </label>
+
+                <Button
+                  type="button"
+                  onClick={generateDescription}
+                  disabled={generating}
+                  variant="secondary"
+                  size="sm"
+                >
+
+                  {generating
+                    ? "Generating..."
+                    : "✨ Generate with AI"}
+
+                </Button>
+
+              </div>
+
+              <Textarea
+                name="description"
+                placeholder="Product Description"
+                value={formData.description}
+                onChange={handleChange}
+                rows="4"
+                required
+              />
+
+            </div>
+
+            {/* ===================================================== */}
+            {/* ==================== SUBMIT BUTTON ================== */}
+            {/* ===================================================== */}
+
+            <Button
+              type="submit"
+              disabled={uploading}
+              className="w-full"
+              size="lg"
             >
 
-              {generating
-                ? "Generating..."
-                : "✨ Generate with AI"}
+              {uploading
+                ? "Uploading..."
+                : "Add Product"}
 
-            </button>
+            </Button>
 
-          </div>
+          </form>
 
-          <textarea
-            name="description"
-            placeholder="Product Description"
-            value={formData.description}
-            onChange={handleChange}
-            className="w-full border p-3 rounded"
-            rows="4"
-            required
-          />
+        </Card>
 
-        </div>
-
-        {/* SUBMIT BUTTON */}
-        <button
-          type="submit"
-          disabled={uploading}
-          className={`px-6 py-3 rounded text-white transition ${
-            uploading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600"
-          }`}
-        >
-          {uploading
-            ? "Uploading..."
-            : "Add Product"}
-        </button>
-
-      </form>
+      </div>
 
     </div>
   );

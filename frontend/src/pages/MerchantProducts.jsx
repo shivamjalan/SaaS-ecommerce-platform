@@ -8,7 +8,17 @@ import {
   FaPlus,
 } from "react-icons/fa";
 
+import { Button } from "../components/ui/button";
+
+import { Card } from "../components/ui/card";
+
+import { Input } from "../components/ui/input";
+
+import { SectionLabel, Badge } from "../components/ui/badge";
+
 import { API_URL } from "../utils/api";
+
+import { LOW_STOCK_THRESHOLD } from "../utils/constants";
 
 const MerchantProducts = () => {
 
@@ -17,6 +27,12 @@ const MerchantProducts = () => {
   const [loading, setLoading] = useState(true);
 
   const [deleting, setDeleting] = useState(null);
+
+  const [editingStock, setEditingStock] =
+    useState(null);
+
+  const [stockInput, setStockInput] =
+    useState("");
 
   /* ===================================================== */
   /* ================= FETCH PRODUCTS ==================== */
@@ -128,6 +144,73 @@ const MerchantProducts = () => {
   };
 
   /* ===================================================== */
+  /* ================ UPDATE PRODUCT STOCK =============== */
+  /* ===================================================== */
+
+  const handleStockSave = async (product) => {
+
+    const value = Number(stockInput);
+
+    if (isNaN(value) || value < 0) {
+
+      alert("Enter a valid stock quantity");
+
+      return;
+
+    }
+
+    try {
+
+      const userInfo = JSON.parse(
+        localStorage.getItem("userInfo")
+      );
+
+      const response = await fetch(
+        `${API_URL}/merchant/products/${product._id}/stock`,
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userInfo.token}`,
+          },
+
+          body: JSON.stringify({ stock: value }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.error || "Failed to update stock");
+        return;
+      }
+
+      setProducts((prev) =>
+        prev.map((p) =>
+          p._id === product._id
+            ? { ...p, stock: data.product.stock }
+            : p
+        )
+      );
+
+      setEditingStock(null);
+
+      setStockInput("");
+
+      alert("Stock updated");
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Failed to update stock");
+
+    }
+
+  };
+
+  /* ===================================================== */
   /* ==================== LOADING ======================== */
   /* ===================================================== */
 
@@ -135,13 +218,19 @@ const MerchantProducts = () => {
 
     return (
 
-      <div className="min-h-screen flex items-center justify-center bg-[#faf7f2]">
+      <div className="min-h-screen flex items-center justify-center bg-background">
 
-        <h1 className="text-3xl font-bold">
+        <div className="flex flex-col items-center gap-4">
 
-          Loading Products...
+          <div className="h-12 w-12 rounded-full border-2 border-border border-t-accent animate-spin" />
 
-        </h1>
+          <p className="font-mono text-xs uppercase tracking-[0.15em] text-muted-foreground">
+
+            Loading Products...
+
+          </p>
+
+        </div>
 
       </div>
     );
@@ -149,25 +238,31 @@ const MerchantProducts = () => {
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-b from-[#faf7f2] via-white to-[#f8f5f0]">
+    <div className="min-h-screen bg-background">
 
       <div className="max-w-7xl mx-auto px-6 py-16">
 
-        {/* HEADER */}
+        {/* ===================================================== */}
+        {/* ==================== PAGE HEADER ==================== */}
+        {/* ===================================================== */}
 
         <div className="flex items-center justify-between flex-wrap gap-4 mb-12">
 
           <div>
 
-            <p className="uppercase tracking-[5px] text-rose-500 font-semibold mb-3">
+            <SectionLabel>
 
               Merchant
 
-            </p>
+            </SectionLabel>
 
-            <h1 className="text-5xl font-bold text-gray-900">
+            <h1 className="mt-4 text-5xl font-display text-foreground">
 
-              Products
+              <span className="gradient-text">
+
+                Products
+
+              </span>
 
             </h1>
 
@@ -175,7 +270,7 @@ const MerchantProducts = () => {
 
           <Link
             to="/add-product"
-            className="bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-900 transition inline-flex items-center gap-2"
+            className="gradient-bg text-white px-5 py-2 rounded-xl text-sm font-medium shadow-sm hover:shadow-accent hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center gap-2"
           >
 
             <FaPlus />
@@ -186,17 +281,21 @@ const MerchantProducts = () => {
 
         </div>
 
+        {/* ===================================================== */}
+        {/* ==================== EMPTY STATE ==================== */}
+        {/* ===================================================== */}
+
         {products.length === 0 ? (
 
-          <div className="bg-white rounded-3xl shadow-xl p-16 text-center">
+          <Card className="p-16 text-center">
 
-            <p className="text-2xl font-bold text-gray-700 mb-2">
+            <p className="text-3xl font-display text-foreground mb-2">
 
               No products yet
 
             </p>
 
-            <p className="text-gray-500 mb-6">
+            <p className="text-muted-foreground mb-6">
 
               Add your first product to start selling.
 
@@ -204,14 +303,14 @@ const MerchantProducts = () => {
 
             <Link
               to="/add-product"
-              className="inline-block bg-gradient-to-r from-pink-500 to-rose-500 text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition"
+              className="gradient-bg text-white px-6 py-3 rounded-xl font-semibold shadow-sm hover:shadow-accent hover:-translate-y-0.5 transition-all duration-200 inline-block"
             >
 
               Add Product
 
             </Link>
 
-          </div>
+          </Card>
 
         ) : (
 
@@ -219,9 +318,9 @@ const MerchantProducts = () => {
 
             {products.map((product) => (
 
-              <div
+              <Card
                 key={product._id}
-                className="bg-white rounded-3xl shadow-lg overflow-hidden"
+                className="overflow-hidden"
               >
 
                 <img
@@ -232,41 +331,104 @@ const MerchantProducts = () => {
 
                 <div className="p-6">
 
-                  <p className="text-sm text-gray-400 uppercase mb-1">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-1">
 
                     {product.category}
 
                   </p>
 
-                  <p className="text-lg font-bold mb-2">
+                  <p className="text-lg font-semibold text-foreground mb-2">
 
                     {product.name}
 
                   </p>
 
-                  <p className="font-semibold text-rose-500 mb-4">
+                  <p className="font-semibold gradient-text mb-2">
 
                     ₹{product.price}
 
                   </p>
 
+                  <div className="flex items-center gap-3 mb-4 flex-wrap">
+
+                    {(product.stock ?? 0) === 0 ? (
+                      <Badge className="bg-red-100 text-red-700">
+                        Out of Stock
+                      </Badge>
+                    ) : (product.stock ?? 0) <= LOW_STOCK_THRESHOLD ? (
+                      <Badge className="bg-amber-100 text-amber-700">
+                        Low Stock: {(product.stock ?? 0)}
+                      </Badge>
+                    ) : (
+                      <Badge className="bg-green-100 text-green-700">
+                        Stock: {(product.stock ?? 0)}
+                      </Badge>
+                    )}
+
+                    {editingStock === product._id ? (
+                      <div className="flex items-center gap-2">
+
+                        <Input
+                          type="number"
+                          value={stockInput}
+                          onChange={(e) => setStockInput(e.target.value)}
+                          min="0"
+                          autoFocus
+                          className="w-24 h-10"
+                        />
+
+                        <Button
+                          size="sm"
+                          onClick={() => handleStockSave(product)}
+                        >
+                          Save
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            setEditingStock(null);
+                            setStockInput("");
+                          }}
+                        >
+                          Cancel
+                        </Button>
+
+                      </div>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setEditingStock(product._id);
+                          setStockInput(product.stock ?? 0);
+                        }}
+                      >
+                        Edit Stock
+                      </Button>
+                    )}
+
+                  </div>
+
                   <div className="flex items-center gap-3">
 
                     <Link
                       to={`/edit-product/${product._id}`}
-                      className="flex-1 flex items-center justify-center gap-2 border border-gray-300 py-2 rounded font-semibold hover:bg-gray-50 transition"
+                      className="flex-1 flex items-center justify-center gap-2 border border-border py-2 rounded-xl font-semibold text-foreground hover:bg-muted transition"
                     >
 
-                      <FaEdit className="text-gray-500" />
+                      <FaEdit className="text-muted-foreground" />
 
                       Edit
 
                     </Link>
 
-                    <button
+                    <Button
+                      variant="danger"
+                      className="flex-1"
                       onClick={() => handleDelete(product)}
                       disabled={deleting === product._id}
-                      className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white py-2 rounded font-semibold hover:bg-red-600 transition disabled:opacity-50"
                     >
 
                       <FaTrash />
@@ -275,13 +437,13 @@ const MerchantProducts = () => {
                         ? "Deleting..."
                         : "Delete"}
 
-                    </button>
+                    </Button>
 
                   </div>
 
                 </div>
 
-              </div>
+              </Card>
             ))}
 
           </div>

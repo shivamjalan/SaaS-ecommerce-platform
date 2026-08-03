@@ -4,6 +4,12 @@ import Product from "../models/Product.js";
 import { getStoreAnalytics } from "../services/analyticsService.js";
 
 /* ===================================================== */
+/* ================= SHARED CONSTANTS ================== */
+/* ===================================================== */
+
+const LOW_STOCK_THRESHOLD = 10;
+
+/* ===================================================== */
 /* ============== MERCHANT DASHBOARD =================== */
 /* ===================================================== */
 
@@ -22,6 +28,7 @@ export const getMerchantDashboard = async (
       revenueAgg,
       pendingCount,
       recentOrders,
+      lowStockProducts,
     ] = await Promise.all([
 
       Product.countDocuments({
@@ -64,6 +71,14 @@ export const getMerchantDashboard = async (
         .limit(5)
         .lean(),
 
+      Product.find({
+        store: storeId,
+        stock: { $lte: LOW_STOCK_THRESHOLD },
+      })
+        .select("name stock image price")
+        .sort({ stock: 1 })
+        .lean(),
+
     ]);
 
     res.json({
@@ -72,6 +87,7 @@ export const getMerchantDashboard = async (
       revenue: revenueAgg[0]?.total || 0,
       pendingCount,
       recentOrders,
+      lowStockProducts,
     });
 
   } catch (error) {

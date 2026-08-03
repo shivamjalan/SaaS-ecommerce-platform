@@ -6,6 +6,8 @@ import {
   registerUser,
   loginUser,
   getUserProfile,
+  forgotPassword,
+  resetPassword,
 } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -36,6 +38,24 @@ router.get(
   "/profile",
   protect,
   getUserProfile
+);
+
+/* ===================================================== */
+/* ================ FORGOT PASSWORD ==================== */
+/* ===================================================== */
+
+router.post(
+  "/forgot-password",
+  forgotPassword
+);
+
+/* ===================================================== */
+/* ================= RESET PASSWORD ==================== */
+/* ===================================================== */
+
+router.put(
+  "/reset-password/:token",
+  resetPassword
 );
 
 export default router;

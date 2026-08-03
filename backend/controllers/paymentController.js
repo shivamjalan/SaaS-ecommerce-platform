@@ -3,7 +3,6 @@ import crypto from "node:crypto";
 import Order from "../models/Order.js";
 
 export const createRazorpayOrder = async (req, res) => {
-    console.log(req.body);
   try {
     const { amount ,orderId} = req.body;
 

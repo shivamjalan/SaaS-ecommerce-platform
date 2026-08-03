@@ -86,7 +86,6 @@ router.put(
 router.put(
   "/:id/cancel",
   protect,
-  admin,
   cancelOrder
 );
 

@@ -16,9 +16,15 @@ import {
   Legend,
 } from "recharts";
 
-import { FaRupeeSign } from "react-icons/fa";
+import {
+  FaRupeeSign,
+  FaShoppingBag,
+  FaChartLine,
+} from "react-icons/fa";
 
 import { API_URL } from "../utils/api";
+
+import { SectionLabel } from "../components/ui/badge";
 
 const PIE_COLORS = [
   "#f43f5e",
@@ -129,13 +135,19 @@ const MerchantAnalytics = () => {
 
     return (
 
-      <div className="min-h-screen flex items-center justify-center bg-[#faf7f2]">
+      <div className="min-h-screen flex items-center justify-center bg-background">
 
-        <h1 className="text-3xl font-bold">
+        <div className="flex flex-col items-center gap-4">
 
-          Loading Analytics...
+          <div className="h-12 w-12 rounded-full border-2 border-border border-t-accent animate-spin" />
 
-        </h1>
+          <p className="font-mono text-xs uppercase tracking-[0.15em] text-muted-foreground">
+
+            Loading Analytics...
+
+          </p>
+
+        </div>
 
       </div>
     );
@@ -150,43 +162,63 @@ const MerchantAnalytics = () => {
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-b from-[#faf7f2] via-white to-[#f8f5f0]">
+    <div className="min-h-screen bg-background">
 
       <div className="max-w-7xl mx-auto px-6 py-16">
 
-        {/* HEADER */}
+        {/* ===================================================== */}
+        {/* ==================== PAGE HEADER ==================== */}
+        {/* ===================================================== */}
 
         <div className="mb-12">
 
-          <p className="uppercase tracking-[5px] text-rose-500 font-semibold mb-3">
+          <SectionLabel>
 
             Merchant
 
-          </p>
+          </SectionLabel>
 
-          <h1 className="text-5xl font-bold text-gray-900">
+          <h1 className="mt-4 text-5xl font-display text-foreground">
 
-            Analytics
+            Store
+
+            <span className="gradient-text">
+
+              {" "}Analytics
+
+            </span>
 
           </h1>
 
         </div>
 
-        {/* SUMMARY CARDS */}
+        {/* ===================================================== */}
+        {/* ==================== SUMMARY CARDS ================== */}
+        {/* ===================================================== */}
 
         <div className="grid md:grid-cols-3 gap-6 mb-12">
 
-          <div className="bg-white rounded-3xl shadow-lg p-6">
+          <div className="bg-card border border-border rounded-2xl shadow-md p-6">
 
-            <p className="text-gray-500 text-sm mb-1">
+            <div className="flex items-center gap-3 mb-4">
 
-              Lifetime Revenue
+              <div className="gradient-bg h-10 w-10 rounded-2xl flex items-center justify-center shadow-accent">
 
-            </p>
+                <FaRupeeSign className="text-white" />
 
-            <h2 className="text-3xl font-bold text-gray-900 flex items-center">
+              </div>
 
-              <FaRupeeSign className="text-rose-500 mr-1" />
+              <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+
+                Lifetime Revenue
+
+              </p>
+
+            </div>
+
+            <h2 className="text-4xl font-display gradient-text flex items-center">
+
+              <FaRupeeSign className="mr-1" />
 
               {analytics.totalRevenue}
 
@@ -194,15 +226,25 @@ const MerchantAnalytics = () => {
 
           </div>
 
-          <div className="bg-white rounded-3xl shadow-lg p-6">
+          <div className="bg-card border border-border rounded-2xl shadow-md p-6">
 
-            <p className="text-gray-500 text-sm mb-1">
+            <div className="flex items-center gap-3 mb-4">
 
-              Total Orders
+              <div className="gradient-bg h-10 w-10 rounded-2xl flex items-center justify-center shadow-accent">
 
-            </p>
+                <FaShoppingBag className="text-white" />
 
-            <h2 className="text-3xl font-bold text-gray-900">
+              </div>
+
+              <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+
+                Total Orders
+
+              </p>
+
+            </div>
+
+            <h2 className="text-4xl font-display gradient-text">
 
               {totalOrders}
 
@@ -210,17 +252,27 @@ const MerchantAnalytics = () => {
 
           </div>
 
-          <div className="bg-white rounded-3xl shadow-lg p-6">
+          <div className="bg-card border border-border rounded-2xl shadow-md p-6">
 
-            <p className="text-gray-500 text-sm mb-1">
+            <div className="flex items-center gap-3 mb-4">
 
-              Last 30 Days Revenue
+              <div className="gradient-bg h-10 w-10 rounded-2xl flex items-center justify-center shadow-accent">
 
-            </p>
+                <FaChartLine className="text-white" />
 
-            <h2 className="text-3xl font-bold text-gray-900 flex items-center">
+              </div>
 
-              <FaRupeeSign className="text-rose-500 mr-1" />
+              <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+
+                Last 30 Days Revenue
+
+              </p>
+
+            </div>
+
+            <h2 className="text-4xl font-display gradient-text flex items-center">
+
+              <FaRupeeSign className="mr-1" />
 
               {dailySales.reduce(
                 (sum, day) => sum + day.revenue,
@@ -233,15 +285,33 @@ const MerchantAnalytics = () => {
 
         </div>
 
-        {/* REVENUE OVER TIME */}
+        {/* ===================================================== */}
+        {/* ================= REVENUE OVER TIME ================= */}
+        {/* ===================================================== */}
 
-        <div className="bg-white rounded-3xl shadow-xl p-8 mb-12">
+        <div className="bg-card border border-border rounded-2xl shadow-md p-8 mb-12">
 
-          <h2 className="text-2xl font-bold mb-6">
+          <div className="mb-6">
 
-            Revenue — Last 30 Days
+            <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-2">
 
-          </h2>
+              Sales Trend
+
+            </p>
+
+            <h2 className="text-2xl font-display text-foreground">
+
+              Revenue —{" "}
+
+              <span className="gradient-text">
+
+                Last 30 Days
+
+              </span>
+
+            </h2>
+
+          </div>
 
           <ResponsiveContainer
             width="100%"
@@ -306,21 +376,29 @@ const MerchantAnalytics = () => {
 
         </div>
 
-        {/* TOP PRODUCTS + CATEGORY PIE */}
+        {/* ===================================================== */}
+        {/* ============ TOP PRODUCTS + CATEGORY PIE ============ */}
+        {/* ===================================================== */}
 
-        <div className="grid lg:grid-cols-2 gap-12 mb-12">
+        <div className="grid lg:grid-cols-2 gap-8 mb-12">
 
-          <div className="bg-white rounded-3xl shadow-xl p-8">
+          <div className="bg-card border border-border rounded-2xl shadow-md p-8">
 
-            <h2 className="text-2xl font-bold mb-6">
+            <h2 className="text-2xl font-display text-foreground mb-6">
 
-              Top Products
+              Top{" "}
+
+              <span className="gradient-text">
+
+                Products
+
+              </span>
 
             </h2>
 
             {analytics.topProducts.length === 0 ? (
 
-              <p className="text-gray-500">
+              <p className="text-muted-foreground">
 
                 No products sold yet.
 
@@ -371,17 +449,23 @@ const MerchantAnalytics = () => {
 
           </div>
 
-          <div className="bg-white rounded-3xl shadow-xl p-8">
+          <div className="bg-card border border-border rounded-2xl shadow-md p-8">
 
-            <h2 className="text-2xl font-bold mb-6">
+            <h2 className="text-2xl font-display text-foreground mb-6">
 
-              Revenue by Category
+              Revenue by{" "}
+
+              <span className="gradient-text">
+
+                Category
+
+              </span>
 
             </h2>
 
             {analytics.categoryRevenue.length === 0 ? (
 
-              <p className="text-gray-500">
+              <p className="text-muted-foreground">
 
                 No category data yet.
 
@@ -435,13 +519,21 @@ const MerchantAnalytics = () => {
 
         </div>
 
-        {/* ORDER STATUS */}
+        {/* ===================================================== */}
+        {/* =================== ORDER STATUS ==================== */}
+        {/* ===================================================== */}
 
-        <div className="bg-white rounded-3xl shadow-xl p-8">
+        <div className="bg-card border border-border rounded-2xl shadow-md p-8">
 
-          <h2 className="text-2xl font-bold mb-6">
+          <h2 className="text-2xl font-display text-foreground mb-6">
 
-            Order Status Breakdown
+            Order Status{" "}
+
+            <span className="gradient-text">
+
+              Breakdown
+
+            </span>
 
           </h2>
 

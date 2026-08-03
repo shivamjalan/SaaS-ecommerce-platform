@@ -10,7 +10,14 @@ import {
   FaStore,
   FaChartLine,
   FaMagic,
+  FaExclamationTriangle,
 } from "react-icons/fa";
+
+import { Button } from "../components/ui/button";
+
+import { Card } from "../components/ui/card";
+
+import { SectionLabel, Badge } from "../components/ui/badge";
 
 import { API_URL } from "../utils/api";
 
@@ -135,13 +142,19 @@ const MerchantDashboard = () => {
 
     return (
 
-      <div className="min-h-screen flex items-center justify-center bg-[#faf7f2]">
+      <div className="min-h-screen flex items-center justify-center bg-background">
 
-        <h1 className="text-3xl font-bold">
+        <div className="flex flex-col items-center gap-4">
 
-          Loading Dashboard...
+          <div className="h-12 w-12 rounded-full border-2 border-border border-t-accent animate-spin" />
 
-        </h1>
+          <p className="font-mono text-xs uppercase tracking-[0.15em] text-muted-foreground">
+
+            Loading Dashboard...
+
+          </p>
+
+        </div>
 
       </div>
     );
@@ -153,50 +166,52 @@ const MerchantDashboard = () => {
           label: "Products",
           value: stats.productCount,
           icon: <FaBoxOpen />,
-          color: "bg-blue-500",
         },
         {
           label: "Orders",
           value: stats.orderCount,
           icon: <FaClipboardList />,
-          color: "bg-purple-500",
         },
         {
           label: "Revenue (Paid)",
           value: `₹${stats.revenue}`,
           icon: <FaRupeeSign />,
-          color: "bg-green-500",
         },
         {
           label: "Pending Orders",
           value: stats.pendingCount,
           icon: <FaHourglassHalf />,
-          color: "bg-orange-500",
         },
       ]
     : [];
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-b from-[#faf7f2] via-white to-[#f8f5f0]">
+    <div className="min-h-screen bg-background">
 
       <div className="max-w-7xl mx-auto px-6 py-16">
 
-        {/* HEADER */}
+        {/* ===================================================== */}
+        {/* ==================== PAGE HEADER ==================== */}
+        {/* ===================================================== */}
 
         <div className="flex items-center justify-between flex-wrap gap-4 mb-12">
 
           <div>
 
-            <p className="uppercase tracking-[5px] text-rose-500 font-semibold mb-3">
+            <SectionLabel>
 
               Merchant Dashboard
 
-            </p>
+            </SectionLabel>
 
-            <h1 className="text-5xl font-bold text-gray-900">
+            <h1 className="mt-4 text-5xl font-display text-foreground">
 
-              {store?.name}
+              <span className="gradient-text">
+
+                {store?.name}
+
+              </span>
 
             </h1>
 
@@ -204,7 +219,7 @@ const MerchantDashboard = () => {
 
           <Link
             to="/merchant/settings"
-            className="bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-900 transition inline-flex items-center gap-2"
+            className="gradient-bg text-white px-5 py-2 rounded-xl text-sm font-medium shadow-sm hover:shadow-accent hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center gap-2"
           >
 
             <FaStore />
@@ -215,62 +230,134 @@ const MerchantDashboard = () => {
 
         </div>
 
-        {/* STAT CARDS */}
+        {/* ===================================================== */}
+        {/* ==================== STAT CARDS ===================== */}
+        {/* ===================================================== */}
 
         <div className="grid md:grid-cols-4 gap-6 mb-12">
 
           {statCards.map((card) => (
 
-            <div
+            <Card
               key={card.label}
-              className="bg-white rounded-3xl shadow-lg p-6"
+              className="p-6"
             >
 
-              <div className={`${card.color} text-white w-12 h-12 flex items-center justify-center rounded-2xl mb-4`}>
+              <div className="gradient-bg text-white w-12 h-12 flex items-center justify-center rounded-2xl mb-4 shadow-accent">
 
                 {card.icon}
 
               </div>
 
-              <p className="text-gray-500 text-sm mb-1">
+              <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-1">
 
                 {card.label}
 
               </p>
 
-              <h2 className="text-3xl font-bold text-gray-900">
+              <h2 className="text-3xl font-display gradient-text">
 
                 {card.value}
 
               </h2>
 
-            </div>
+            </Card>
           ))}
 
         </div>
 
-        {/* AI INSIGHTS */}
+        {/* ===================================================== */}
+        {/* ================== LOW STOCK ALERTS ================= */}
+        {/* ===================================================== */}
 
-        <div className="bg-white rounded-3xl shadow-xl p-8 mb-12">
+        {stats?.lowStockProducts?.length > 0 && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl shadow-md p-8 mb-12">
+
+            <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
+
+              <h2 className="text-xl font-semibold text-amber-800 flex items-center gap-2">
+
+                <FaExclamationTriangle className="text-amber-500" />
+
+                Low Stock Alerts
+
+              </h2>
+
+              <Link
+                to="/merchant/products"
+                className="text-amber-700 font-semibold hover:underline text-sm"
+              >
+
+                Restock Products
+
+              </Link>
+
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+              {stats.lowStockProducts.map((p) => (
+
+                <Card
+                  key={p._id}
+                  className="p-4 shadow-sm flex items-center justify-between gap-3"
+                >
+
+                  <div>
+
+                    <p className="font-semibold text-foreground">
+
+                      {p.name}
+
+                    </p>
+
+                    <p className="text-sm text-muted-foreground">
+
+                      ₹{p.price}
+
+                    </p>
+
+                  </div>
+
+                  <Badge className={
+                    p.stock === 0
+                      ? "bg-red-100 text-red-700"
+                      : "bg-amber-100 text-amber-700"
+                  }>
+
+                    {p.stock === 0
+                      ? "Out of Stock"
+                      : `${p.stock} left`}
+
+                  </Badge>
+
+                </Card>
+              ))}
+
+            </div>
+
+          </div>
+        )}
+
+        {/* ===================================================== */}
+        {/* ==================== AI INSIGHTS ==================== */}
+        {/* ===================================================== */}
+
+        <Card className="p-8 mb-12">
 
           <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
 
-            <h2 className="text-2xl font-bold flex items-center gap-2">
+            <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
 
-              <FaMagic className="text-rose-500" />
+              <FaMagic className="text-accent" />
 
               AI Insights
 
             </h2>
 
-            <button
+            <Button
               onClick={generateInsight}
               disabled={loadingInsight}
-              className={`px-6 py-3 rounded-xl font-semibold text-white transition ${
-                loadingInsight
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-pink-500 to-rose-500 hover:opacity-90"
-              }`}
             >
 
               {loadingInsight
@@ -279,13 +366,13 @@ const MerchantDashboard = () => {
                   ? "Regenerate Summary"
                   : "Generate AI Summary"}
 
-            </button>
+            </Button>
 
           </div>
 
           {insight ? (
 
-            <p className="text-gray-600 leading-relaxed">
+            <p className="text-muted-foreground leading-relaxed">
 
               {insight}
 
@@ -293,7 +380,7 @@ const MerchantDashboard = () => {
 
           ) : (
 
-            <p className="text-gray-400">
+            <p className="text-muted-foreground/60">
 
               Generate an AI-written summary of your store's recent performance.
 
@@ -301,24 +388,26 @@ const MerchantDashboard = () => {
 
           )}
 
-        </div>
+        </Card>
 
-        {/* QUICK LINKS */}
+        {/* ===================================================== */}
+        {/* ==================== QUICK LINKS ==================== */}
+        {/* ===================================================== */}
 
         <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-6 mb-12">
 
           <Link
             to="/merchant/products"
-            className="bg-white rounded-3xl shadow-lg p-6 hover:shadow-2xl transition"
+            className="bg-card border border-border rounded-2xl shadow-md p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200"
           >
 
-            <p className="font-bold text-lg mb-2">
+            <p className="font-semibold text-lg text-foreground mb-2">
 
               Manage Products
 
             </p>
 
-            <p className="text-gray-500 text-sm">
+            <p className="text-muted-foreground text-sm">
 
               Add, edit and remove your products.
 
@@ -328,16 +417,16 @@ const MerchantDashboard = () => {
 
           <Link
             to="/merchant/orders"
-            className="bg-white rounded-3xl shadow-lg p-6 hover:shadow-2xl transition"
+            className="bg-card border border-border rounded-2xl shadow-md p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200"
           >
 
-            <p className="font-bold text-lg mb-2">
+            <p className="font-semibold text-lg text-foreground mb-2">
 
               Orders
 
             </p>
 
-            <p className="text-gray-500 text-sm">
+            <p className="text-muted-foreground text-sm">
 
               Pack, ship and deliver customer orders.
 
@@ -347,16 +436,16 @@ const MerchantDashboard = () => {
 
           <Link
             to="/merchant/customers"
-            className="bg-white rounded-3xl shadow-lg p-6 hover:shadow-2xl transition"
+            className="bg-card border border-border rounded-2xl shadow-md p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200"
           >
 
-            <p className="font-bold text-lg mb-2">
+            <p className="font-semibold text-lg text-foreground mb-2">
 
               Customers
 
             </p>
 
-            <p className="text-gray-500 text-sm">
+            <p className="text-muted-foreground text-sm">
 
               See who is buying from your store.
 
@@ -366,18 +455,18 @@ const MerchantDashboard = () => {
 
           <Link
             to="/merchant/analytics"
-            className="bg-white rounded-3xl shadow-lg p-6 hover:shadow-2xl transition"
+            className="bg-card border border-border rounded-2xl shadow-md p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200"
           >
 
-            <p className="font-bold text-lg mb-2 flex items-center gap-2">
+            <p className="font-semibold text-lg text-foreground mb-2 flex items-center gap-2">
 
-              <FaChartLine className="text-rose-500" />
+              <FaChartLine className="text-accent" />
 
               Analytics
 
             </p>
 
-            <p className="text-gray-500 text-sm">
+            <p className="text-muted-foreground text-sm">
 
               Charts for revenue, products and categories.
 
@@ -387,10 +476,10 @@ const MerchantDashboard = () => {
 
           <Link
             to="/add-product"
-            className="bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-3xl shadow-lg p-6 hover:opacity-90 transition"
+            className="gradient-bg text-white rounded-2xl shadow-md p-6 hover:shadow-accent hover:-translate-y-1 transition-all duration-200"
           >
 
-            <p className="font-bold text-lg mb-2">
+            <p className="font-semibold text-lg mb-2">
 
               Add Product
 
@@ -406,11 +495,13 @@ const MerchantDashboard = () => {
 
         </div>
 
-        {/* RECENT ORDERS */}
+        {/* ===================================================== */}
+        {/* =================== RECENT ORDERS =================== */}
+        {/* ===================================================== */}
 
-        <div className="bg-white rounded-3xl shadow-xl p-8">
+        <Card className="p-8">
 
-          <h2 className="text-2xl font-bold mb-6">
+          <h2 className="text-xl font-semibold text-foreground mb-6">
 
             Recent Orders
 
@@ -418,7 +509,7 @@ const MerchantDashboard = () => {
 
           {!stats || stats.recentOrders.length === 0 ? (
 
-            <p className="text-gray-500">
+            <p className="text-muted-foreground">
 
               No orders yet.
 
@@ -432,18 +523,18 @@ const MerchantDashboard = () => {
 
                 <div
                   key={order._id}
-                  className="flex items-center justify-between flex-wrap gap-4 border-b pb-4 last:border-b-0 last:pb-0"
+                  className="flex items-center justify-between flex-wrap gap-4 border-b border-border pb-4 last:border-b-0 last:pb-0"
                 >
 
                   <div>
 
-                    <p className="font-semibold">
+                    <p className="font-semibold text-foreground">
 
                       {order.user?.name}
 
                     </p>
 
-                    <p className="text-gray-500 text-sm">
+                    <p className="text-muted-foreground text-sm">
 
                       {order.user?.email}
 
@@ -451,23 +542,23 @@ const MerchantDashboard = () => {
 
                   </div>
 
-                  <div className="text-gray-500 text-sm">
+                  <div className="text-muted-foreground text-sm">
 
                     {new Date(order.createdAt).toLocaleDateString()}
 
                   </div>
 
-                  <div className="font-bold text-rose-500">
+                  <div className="font-bold gradient-text">
 
                     ₹{order.totalPrice}
 
                   </div>
 
-                  <div className="px-4 py-1 rounded-full bg-gray-100 font-semibold text-sm">
+                  <Badge className="bg-muted text-foreground">
 
                     {order.status}
 
-                  </div>
+                  </Badge>
 
                 </div>
               ))}
@@ -475,7 +566,7 @@ const MerchantDashboard = () => {
             </div>
           )}
 
-        </div>
+        </Card>
 
       </div>
 

@@ -1,4 +1,4 @@
-console.log("THIS IS SERVER.JS RUNNING");
+import "dotenv/config";
 
 import express from "express";
 import cors from "cors";
@@ -102,5 +102,3 @@ app.listen(PORT, () => {
   );
 
 });
-console.log("SERVER MONGO:", process.env.MONGO_URI);
-console.log("SERVER CLOUD:", process.env.CLOUDINARY_API_KEY);

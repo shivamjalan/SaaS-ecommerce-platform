@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Two independent apps in one repo (no root package.json, no shared tooling): `backend/` (Express 5 + Mongoose 9, ESM) and `frontend/` (React 19 + Vite 8, JSX, Tailwind 3). Multi-tenant SaaS: users with roles `user | admin | merchant`, merchants own a `Store`, products belong to a store, Razorpay checkout, Cloudinary image uploads.
+Two independent apps in one repo (no root package.json, no shared tooling): `backend/` (Express 5 + Mongoose 9, ESM) and `frontend/` (React 19 + Vite 8, JSX, Tailwind 3). Multi-tenant SaaS: users with roles `user | merchant | superadmin`, merchants own a `Store`, products belong to a store, Razorpay checkout, Cloudinary image uploads.
 
 ## Commands
 
@@ -10,15 +10,15 @@ Two independent apps in one repo (no root package.json, no shared tooling): `bac
 
 ## Env vars
 
-- `backend/.env`: `MONGO_URI`, `JWT_SECRET`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`
+- `backend/.env`: `MONGO_URI`, `JWT_SECRET`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `OPENAI_API_KEY`, `OPENAI_MODEL`, `OPENAI_BASE_URL`, optional `FRONTEND_URL` (reset-link base, default `http://localhost:5173`), optional email SMTP `EMAIL_HOST` / `EMAIL_PORT` / `EMAIL_USER` / `EMAIL_PASS`.
 - `frontend/.env`: `VITE_RAZORPAY_KEY`, optional `VITE_API_URL`
-- `.env` files are gitignored and both exist locally. There is no `.env.example`.
-- Gotcha: `server.js` never calls `dotenv.config()` directly. Env only loads because `config/cloudinary.js` calls `dotenv.config()` as a side effect, and `uploadRoutes` (which pulls it in) is the first import in `server.js`. `config/env.js` is dead code, never imported. Don't "clean up" cloudinary.js's dotenv call without adding an explicit load in `server.js`.
-- Backend `package.json` lists the deprecated `crypto` npm package; `import crypto from "crypto"` in `paymentController.js` resolves to it.
+- `.env` files are gitignored and both exist locally. `.env.example` files exist in both apps.
+- `server.js` loads env explicitly via `import "dotenv/config"`. `config/cloudinary.js` also calls `dotenv.config()` (harmless, idempotent). `config/env.js` was deleted (dead code).
+- Password-reset emails: `backend/utils/sendEmail.js` uses nodemailer when `EMAIL_HOST/USER/PASS` are set (Gmail app password → strip the spaces), otherwise it logs the reset link to the server console. The sender is always the configured `EMAIL_USER`; the recipient is the registered user's own email.
 
 ## API wiring
 
-- The frontend fetches `${API_URL}/...` where `API_URL` is `VITE_API_URL` (default `http://localhost:5000/api`) from `src/utils/api.js`. The vite `/api` proxy in `vite.config.js` exists but is unused. Backend must run on port 5000; CORS is wide open (`app.use(cors())`).
+- The frontend fetches `${API_URL}/...` from `src/utils/api.js`. `API_URL` is `VITE_API_URL`, or in **dev mode** the relative `/api` (served by the vite `/api` proxy in `vite.config.js` → `http://localhost:5000`), or in **production** `http://localhost:5000/api`. The vite `/api` proxy is REQUIRED for dev mode — do not remove it. Backend must run on port 5000; CORS is wide open (`app.use(cors())`).
 - Auth: JWT in `localStorage` under `userInfo` (JSON containing `token`). Managed by `AuthContext`; guards are `ProtectedRoute` / `AdminRoute` in `src/components`. Send `Authorization: Bearer <token>`.
 - Roles: `admin` is a super admin with access to every store's products/orders. `merchantStore` middleware (`middleware/storeMiddleware.js`) lets merchants through with their own store (`req.store`) and lets admins through without one; controllers then treat `req.store` as optional (admin → all stores / any product). `adminOrMerchant` (`middleware/adminOrMerchant.js`) gates uploads. Merchant-only routes (`/api/merchant/products`) still require `merchant` + `merchantStore`.
 - Admin creates a product by picking a `store` in the POST body (AddProduct page has a store picker); merchants omit it and use `req.store`. `/api/products/seed` wipes all products and is admin-only.

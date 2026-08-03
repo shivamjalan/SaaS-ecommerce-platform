@@ -1,7 +1,10 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import crypto from "node:crypto";
 
 import User from "../models/User.js";
+
+import { sendEmail } from "../utils/sendEmail.js";
 
 /* ===================================================== */
 /* ================= REGISTER USER ===================== */
@@ -168,6 +171,163 @@ export const getUserProfile =
         ).select("-password");
 
       res.json(user);
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        error: "Server error",
+      });
+
+    }
+  };
+
+/* ===================================================== */
+/* ================== FORGOT PASSWORD ================== */
+/* ===================================================== */
+
+export const forgotPassword =
+  async (req, res) => {
+
+    try {
+
+      const {
+        email,
+      } = req.body;
+
+      const user =
+        await User.findOne({
+          email,
+        });
+
+      // Always respond the same way (don't leak which emails exist)
+      if (!user) {
+
+        return res.json({
+          message:
+            "If an account exists for that email, a password reset link has been sent.",
+        });
+
+      }
+
+      // Generate a reset token and store only its hash
+      const resetToken =
+        crypto.randomBytes(
+          32
+        ).toString("hex");
+
+      user.resetPasswordToken =
+        crypto
+          .createHash("sha256")
+          .update(resetToken)
+          .digest("hex");
+
+      user.resetPasswordExpire =
+        Date.now() +
+        60 * 60 * 1000; // 1 hour
+
+      await user.save();
+
+      const frontendUrl =
+        process.env.FRONTEND_URL ||
+        "http://localhost:5173";
+
+      const resetUrl =
+        `${frontendUrl}/reset-password/${resetToken}`;
+
+      await sendEmail({
+        to: user.email,
+
+        subject:
+          "Reset your Saree SaaS password",
+
+        html:
+          `<p>Hi ${user.name},</p>` +
+          `<p>You requested a password reset. Click the link below to set a new password (valid for 1 hour):</p>` +
+          `<p><a href="${resetUrl}">Reset Password</a></p>` +
+          `<p>If you didn't request this, you can safely ignore this email.</p>`,
+      });
+
+      res.json({
+        message:
+          "If an account exists for that email, a password reset link has been sent.",
+      });
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        error: "Server error",
+      });
+
+    }
+  };
+
+/* ===================================================== */
+/* ================== RESET PASSWORD =================== */
+/* ===================================================== */
+
+export const resetPassword =
+  async (req, res) => {
+
+    try {
+
+      const {
+        password,
+      } = req.body;
+
+      if (!password || password.length < 6) {
+        return res.status(400).json({
+          error: "Password must be at least 6 characters",
+        });
+      }
+
+      const hashedToken =
+        crypto
+          .createHash("sha256")
+          .update(req.params.token)
+          .digest("hex");
+
+      const user =
+        await User.findOne({
+          resetPasswordToken:
+            hashedToken,
+
+          resetPasswordExpire: {
+            $gt: Date.now(),
+          },
+        });
+
+      if (!user) {
+        return res.status(400).json({
+          error:
+            "Invalid or expired reset token",
+        });
+      }
+
+      const hashedPassword =
+        await bcrypt.hash(
+          password,
+          10
+        );
+
+      user.password =
+        hashedPassword;
+
+      user.resetPasswordToken =
+        null;
+
+      user.resetPasswordExpire =
+        null;
+
+      await user.save();
+
+      res.json({
+        message:
+          "Password reset successful. You can now login.",
+      });
 
     } catch (error) {
 

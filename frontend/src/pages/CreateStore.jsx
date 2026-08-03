@@ -2,9 +2,16 @@ import { useContext, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
+import { FaStore } from "react-icons/fa";
+
 import { AuthContext } from "../store/authContext";
 
 import { API_URL } from "../utils/api";
+
+import { Card } from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Button } from "../components/ui/button";
+import { SectionLabel } from "../components/ui/badge";
 
 const CreateStore = () => {
 
@@ -96,26 +103,41 @@ const CreateStore = () => {
   };
 
   return (
+    <div className="min-h-[70vh] flex items-center justify-center px-6 py-16">
 
-    <div className="min-h-screen bg-gradient-to-b from-[#faf7f2] via-white to-[#f8f5f0] py-16">
+      <div className="w-full max-w-xl">
 
-      <div className="max-w-xl mx-auto px-6">
+        <div className="text-center mb-8">
 
-        <div className="text-center mb-10">
+          <div className="flex justify-center mb-6">
 
-          <p className="uppercase tracking-[5px] text-rose-500 font-semibold mb-3">
+            <div className="gradient-bg h-16 w-16 rounded-2xl flex items-center justify-center shadow-accent">
+
+              <FaStore className="text-white" size={26} />
+
+            </div>
+
+          </div>
+
+          <SectionLabel>
 
             Become a Seller
 
-          </p>
+          </SectionLabel>
 
-          <h1 className="text-4xl font-bold text-gray-900">
+          <h1 className="mt-5 text-4xl font-display text-foreground">
 
-            Open Your Store
+            Open Your{" "}
+
+            <span className="gradient-text">
+
+              Store
+
+            </span>
 
           </h1>
 
-          <p className="mt-3 text-gray-500">
+          <p className="mt-3 text-muted-foreground">
 
             Set up your storefront and start selling on Saree SaaS.
 
@@ -123,101 +145,100 @@ const CreateStore = () => {
 
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white rounded-3xl shadow-xl p-8 space-y-5"
-        >
+        <Card className="p-8">
 
-          {/* STORE NAME */}
-
-          <div>
-
-            <label className="block font-semibold mb-2">
-
-              Store Name
-
-            </label>
-
-            <input
-              type="text"
-              name="name"
-              placeholder="e.g. Shivam Sarees"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full border p-3 rounded"
-              required
-            />
-
-          </div>
-
-          {/* SLUG */}
-
-          <div>
-
-            <label className="block font-semibold mb-2">
-
-              Store Slug
-
-            </label>
-
-            <input
-              type="text"
-              name="slug"
-              placeholder="e.g. shivam-sarees"
-              value={formData.slug}
-              onChange={handleChange}
-              className="w-full border p-3 rounded"
-              required
-            />
-
-            <p className="text-sm text-gray-400 mt-1">
-
-              Your store will be live at /store/{"{"}slug{"}"}
-
-            </p>
-
-          </div>
-
-          {/* DESCRIPTION */}
-
-          <div>
-
-            <label className="block font-semibold mb-2">
-
-              Description
-
-            </label>
-
-            <textarea
-              name="description"
-              placeholder="Tell customers about your store"
-              value={formData.description}
-              onChange={handleChange}
-              className="w-full border p-3 rounded"
-              rows="4"
-            />
-
-          </div>
-
-          {/* SUBMIT */}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-3 rounded text-white transition ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-gradient-to-r from-pink-500 to-rose-500 hover:opacity-90"
-            }`}
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-5"
           >
 
-            {loading
-              ? "Creating..."
-              : "Create Store"}
+            {/* STORE NAME */}
 
-          </button>
+            <div>
 
-        </form>
+              <label className="block text-sm font-medium text-foreground mb-2">
+
+                Store Name
+
+              </label>
+
+              <Input
+                type="text"
+                name="name"
+                placeholder="e.g. Shivam Sarees"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+
+            </div>
+
+            {/* SLUG */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-foreground mb-2">
+
+                Store Slug
+
+              </label>
+
+              <Input
+                type="text"
+                name="slug"
+                placeholder="e.g. shivam-sarees"
+                value={formData.slug}
+                onChange={handleChange}
+                required
+              />
+
+              <p className="text-sm text-muted-foreground mt-2">
+
+                Your store will be live at /store/{"{"}slug{"}"}
+
+              </p>
+
+            </div>
+
+            {/* DESCRIPTION */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-foreground mb-2">
+
+                Description
+
+              </label>
+
+              <textarea
+                name="description"
+                placeholder="Tell customers about your store"
+                value={formData.description}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-ring"
+                rows="4"
+              />
+
+            </div>
+
+            {/* SUBMIT */}
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full"
+              size="lg"
+            >
+
+              {loading
+                ? "Creating..."
+                : "Create Store"}
+
+            </Button>
+
+          </form>
+
+        </Card>
 
       </div>
 

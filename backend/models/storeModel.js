@@ -31,11 +31,6 @@ const storeSchema = new mongoose.Schema(
         default:"",
     },
 
-    theme:{
-        type:String,
-        default:"default",
-    },
-
 },
 
 {timestamps:true}

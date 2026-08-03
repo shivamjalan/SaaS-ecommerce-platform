@@ -8,6 +8,8 @@ import {
 
 import { API_URL } from "../utils/api";
 
+import { SectionLabel } from "../components/ui/badge";
+
 const MerchantCustomers = () => {
 
   const [customers, setCustomers] = useState([]);
@@ -67,13 +69,19 @@ const MerchantCustomers = () => {
 
     return (
 
-      <div className="min-h-screen flex items-center justify-center bg-[#faf7f2]">
+      <div className="min-h-screen flex items-center justify-center bg-background">
 
-        <h1 className="text-3xl font-bold">
+        <div className="flex flex-col items-center gap-4">
 
-          Loading Customers...
+          <div className="h-12 w-12 rounded-full border-2 border-border border-t-accent animate-spin" />
 
-        </h1>
+          <p className="font-mono text-xs uppercase tracking-[0.15em] text-muted-foreground">
+
+            Loading Customers...
+
+          </p>
+
+        </div>
 
       </div>
     );
@@ -86,29 +94,45 @@ const MerchantCustomers = () => {
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-b from-[#faf7f2] via-white to-[#f8f5f0]">
+    <div className="min-h-screen bg-background">
 
       <div className="max-w-5xl mx-auto px-6 py-16">
 
-        {/* HEADER */}
+        {/* ===================================================== */}
+        {/* ==================== PAGE HEADER ==================== */}
+        {/* ===================================================== */}
 
         <div className="mb-12">
 
-          <p className="uppercase tracking-[5px] text-rose-500 font-semibold mb-3">
+          <SectionLabel>
 
             Merchant
 
-          </p>
+          </SectionLabel>
 
-          <h1 className="text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="mt-4 text-5xl font-display text-foreground mb-4">
 
-            Customers
+            Your{" "}
+
+            <span className="gradient-text">
+
+              Customers
+
+            </span>
 
           </h1>
 
-          <p className="text-gray-500">
+          <p className="text-muted-foreground text-lg">
 
-            {customers.length} unique customers · ₹{totalRevenue} total lifetime revenue
+            {customers.length} unique customers ·{" "}
+
+            <span className="font-semibold gradient-text">
+
+              ₹{totalRevenue}
+
+            </span>{" "}
+
+            total lifetime revenue
 
           </p>
 
@@ -116,15 +140,21 @@ const MerchantCustomers = () => {
 
         {customers.length === 0 ? (
 
-          <div className="bg-white rounded-3xl shadow-xl p-16 text-center">
+          <div className="bg-card border border-border rounded-[2rem] shadow-lg p-16 text-center">
 
-            <p className="text-2xl font-bold text-gray-700 mb-2">
+            <div className="gradient-bg h-20 w-20 rounded-2xl mx-auto flex items-center justify-center shadow-accent mb-8">
 
-              No customers yet
+              <FaUser className="text-white text-4xl" />
 
-            </p>
+            </div>
 
-            <p className="text-gray-500">
+            <h2 className="text-3xl font-display text-foreground mb-4">
+
+              No Customers Yet
+
+            </h2>
+
+            <p className="text-muted-foreground text-lg">
 
               Customers who order from your store will appear here.
 
@@ -134,7 +164,7 @@ const MerchantCustomers = () => {
 
         ) : (
 
-          <div className="bg-white rounded-3xl shadow-xl divide-y divide-gray-100">
+          <div className="bg-card border border-border rounded-[2rem] shadow-lg divide-y divide-border">
 
             {customers.map((customer) => (
 
@@ -143,7 +173,7 @@ const MerchantCustomers = () => {
                 className="p-6 flex items-center gap-4"
               >
 
-                <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 rounded-full gradient-bg text-white flex items-center justify-center shrink-0 shadow-accent">
 
                   <FaUser />
 
@@ -151,13 +181,13 @@ const MerchantCustomers = () => {
 
                 <div className="flex-1 min-w-0">
 
-                  <p className="font-bold truncate">
+                  <p className="font-bold text-foreground truncate">
 
                     {customer.name || "Unknown"}
 
                   </p>
 
-                  <p className="text-gray-500 text-sm truncate">
+                  <p className="text-muted-foreground text-sm truncate">
 
                     {customer.email}
 
@@ -165,15 +195,21 @@ const MerchantCustomers = () => {
 
                 </div>
 
-                <div className="flex items-center gap-2 text-gray-500 text-sm">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm">
 
                   <FaShoppingBag />
 
-                  {customer.orderCount} orders
+                  <span className="font-semibold text-foreground">
+
+                    {customer.orderCount}
+
+                  </span>{" "}
+
+                  orders
 
                 </div>
 
-                <div className="flex items-center gap-1 font-bold text-rose-500 w-32 justify-end">
+                <div className="flex items-center gap-1 font-display gradient-text w-32 justify-end text-xl">
 
                   <FaRupeeSign />
 

@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_URL } from "../utils/api";
 
+import { Card } from "../components/ui/card";
+import { Input, Textarea } from "../components/ui/input";
+import { Button } from "../components/ui/button";
+import { SectionLabel } from "../components/ui/badge";
+
 const EditProduct = () => {
 
   const { id } = useParams();
@@ -11,6 +16,8 @@ const EditProduct = () => {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [image, setImage] = useState("");
+  const [images, setImages] = useState([]);
+  const [stock, setStock] = useState("");
 
   // NEW STATES
   const [category, setCategory] =
@@ -35,6 +42,8 @@ const EditProduct = () => {
         setName(data.name);
         setPrice(data.price);
         setImage(data.image);
+        setImages(data.images || []);
+        setStock(data.stock ?? "");
 
         // NEW DATA
         setCategory(data.category);
@@ -98,6 +107,76 @@ const EditProduct = () => {
       setUploading(false);
 
     }
+
+  };
+
+  // HANDLE GALLERY IMAGE UPLOAD
+  const uploadGalleryImages = async (e) => {
+
+    const files = Array.from(e.target.files || []);
+
+    if (files.length === 0) return;
+
+    try {
+
+      setUploading(true);
+
+      const storedUser =
+        JSON.parse(localStorage.getItem("userInfo"));
+
+      const uploaded = [];
+
+      for (const file of files) {
+
+        const data = new FormData();
+
+        data.append("image", file);
+
+        const response = await fetch(
+          `${API_URL}/upload`,
+          {
+            method: "POST",
+
+            headers: {
+              Authorization: `Bearer ${storedUser.token}`,
+            },
+
+            body: data,
+          }
+        );
+
+        const result = await response.json();
+
+        if (response.ok) {
+          uploaded.push(result.image);
+        }
+
+      }
+
+      if (uploaded.length > 0) {
+        setImages((prev) => [...prev, ...uploaded]);
+      }
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Image upload failed");
+
+    } finally {
+
+      setUploading(false);
+
+    }
+
+  };
+
+  // REMOVE GALLERY IMAGE
+  const removeGalleryImage = (url) => {
+
+    setImages((prev) =>
+      prev.filter((img) => img !== url)
+    );
 
   };
 
@@ -167,8 +246,6 @@ const EditProduct = () => {
       const storedUser =
         JSON.parse(localStorage.getItem("userInfo"));
 
-      console.log("STORED USER:", storedUser);
-
       const response = await fetch(
         `${API_URL}/products/${id}`,
         {
@@ -184,6 +261,8 @@ const EditProduct = () => {
             name,
             price,
             image,
+            images,
+            stock,
             category,
             description,
           }),
@@ -191,8 +270,6 @@ const EditProduct = () => {
       );
 
       const data = await response.json();
-
-      console.log(data);
 
       if (response.ok) {
 
@@ -215,133 +292,284 @@ const EditProduct = () => {
 
   return (
 
-    <div className="max-w-xl mx-auto p-6">
+    <div className="min-h-screen bg-background py-16">
 
-      <h1 className="text-3xl font-bold mb-6">
-        Edit Product
-      </h1>
+      <div className="max-w-2xl mx-auto px-6">
 
-      <form
-        onSubmit={handleUpdate}
-        className="space-y-4"
-      >
+        {/* ===================================================== */}
+        {/* ==================== PAGE HEADER ==================== */}
+        {/* ===================================================== */}
 
-        {/* PRODUCT NAME */}
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full border p-3 rounded"
-          placeholder="Product Name"
-          required
-        />
+        <div className="mb-10">
 
-        {/* PRICE */}
-        <input
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          className="w-full border p-3 rounded"
-          placeholder="Price"
-          required
-        />
+          <SectionLabel>
 
-        {/* PRODUCT IMAGE UPLOAD */}
-        <div>
+            Product Catalogue
 
-          <label className="block font-semibold mb-2">
-            Product Image
-          </label>
+          </SectionLabel>
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={uploadImage}
-            className="w-full border p-3 rounded"
-          />
+          <h1 className="mt-4 text-4xl md:text-5xl font-display text-foreground">
 
-          {uploading && (
-            <p className="text-blue-500 mt-2">
-              Uploading image...
-            </p>
-          )}
+            Edit{" "}
 
-          {image && (
-            <div className="mt-4">
+            <span className="gradient-text">
 
-              <p className="font-medium mb-2">
-                Preview
-              </p>
+              Product
 
-              <img
-                src={image}
-                alt="Preview"
-                className="w-48 rounded shadow"
+            </span>
+
+          </h1>
+
+        </div>
+
+        <Card className="p-8">
+
+          <form
+            onSubmit={handleUpdate}
+            className="space-y-6"
+          >
+
+            {/* ===================================================== */}
+            {/* ==================== PRODUCT NAME =================== */}
+            {/* ===================================================== */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-foreground mb-2">
+
+                Product Name
+
+              </label>
+
+              <Input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Product Name"
+                required
               />
 
             </div>
-          )}
 
-        </div>
+            {/* ===================================================== */}
+            {/* ======================= PRICE ======================= */}
+            {/* ===================================================== */}
 
-        {/* CATEGORY */}
-        <input
-          type="text"
-          value={category}
-          onChange={(e) =>
-            setCategory(e.target.value)
-          }
-          className="w-full border p-3 rounded"
-          placeholder="Category"
-          required
-        />
+            <div>
 
-        {/* DESCRIPTION */}
-        <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
 
-          <div className="flex items-center justify-between mb-2">
+                Price
 
-            <label className="block font-semibold">
-              Product Description
-            </label>
+              </label>
 
-            <button
-              type="button"
-              onClick={generateDescription}
-              disabled={generating}
-              className="text-sm font-semibold text-rose-500 hover:text-rose-600 transition disabled:text-gray-400"
+              <Input
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="Price"
+                required
+              />
+
+            </div>
+
+            {/* ===================================================== */}
+            {/* ======================= STOCK ======================= */}
+            {/* ===================================================== */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-foreground mb-2">
+
+                Stock
+
+              </label>
+
+              <Input
+                type="number"
+                value={stock}
+                onChange={(e) => setStock(e.target.value)}
+                placeholder="Stock (quantity available)"
+                min="0"
+              />
+
+            </div>
+
+            {/* ===================================================== */}
+            {/* ================== PRODUCT IMAGE UPLOAD ============== */}
+            {/* ===================================================== */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-foreground mb-2">
+
+                Product Image
+
+              </label>
+
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={uploadImage}
+                className="h-auto py-2 file:mr-4 file:rounded-lg file:border-0 file:bg-muted file:px-4 file:py-2 file:text-sm file:font-medium file:text-foreground hover:file:bg-muted/70"
+              />
+
+              {uploading && (
+                <p className="text-accent mt-2 text-sm font-medium">
+
+                  Uploading image...
+
+                </p>
+              )}
+
+              {image && (
+                <div className="mt-4">
+
+                  <p className="text-sm font-medium text-foreground mb-2">
+
+                    Preview
+
+                  </p>
+
+                  <img
+                    src={image}
+                    alt="Preview"
+                    className="w-48 rounded-xl border border-border shadow-sm"
+                  />
+
+                </div>
+              )}
+
+            </div>
+
+            {/* ===================================================== */}
+            {/* ================== GALLERY IMAGES =================== */}
+            {/* ===================================================== */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-foreground mb-2">
+
+                Gallery Images (optional)
+
+              </label>
+
+              <Input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={uploadGalleryImages}
+                className="h-auto py-2 file:mr-4 file:rounded-lg file:border-0 file:bg-muted file:px-4 file:py-2 file:text-sm file:font-medium file:text-foreground hover:file:bg-muted/70"
+              />
+
+              {images.length > 0 && (
+                <div className="mt-4 flex gap-3 flex-wrap">
+                  {images.map((img, i) => (
+                    <div key={i} className="relative">
+                      <img
+                        src={img}
+                        alt={`Gallery ${i + 1}`}
+                        className="w-24 h-24 object-cover rounded-xl border border-border shadow-sm"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeGalleryImage(img)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shadow-sm hover:bg-red-600"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+            </div>
+
+            {/* ===================================================== */}
+            {/* ===================== CATEGORY ====================== */}
+            {/* ===================================================== */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-foreground mb-2">
+
+                Category
+
+              </label>
+
+              <Input
+                type="text"
+                value={category}
+                onChange={(e) =>
+                  setCategory(e.target.value)
+                }
+                placeholder="Category"
+                required
+              />
+
+            </div>
+
+            {/* ===================================================== */}
+            {/* ==================== DESCRIPTION ==================== */}
+            {/* ===================================================== */}
+
+            <div>
+
+              <div className="flex items-center justify-between mb-2">
+
+                <label className="block text-sm font-medium text-foreground">
+
+                  Product Description
+
+                </label>
+
+                <Button
+                  type="button"
+                  onClick={generateDescription}
+                  disabled={generating}
+                  variant="secondary"
+                  size="sm"
+                >
+
+                  {generating
+                    ? "Generating..."
+                    : "✨ Generate with AI"}
+
+                </Button>
+
+              </div>
+
+              <Textarea
+                value={description}
+                onChange={(e) =>
+                  setDescription(e.target.value)
+                }
+                placeholder="Product Description"
+                rows="4"
+                required
+              />
+
+            </div>
+
+            {/* ===================================================== */}
+            {/* ==================== UPDATE BUTTON ================== */}
+            {/* ===================================================== */}
+
+            <Button
+              type="submit"
+              className="w-full"
+              size="lg"
             >
 
-              {generating
-                ? "Generating..."
-                : "✨ Generate with AI"}
+              Update Product
 
-            </button>
+            </Button>
 
-          </div>
+          </form>
 
-          <textarea
-            value={description}
-            onChange={(e) =>
-              setDescription(e.target.value)
-            }
-            className="w-full border p-3 rounded"
-            placeholder="Product Description"
-            rows="4"
-            required
-          />
+        </Card>
 
-        </div>
-
-        {/* BUTTON */}
-        <button
-          type="submit"
-          className="bg-green-500 text-white px-6 py-3 rounded hover:bg-green-600 transition"
-        >
-          Update Product
-        </button>
-
-      </form>
+      </div>
 
     </div>
   );

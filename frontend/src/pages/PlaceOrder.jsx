@@ -12,6 +12,11 @@ import {
 } from "../store/cartContext";
 import { handleRazorpayPayment } from "../utils/razorpay";
 import { API_URL } from "../utils/api";
+import { roundGstTotal } from "../utils/pricing";
+
+import { Button } from "../components/ui/button";
+import { Card } from "../components/ui/card";
+import { SectionLabel } from "../components/ui/badge";
 
 const PlaceOrder = () => {
 
@@ -25,25 +30,28 @@ const PlaceOrder = () => {
   } = useContext(
     CartContext
   );
-useEffect(() => {
-  if (cart.length === 0) {
-    navigate("/cart");
-    return;
-  }
-  if (
-    !shippingAddress ||
-    !shippingAddress.address ||
-    !shippingAddress.city ||
-    !shippingAddress.postalCode ||
-    !shippingAddress.country
-  ) {
-    navigate("/shipping");
-  }
-}, [cart, navigate, shippingAddress]);
+
+  useEffect(() => {
+    if (cart.length === 0) {
+      navigate("/cart");
+      return;
+    }
+    if (
+      !shippingAddress ||
+      !shippingAddress.address ||
+      !shippingAddress.city ||
+      !shippingAddress.postalCode ||
+      !shippingAddress.country
+    ) {
+      navigate("/shipping");
+    }
+  }, [cart, navigate, shippingAddress]);
+
   const [loading, setLoading] =
     useState(false);
+
   const [paymentMethod, setPaymentMethod] =
-  useState("COD");
+    useState("COD");
 
   /* ===================================================== */
   /* ================= TOTAL PRICE ====================== */
@@ -63,10 +71,10 @@ useEffect(() => {
 
   // Matches the backend (subtotal + 5% GST, rounded)
   const totalPrice =
-    Math.round(subtotal * 1.05);
+    roundGstTotal(subtotal);
 
   const gst = totalPrice - subtotal;
-  
+
   /* ===================================================== */
   /* ================= PLACE ORDER ====================== */
   /* ===================================================== */
@@ -84,13 +92,15 @@ useEffect(() => {
               "userInfo"
             )
           );
-          if (!userInfo) {
-    navigate("/login");
-    return;
-}
-          const response =
-            await fetch(
-              `${API_URL}/orders`,
+
+        if (!userInfo) {
+          navigate("/login");
+          return;
+        }
+
+        const response =
+          await fetch(
+            `${API_URL}/orders`,
             {
               method: "POST",
 
@@ -102,50 +112,44 @@ useEffect(() => {
               },
 
               body: JSON.stringify({
-  orderItems: cart.map((item) => ({
-    name: item.name,
-    quantity: item.quantity,
-    image: item.image,
-    price: item.price,
-    product: item._id,
-  })),
+                orderItems: cart.map((item) => ({
+                  name: item.name,
+                  quantity: item.quantity,
+                  image: item.image,
+                  price: item.price,
+                  product: item._id,
+                })),
 
-  shippingAddress,
+                shippingAddress,
 
-  totalPrice,
+                totalPrice,
 
-  paymentMethod,
-}),
+                paymentMethod,
+              }),
             }
           );
 
         const data =
           await response.json();
+
         if (!response.ok) {
-    alert(data.error || data.message || "Failed to place order");
-    return;
-}
-        console.log(data);
+          alert(data.error || data.message || "Failed to place order");
+          return;
+        }
 
-        if (response.ok) {
+        if (paymentMethod === "COD") {
 
-  if (paymentMethod === "COD") {
+          alert("Order placed successfully!");
 
-    alert("Order placed successfully!");
+          clearCart();
 
-    clearCart();
+          navigate("/");
 
-    navigate("/");
+        } else {
 
-  }
+          await handleRazorpayPayment(data.order, clearCart, navigate);
 
-  else {
-
-    await handleRazorpayPayment(data.order,clearCart,navigate);
-
-  }
-
-}
+        }
 
       } catch (error) {
 
@@ -160,235 +164,280 @@ useEffect(() => {
 
   return (
 
-    <div className="max-w-5xl mx-auto p-6">
+    <div className="min-h-screen bg-background">
 
-      <h1 className="text-3xl font-bold mb-6">
+      <div className="max-w-6xl mx-auto px-6 py-16">
 
-        Place Order
+        <SectionLabel>
 
-      </h1>
+          Checkout
 
-      <div className="grid md:grid-cols-2 gap-8">
+        </SectionLabel>
 
-        {/* SHIPPING */}
+        <h1 className="mt-4 text-4xl md:text-5xl font-display text-foreground">
 
-        <div>
+          Place{" "}
 
-          <h2 className="text-2xl font-semibold mb-4">
+          <span className="gradient-text">
 
-            Shipping
+            Order
 
-          </h2>
+          </span>
 
-          <div className="border p-4 rounded space-y-2">
+        </h1>
 
-            <p>
-              <strong>
-                Address:
-              </strong>{" "}
-              {
-                shippingAddress.address
-              }
-            </p>
+        <div className="grid md:grid-cols-2 gap-8 mt-10">
 
-            <p>
-              <strong>
-                City:
-              </strong>{" "}
-              {
-                shippingAddress.city
-              }
-            </p>
+          {/* SHIPPING */}
 
-            <p>
-              <strong>
-                Postal Code:
-              </strong>{" "}
-              {
-                shippingAddress
-                  .postalCode
-              }
-            </p>
+          <div>
 
-            <p>
-              <strong>
-                Country:
-              </strong>{" "}
-              {
-                shippingAddress.country
-              }
-            </p>
+            <Card className="p-8">
+
+              <h2 className="text-xl font-semibold text-foreground mb-5">
+
+                Shipping
+
+              </h2>
+
+              <div className="space-y-2 text-sm text-muted-foreground">
+
+                <p>
+                  <strong className="text-foreground">
+                    Address:
+                  </strong>{" "}
+                  {
+                    shippingAddress.address
+                  }
+                </p>
+
+                <p>
+                  <strong className="text-foreground">
+                    City:
+                  </strong>{" "}
+                  {
+                    shippingAddress.city
+                  }
+                </p>
+
+                <p>
+                  <strong className="text-foreground">
+                    Postal Code:
+                  </strong>{" "}
+                  {
+                    shippingAddress
+                      .postalCode
+                  }
+                </p>
+
+                <p>
+                  <strong className="text-foreground">
+                    Country:
+                  </strong>{" "}
+                  {
+                    shippingAddress.country
+                  }
+                </p>
+
+              </div>
+
+            </Card>
+
+            {/* ORDER ITEMS */}
+
+            <h2 className="text-xl font-semibold mt-10 mb-5 text-foreground">
+
+              Order Items
+
+            </h2>
+
+            <div className="space-y-4">
+
+              {cart.map((item) => (
+
+                <Card
+                  key={item._id}
+                  className="p-4 flex items-center gap-4"
+                >
+
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-20 h-20 object-cover rounded-xl"
+                  />
+
+                  <div>
+
+                    <h3 className="font-semibold text-foreground">
+
+                      {item.name}
+
+                    </h3>
+
+                    <p className="text-sm text-muted-foreground">
+                      Quantity:{" "}
+                      {item.quantity}
+                    </p>
+
+                    <p className="font-bold gradient-text mt-1">
+                      ₹
+                      {item.price}
+                    </p>
+
+                  </div>
+
+                </Card>
+              ))}
+
+            </div>
 
           </div>
 
-          {/* ORDER ITEMS */}
+          {/* ORDER SUMMARY */}
 
-          <h2 className="text-2xl font-semibold mt-8 mb-4">
+          <div>
 
-            Order Items
+            <Card className="p-8 sticky top-24">
 
-          </h2>
+              <h2 className="text-xl font-semibold text-foreground mb-6">
 
-          <div className="space-y-4">
+                Order Summary
 
-            {cart.map((item) => (
+              </h2>
 
-              <div
-                key={item._id}
-                className="flex items-center gap-4 border p-4 rounded"
-              >
+              <div className="flex justify-between mb-3 text-muted-foreground">
 
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-20 h-20 object-cover rounded"
-                />
+                <span>
+                  Items
+                </span>
 
-                <div>
+                <span>
+                  ₹
+                  {subtotal}
+                </span>
 
-                  <h3 className="font-semibold">
+              </div>
 
-                    {item.name}
+              <div className="flex justify-between mb-3 text-muted-foreground">
 
-                  </h3>
+                <span>
+                  GST (5%)
+                </span>
 
-                  <p>
-                    Quantity:{" "}
-                    {item.quantity}
-                  </p>
+                <span>
+                  ₹
+                  {gst}
+                </span>
 
-                  <p>
-                    ₹
-                    {item.price}
-                  </p>
+              </div>
+
+              <div className="flex justify-between mb-6 text-muted-foreground">
+
+                <span>
+                  Shipping
+                </span>
+
+                <span>
+                  Free
+                </span>
+
+              </div>
+
+              <div className="flex justify-between text-2xl font-bold mb-6 text-foreground">
+
+                <span>
+                  Total
+                </span>
+
+                <span className="gradient-text">
+                  ₹
+                  {totalPrice}
+                </span>
+
+              </div>
+
+              {/* PAYMENT METHOD */}
+
+              <div className="mb-8">
+
+                <h3 className="text-lg font-semibold mb-4 text-foreground">
+
+                  Payment Method
+
+                </h3>
+
+                <div className="space-y-3">
+
+                  <label className={`flex items-center gap-3 rounded-xl border p-4 cursor-pointer transition ${
+                    paymentMethod === "COD"
+                      ? "border-accent/50 bg-accent/5"
+                      : "border-border hover:border-accent/30"
+                  }`}>
+
+                    <input
+                      type="radio"
+                      value="COD"
+                      checked={paymentMethod === "COD"}
+                      onChange={(e) =>
+                        setPaymentMethod(e.target.value)
+                      }
+                      className="accent-accent h-4 w-4"
+                    />
+
+                    <span className="font-medium text-foreground">
+
+                      Cash on Delivery
+
+                    </span>
+
+                  </label>
+
+                  <label className={`flex items-center gap-3 rounded-xl border p-4 cursor-pointer transition ${
+                    paymentMethod === "Razorpay"
+                      ? "border-accent/50 bg-accent/5"
+                      : "border-border hover:border-accent/30"
+                  }`}>
+
+                    <input
+                      type="radio"
+                      value="Razorpay"
+                      checked={paymentMethod === "Razorpay"}
+                      onChange={(e) =>
+                        setPaymentMethod(e.target.value)
+                      }
+                      className="accent-accent h-4 w-4"
+                    />
+
+                    <span className="font-medium text-foreground">
+
+                      Pay Online (Razorpay)
+
+                    </span>
+
+                  </label>
 
                 </div>
 
               </div>
-            ))}
 
-          </div>
+              <Button
+                onClick={
+                  handlePlaceOrder
+                }
+                disabled={
+                  loading
+                }
+                className="w-full"
+                size="lg"
+              >
 
-        </div>
+                {loading
+                  ? "Placing Order..."
+                  : "Place Order"}
 
-        {/* ORDER SUMMARY */}
+              </Button>
 
-        <div>
-
-          <div className="border p-6 rounded shadow">
-
-            <h2 className="text-2xl font-semibold mb-4">
-
-              Order Summary
-
-            </h2>
-
-            <div className="flex justify-between mb-3">
-
-              <span>
-                Items
-              </span>
-
-              <span>
-                ₹
-                {subtotal}
-              </span>
-
-            </div>
-
-            <div className="flex justify-between mb-3">
-
-              <span>
-                GST (5%)
-              </span>
-
-              <span>
-                ₹
-                {gst}
-              </span>
-
-            </div>
-
-            <div className="flex justify-between mb-6">
-
-              <span>
-                Shipping
-              </span>
-
-              <span>
-                Free
-              </span>
-
-            </div>
-
-            <div className="flex justify-between text-xl font-bold mb-6">
-
-              <span>
-                Total
-              </span>
-
-              <span>
-                ₹
-                {totalPrice}
-              </span>
-
-            </div>
-            {/* PAYMENT METHOD */}
-
-<div className="mb-6">
-
-  <h3 className="text-lg font-semibold mb-3">
-
-    Payment Method
-
-  </h3>
-
-  <label className="flex items-center gap-2 mb-2">
-
-    <input
-      type="radio"
-      value="COD"
-      checked={paymentMethod === "COD"}
-      onChange={(e) =>
-        setPaymentMethod(e.target.value)
-      }
-    />
-
-    Cash on Delivery
-
-  </label>
-
-  <label className="flex items-center gap-2">
-
-    <input
-      type="radio"
-      value="Razorpay"
-      checked={paymentMethod === "Razorpay"}
-      onChange={(e) =>
-        setPaymentMethod(e.target.value)
-      }
-    />
-
-    Pay Online (Razorpay)
-
-  </label>
-
-</div>
-            <button
-              onClick={
-                handlePlaceOrder
-              }
-              disabled={
-                loading
-              }
-              className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded transition"
-            >
-
-              {loading
-                ? "Placing Order..."
-                : "Place Order"}
-
-            </button>
+            </Card>
 
           </div>
 

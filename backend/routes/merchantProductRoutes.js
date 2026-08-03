@@ -7,6 +7,7 @@ import {getMerchantProducts,} from "../controllers/productController.js";
 import {
     createProduct,
     updateProduct,
+    updateProductStock,
     deleteProduct,
 } from "../controllers/productController.js";
 
@@ -34,6 +35,14 @@ router.delete(
     merchant,
     merchantStore,
     deleteProduct
+);
+
+router.put(
+    "/:id/stock",
+    protect,
+    merchant,
+    merchantStore,
+    updateProductStock
 );
 
 router.get(

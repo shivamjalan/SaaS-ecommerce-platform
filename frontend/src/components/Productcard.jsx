@@ -5,15 +5,18 @@ import { useContext } from "react";
 import { motion } from "framer-motion";
 
 import {
-  FaHeart,
-  FaEye,
   FaEdit,
+  FaEye,
   FaTrash,
 } from "react-icons/fa";
 
 import { AuthContext } from "../store/authContext";
 
 import { API_URL } from "../utils/api";
+
+import { LOW_STOCK_THRESHOLD } from "../utils/constants";
+
+import { Badge } from "./ui/badge";
 
 const ProductCard = ({
   product,
@@ -64,8 +67,6 @@ const ProductCard = ({
 
         const data =
           await response.json();
-
-        console.log(data);
 
         if (
           response.ok
@@ -129,19 +130,25 @@ const ProductCard = ({
       userInfo?.user?.store ===
         product.store?._id);
 
+  /* ===================================================== */
+  /* ==================== STOCK STATE ==================== */
+  /* ===================================================== */
+
+  const stock = product.stock ?? 0;
+
   return (
 
     <motion.div
 
       whileHover={{
-        y: -10,
+        y: -8,
       }}
 
       transition={{
         duration: 0.3,
       }}
 
-      className="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-500 border border-gray-100"
+      className="group relative bg-card border border-border rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
     >
 
       {/* ===================================================== */}
@@ -155,28 +162,30 @@ const ProductCard = ({
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-80 object-cover transition duration-700 group-hover:scale-110"
+          className={`w-full h-72 object-cover transition duration-700 group-hover:scale-110 ${
+            stock === 0 ? "grayscale" : ""
+          }`}
         />
 
         {/* CATEGORY */}
 
-        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow text-sm font-semibold text-gray-700">
+        <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-md px-4 py-2 rounded-full shadow text-sm font-semibold text-foreground">
 
           {product.category}
 
         </div>
 
-        {/* WISHLIST */}
+        {/* STOCK BADGE */}
 
-        <button className="absolute top-4 right-4 bg-white/90 backdrop-blur-md p-3 rounded-full shadow hover:bg-rose-500 hover:text-white transition">
-
-          <FaHeart />
-
-        </button>
+        {stock === 0 && (
+          <Badge className="absolute bottom-4 left-4 bg-foreground text-background">
+            Out of Stock
+          </Badge>
+        )}
 
         {/* OVERLAY */}
 
-        <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/30 to-transparent opacity-0 group-hover:opacity-100 transition duration-500" />
 
       </div>
 
@@ -188,7 +197,7 @@ const ProductCard = ({
 
         {/* TITLE */}
 
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-xl font-semibold tracking-[-0.01em] text-foreground mb-2">
 
           {product.name}
 
@@ -196,7 +205,7 @@ const ProductCard = ({
 
         {/* DESCRIPTION */}
 
-        <p className="text-gray-500 text-sm leading-relaxed line-clamp-2">
+        <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
 
           {
             product.description
@@ -210,13 +219,13 @@ const ProductCard = ({
 
           <div>
 
-            <p className="text-sm text-gray-400">
+            <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
 
               Starting From
 
             </p>
 
-            <h3 className="text-3xl font-bold text-rose-500">
+            <h3 className="mt-1 text-3xl font-bold gradient-text">
 
               ₹
               {product.price}
@@ -231,12 +240,38 @@ const ProductCard = ({
             onClick={
               handleView
             }
-            className="bg-black hover:bg-gray-900 text-white p-4 rounded-2xl shadow-lg transition"
+            className="gradient-bg hover:shadow-accent text-white p-4 rounded-2xl shadow-sm transition-all duration-200 active:scale-95"
           >
 
             <FaEye size={18} />
 
           </button>
+
+        </div>
+
+        {/* STOCK */}
+
+        <div className="mt-4">
+
+          {stock === 0 ? (
+            <p className="text-sm font-semibold text-red-600">
+
+              Out of Stock
+
+            </p>
+          ) : stock <= LOW_STOCK_THRESHOLD ? (
+            <p className="text-sm font-semibold text-amber-600">
+
+              Only {stock} left
+
+            </p>
+          ) : (
+            <p className="text-sm font-semibold text-emerald-600">
+
+              In Stock
+
+            </p>
+          )}
 
         </div>
 
@@ -254,7 +289,7 @@ const ProductCard = ({
               onClick={
                 handleEdit
               }
-              className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-black py-3 rounded-2xl font-semibold transition"
+              className="flex-1 flex items-center justify-center gap-2 bg-muted hover:bg-muted/70 text-foreground py-3 rounded-xl font-semibold transition-all duration-200 active:scale-[0.98]"
             >
 
               <FaEdit />
@@ -269,7 +304,7 @@ const ProductCard = ({
               onClick={
                 handleDelete
               }
-              className="flex-1 flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white py-3 rounded-2xl font-semibold transition"
+              className="flex-1 flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-semibold transition-all duration-200 active:scale-[0.98]"
             >
 
               <FaTrash />
