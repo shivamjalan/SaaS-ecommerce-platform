@@ -79,10 +79,22 @@ const MyOrders = () => {
           }
         );
 
+      if (!response.ok) {
+        setOrders([]);
+        console.log(
+          `Failed to fetch orders: ${response.status}`
+        );
+        return;
+      }
+
       const data =
         await response.json();
 
-      setOrders(data);
+      setOrders(
+        Array.isArray(data)
+          ? data
+          : []
+      );
 
     } catch (error) {
 

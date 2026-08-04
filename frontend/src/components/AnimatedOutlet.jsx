@@ -42,7 +42,7 @@ const AnimatedOutlet = () => {
         key={location.pathname}
         initial={{
           opacity: 0,
-          y: 18,
+          y: 10,
         }}
 
         animate={{
@@ -52,11 +52,11 @@ const AnimatedOutlet = () => {
 
         exit={{
           opacity: 0,
-          y: -18,
+          y: -10,
         }}
 
         transition={{
-          duration: 0.35,
+          duration: 0.18,
           ease: easeOut,
         }}
       >

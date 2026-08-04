@@ -1,12 +1,16 @@
 import {
   lazy,
   Suspense,
+  useContext,
 } from "react";
 
 import {
   Routes,
   Route,
+  Navigate,
 } from "react-router-dom";
+
+import { AuthContext } from "./store/authContext";
 
 import { motion } from "framer-motion";
 
@@ -93,6 +97,30 @@ const PageLoader = () => (
   </motion.div>
 );
 
+/* ===================================================== */
+/* ============== ROLE-BASED HOME REDIRECT ============= */
+/* ===================================================== */
+
+const HomeRedirect = () => {
+
+  const { userInfo } =
+    useContext(AuthContext);
+
+  const role =
+    userInfo?.user?.role;
+
+  if (role === "merchant") {
+    return (
+      <Navigate
+        to="/merchant/dashboard"
+        replace
+      />
+    );
+  }
+
+  return <Home />;
+};
+
 function App() {
 
   return (
@@ -108,7 +136,7 @@ function App() {
 
           <Route
             index
-            element={<Home />}
+            element={<HomeRedirect />}
           />
 
           <Route

@@ -81,7 +81,7 @@ const Navbar = () => {
       }}
 
       transition={{
-        duration: 0.5,
+        duration: 0.3,
       }}
 
       className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md"
