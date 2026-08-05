@@ -229,14 +229,19 @@ export const forgotPassword =
 
       await user.save();
 
+      // Prefer the configured FRONTEND_URL, then the requesting origin
+      // (the deployed frontend), and finally the local dev default.
       const frontendUrl =
         process.env.FRONTEND_URL ||
+        req.get("origin") ||
         "http://localhost:5173";
 
       const resetUrl =
         `${frontendUrl}/reset-password/${resetToken}`;
 
-      await sendEmail({
+      // Send in the background so a slow/blocked SMTP
+      // never delays the response or times the request out.
+      sendEmail({
         to: user.email,
 
         subject:
@@ -247,6 +252,13 @@ export const forgotPassword =
           `<p>You requested a password reset. Click the link below to set a new password (valid for 1 hour):</p>` +
           `<p><a href="${resetUrl}">Reset Password</a></p>` +
           `<p>If you didn't request this, you can safely ignore this email.</p>`,
+      }).catch((error) => {
+
+        console.error(
+          "[EMAIL] Background send failed:",
+          error.message || error
+        );
+
       });
 
       res.json({

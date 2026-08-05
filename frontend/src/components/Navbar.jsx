@@ -70,18 +70,11 @@ const Navbar = () => {
 
     <motion.nav
 
-      initial={{
-        y: -80,
-        opacity: 0,
-      }}
+      initial={false}
 
       animate={{
         y: 0,
         opacity: 1,
-      }}
-
-      transition={{
-        duration: 0.3,
       }}
 
       className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md"

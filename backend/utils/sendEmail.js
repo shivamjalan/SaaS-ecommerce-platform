@@ -53,13 +53,29 @@ export const sendEmail = async ({
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
+
+      // Fail fast so a slow/blocked SMTP never hangs the request
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 15000,
     });
 
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to,
-    subject,
-    html,
-  });
+  try {
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to,
+      subject,
+      html,
+    });
+
+  } catch (error) {
+
+    console.error(
+      "[EMAIL] Failed to send:",
+      error.message || error
+    );
+
+  }
 
 };
