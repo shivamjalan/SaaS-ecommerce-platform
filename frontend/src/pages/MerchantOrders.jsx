@@ -9,7 +9,11 @@ import {
   FaTimesCircle,
 } from "react-icons/fa";
 
-import { API_URL } from "../utils/api";
+import {
+  API_URL,
+  apiErrorMessage,
+  getUserInfo,
+} from "../utils/api";
 
 import { Button } from "../components/ui/button";
 import { SectionLabel, Badge } from "../components/ui/badge";
@@ -69,9 +73,12 @@ const MerchantOrders = () => {
 
     try {
 
-      const userInfo = JSON.parse(
-        localStorage.getItem("userInfo")
-      );
+      const userInfo = getUserInfo();
+
+      if (!userInfo) {
+        setOrders([]);
+        return;
+      }
 
       const response = await fetch(
         `${API_URL}/merchant/orders`,
@@ -84,13 +91,25 @@ const MerchantOrders = () => {
 
       const data = await response.json();
 
-      setOrders(data);
+      if (!response.ok) {
+
+        setOrders([]);
+
+        alert(data.error || data.message || "Failed to load orders");
+
+        return;
+
+      }
+
+      setOrders(Array.isArray(data) ? data : []);
 
     } catch (error) {
 
-      console.log(error);
+      console.error(error);
 
-      alert("Failed to load orders");
+      setOrders([]);
+
+      alert(apiErrorMessage());
 
     } finally {
 
@@ -99,18 +118,6 @@ const MerchantOrders = () => {
     }
 
   };
-
-  useEffect(() => {
-
-    const loadOrders = async () => {
-
-      await fetchOrders();
-
-    };
-
-    loadOrders();
-
-  }, []);
 
   useEffect(() => {
 
@@ -137,9 +144,9 @@ const MerchantOrders = () => {
 
       setUpdating(orderId);
 
-      const userInfo = JSON.parse(
-        localStorage.getItem("userInfo")
-      );
+      const userInfo = getUserInfo();
+
+      if (!userInfo) return;
 
       const response = await fetch(
         `${API_URL}/merchant/orders/${orderId}/status`,
@@ -158,7 +165,7 @@ const MerchantOrders = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.error || "Failed to update status");
+        alert(data.error || data.message || "Failed to update status");
         return;
       }
 
@@ -172,9 +179,9 @@ const MerchantOrders = () => {
 
     } catch (error) {
 
-      console.log(error);
+      console.error(error);
 
-      alert("Failed to update status");
+      alert(apiErrorMessage());
 
     } finally {
 
@@ -194,9 +201,9 @@ const MerchantOrders = () => {
 
       setUpdating(orderId);
 
-      const userInfo = JSON.parse(
-        localStorage.getItem("userInfo")
-      );
+      const userInfo = getUserInfo();
+
+      if (!userInfo) return;
 
       const response = await fetch(
         `${API_URL}/merchant/orders/${orderId}/deliver`,
@@ -212,7 +219,7 @@ const MerchantOrders = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.error || "Failed to mark delivered");
+        alert(data.error || data.message || "Failed to mark delivered");
         return;
       }
 
@@ -226,9 +233,9 @@ const MerchantOrders = () => {
 
     } catch (error) {
 
-      console.log(error);
+      console.error(error);
 
-      alert("Failed to mark delivered");
+      alert(apiErrorMessage());
 
     } finally {
 

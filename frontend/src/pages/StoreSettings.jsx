@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
-import { API_URL } from "../utils/api";
+import {
+  API_URL,
+  apiErrorMessage,
+  getUserInfo,
+} from "../utils/api";
 
 import { Card } from "../components/ui/card";
 import { Input, Textarea } from "../components/ui/input";
@@ -38,9 +42,9 @@ const StoreSettings = () => {
 
       try {
 
-        const userInfo = JSON.parse(
-          localStorage.getItem("userInfo")
-        );
+        const userInfo = getUserInfo();
+
+        if (!userInfo) return;
 
         const response = await fetch(
           `${API_URL}/stores/me`,
@@ -54,7 +58,7 @@ const StoreSettings = () => {
         const data = await response.json();
 
         if (!response.ok) {
-          alert(data.message || "Failed to load store");
+          alert(data.error || data.message || "Failed to load store");
           return;
         }
 
@@ -69,9 +73,9 @@ const StoreSettings = () => {
 
       } catch (error) {
 
-        console.log(error);
+        console.error(error);
 
-        alert("Failed to load store");
+        alert(apiErrorMessage());
 
       } finally {
 
@@ -116,9 +120,9 @@ const StoreSettings = () => {
 
       setUploading(true);
 
-      const userInfo = JSON.parse(
-        localStorage.getItem("userInfo")
-      );
+      const userInfo = getUserInfo();
+
+      if (!userInfo) return;
 
       const response = await fetch(
         `${API_URL}/upload`,
@@ -144,15 +148,15 @@ const StoreSettings = () => {
 
       } else {
 
-        alert(data.error || "Logo upload failed");
+        alert(data.error || data.message || "Logo upload failed");
 
       }
 
     } catch (error) {
 
-      console.log(error);
+      console.error(error);
 
-      alert("Logo upload failed");
+      alert(apiErrorMessage());
 
     } finally {
 
@@ -174,9 +178,9 @@ const StoreSettings = () => {
 
       setSaving(true);
 
-      const userInfo = JSON.parse(
-        localStorage.getItem("userInfo")
-      );
+      const userInfo = getUserInfo();
+
+      if (!userInfo) return;
 
       const response = await fetch(
         `${API_URL}/stores/me`,
@@ -195,7 +199,7 @@ const StoreSettings = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || "Failed to update store");
+        alert(data.error || data.message || "Failed to update store");
         return;
       }
 
@@ -207,9 +211,9 @@ const StoreSettings = () => {
 
     } catch (error) {
 
-      console.log(error);
+      console.error(error);
 
-      alert("Failed to update store");
+      alert(apiErrorMessage());
 
     } finally {
 

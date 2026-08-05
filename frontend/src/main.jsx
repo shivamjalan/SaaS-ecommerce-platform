@@ -9,22 +9,28 @@ import "./index.css";
 import AuthProvider from "./store/AuthContext.jsx";
 import CartProvider from "./store/CartContext.jsx";
 
+import ErrorBoundary from "./components/ErrorBoundary";
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
 
-    <BrowserRouter>
+    <ErrorBoundary>
 
-      <AuthProvider>
+      <BrowserRouter>
 
-        <CartProvider>
+        <AuthProvider>
 
-          <App />
+          <CartProvider>
 
-        </CartProvider>
+            <App />
 
-      </AuthProvider>
+          </CartProvider>
 
-    </BrowserRouter>
+        </AuthProvider>
+
+      </BrowserRouter>
+
+    </ErrorBoundary>
 
   </React.StrictMode>
 );

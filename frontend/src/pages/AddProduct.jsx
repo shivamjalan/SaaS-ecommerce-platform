@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { API_URL } from "../utils/api";
+import {
+  API_URL,
+  apiErrorMessage,
+  getUserInfo,
+} from "../utils/api";
 
 import { Card } from "../components/ui/card";
 import { Input, Textarea } from "../components/ui/input";
@@ -12,11 +16,7 @@ const AddProduct = () => {
   const navigate = useNavigate();
 
   const storedUser =
-    JSON.parse(
-      localStorage.getItem(
-        "userInfo"
-      )
-    );
+    getUserInfo();
 
   const isAdmin =
     storedUser?.user?.role ===
@@ -55,11 +55,27 @@ const AddProduct = () => {
           const data =
             await response.json();
 
-          setStores(data);
+          if (!response.ok) {
+
+            setStores([]);
+
+            alert(data.error || data.message || "Failed to load stores");
+
+            return;
+
+          }
+
+          setStores(
+            Array.isArray(data) ? data : []
+          );
 
         } catch (error) {
 
-          console.log(error);
+          console.error(error);
+
+          setStores([]);
+
+          alert(apiErrorMessage());
 
         }
       };
@@ -93,9 +109,9 @@ const AddProduct = () => {
 
       setUploading(true);
 
-      const storedUser = JSON.parse(
-        localStorage.getItem("userInfo")
-      );
+      const storedUser = getUserInfo();
+
+      if (!storedUser) return;
 
       const response = await fetch(
         `${API_URL}/upload`,
@@ -121,15 +137,15 @@ const AddProduct = () => {
 
       } else {
 
-        alert(data.error || "Image upload failed");
+        alert(data.error || data.message || "Image upload failed");
 
       }
 
     } catch (error) {
 
-      console.log(error);
+      console.error(error);
 
-      alert("Image upload failed");
+      alert(apiErrorMessage());
 
     } finally {
 
@@ -150,9 +166,9 @@ const AddProduct = () => {
 
     try {
 
-      const storedUser = JSON.parse(
-        localStorage.getItem("userInfo")
-      );
+      const storedUser = getUserInfo();
+
+      if (!storedUser) return;
 
       const uploaded = [];
 
@@ -177,7 +193,7 @@ const AddProduct = () => {
 
         const data = await response.json();
 
-        if (response.ok) {
+        if (response.ok && data.image) {
           uploaded.push(data.image);
         }
 
@@ -194,9 +210,9 @@ const AddProduct = () => {
 
     } catch (error) {
 
-      console.log(error);
+      console.error(error);
 
-      alert("Image upload failed");
+      alert(apiErrorMessage());
 
     } finally {
 
@@ -233,9 +249,9 @@ const AddProduct = () => {
 
       setGenerating(true);
 
-      const storedUser = JSON.parse(
-        localStorage.getItem("userInfo")
-      );
+      const storedUser = getUserInfo();
+
+      if (!storedUser) return;
 
       const response = await fetch(
         `${API_URL}/ai/product-description`,
@@ -257,7 +273,7 @@ const AddProduct = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.error || "AI generation failed");
+        alert(data.error || data.message || "AI generation failed");
         return;
       }
 
@@ -268,9 +284,9 @@ const AddProduct = () => {
 
     } catch (error) {
 
-      console.log(error);
+      console.error(error);
 
-      alert("AI generation failed");
+      alert(apiErrorMessage());
 
     } finally {
 
@@ -287,9 +303,9 @@ const AddProduct = () => {
 
     try {
 
-      const storedUser = JSON.parse(
-        localStorage.getItem("userInfo")
-      );
+      const storedUser = getUserInfo();
+
+      if (!storedUser) return;
 
       const response = await fetch(
         `${API_URL}/products`,
@@ -316,13 +332,15 @@ const AddProduct = () => {
 
       } else {
 
-        alert(data.error || "Failed");
+        alert(data.error || data.message || "Failed to add product");
 
       }
 
     } catch (error) {
 
-      console.log(error);
+      console.error(error);
+
+      alert(apiErrorMessage());
 
     }
 

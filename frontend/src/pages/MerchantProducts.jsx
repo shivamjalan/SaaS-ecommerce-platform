@@ -16,7 +16,11 @@ import { Input } from "../components/ui/input";
 
 import { SectionLabel, Badge } from "../components/ui/badge";
 
-import { API_URL } from "../utils/api";
+import {
+  API_URL,
+  apiErrorMessage,
+  getUserInfo,
+} from "../utils/api";
 
 import { LOW_STOCK_THRESHOLD } from "../utils/constants";
 
@@ -42,9 +46,12 @@ const MerchantProducts = () => {
 
     try {
 
-      const userInfo = JSON.parse(
-        localStorage.getItem("userInfo")
-      );
+      const userInfo = getUserInfo();
+
+      if (!userInfo) {
+        setProducts([]);
+        return;
+      }
 
       const response = await fetch(
         `${API_URL}/merchant/products`,
@@ -57,13 +64,25 @@ const MerchantProducts = () => {
 
       const data = await response.json();
 
-      setProducts(data);
+      if (!response.ok) {
+
+        setProducts([]);
+
+        alert(data.error || data.message || "Failed to load products");
+
+        return;
+
+      }
+
+      setProducts(Array.isArray(data) ? data : []);
 
     } catch (error) {
 
-      console.log(error);
+      console.error(error);
 
-      alert("Failed to load products");
+      setProducts([]);
+
+      alert(apiErrorMessage());
 
     } finally {
 
@@ -101,9 +120,9 @@ const MerchantProducts = () => {
 
       setDeleting(product._id);
 
-      const userInfo = JSON.parse(
-        localStorage.getItem("userInfo")
-      );
+      const userInfo = getUserInfo();
+
+      if (!userInfo) return;
 
       const response = await fetch(
         `${API_URL}/merchant/products/${product._id}`,
@@ -119,7 +138,7 @@ const MerchantProducts = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.error || "Failed to delete product");
+        alert(data.error || data.message || "Failed to delete product");
         return;
       }
 
@@ -131,9 +150,9 @@ const MerchantProducts = () => {
 
     } catch (error) {
 
-      console.log(error);
+      console.error(error);
 
-      alert("Failed to delete product");
+      alert(apiErrorMessage());
 
     } finally {
 
@@ -161,9 +180,9 @@ const MerchantProducts = () => {
 
     try {
 
-      const userInfo = JSON.parse(
-        localStorage.getItem("userInfo")
-      );
+      const userInfo = getUserInfo();
+
+      if (!userInfo) return;
 
       const response = await fetch(
         `${API_URL}/merchant/products/${product._id}/stock`,
@@ -182,7 +201,7 @@ const MerchantProducts = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.error || "Failed to update stock");
+        alert(data.error || data.message || "Failed to update stock");
         return;
       }
 
@@ -202,9 +221,9 @@ const MerchantProducts = () => {
 
     } catch (error) {
 
-      console.log(error);
+      console.error(error);
 
-      alert("Failed to update stock");
+      alert(apiErrorMessage());
 
     }
 

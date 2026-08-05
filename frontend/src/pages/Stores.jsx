@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useContext } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaArrowRight, FaSearch, FaStore, FaTrash } from "react-icons/fa";
-import { API_URL, apiErrorMessage } from "../utils/api";
+import { API_URL, apiErrorMessage, getUserInfo } from "../utils/api";
 import { SectionLabel } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -45,7 +45,7 @@ const Stores = () => {
 
       }
 
-      setStores(data);
+      setStores(Array.isArray(data) ? data : []);
 
     } catch (err) {
 
@@ -90,9 +90,9 @@ const Stores = () => {
 
     try {
 
-      const storedUser = JSON.parse(
-        localStorage.getItem("userInfo")
-      );
+      const storedUser = getUserInfo();
+
+      if (!storedUser) return;
 
       const response = await fetch(
         `${API_URL}/stores/${store._id}`,
@@ -125,7 +125,7 @@ const Stores = () => {
 
     } catch (error) {
 
-      console.log(error);
+      console.error(error);
 
       alert("Failed to delete store");
 

@@ -19,7 +19,11 @@ import { Card } from "../components/ui/card";
 
 import { SectionLabel, Badge } from "../components/ui/badge";
 
-import { API_URL } from "../utils/api";
+import {
+  API_URL,
+  apiErrorMessage,
+  getUserInfo,
+} from "../utils/api";
 
 const MerchantDashboard = () => {
 
@@ -43,9 +47,13 @@ const MerchantDashboard = () => {
 
       try {
 
-        const userInfo = JSON.parse(
-          localStorage.getItem("userInfo")
-        );
+        const userInfo = getUserInfo();
+
+        if (!userInfo) {
+          setStore(null);
+          setStats(null);
+          return;
+        }
 
         const headers = {
           Authorization: `Bearer ${userInfo.token}`,
@@ -62,12 +70,16 @@ const MerchantDashboard = () => {
         const storeData = await storeRes.json();
         const statsData = await statsRes.json();
 
-        setStore(storeData);
-        setStats(statsData);
+        setStore(storeRes.ok ? storeData : null);
+        setStats(statsRes.ok && statsData && typeof statsData === "object" ? statsData : null);
 
       } catch (error) {
 
-        console.log(error);
+        console.error(error);
+
+        setStore(null);
+
+        setStats(null);
 
       } finally {
 
@@ -93,9 +105,9 @@ const MerchantDashboard = () => {
 
       setInsight("");
 
-      const userInfo = JSON.parse(
-        localStorage.getItem("userInfo")
-      );
+      const userInfo = getUserInfo();
+
+      if (!userInfo) return;
 
       const response = await fetch(
         `${API_URL}/ai/sales-insights`,
@@ -114,7 +126,7 @@ const MerchantDashboard = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.error || "Failed to generate summary");
+        alert(data.error || data.message || "Failed to generate summary");
         return;
       }
 
@@ -122,9 +134,9 @@ const MerchantDashboard = () => {
 
     } catch (error) {
 
-      console.log(error);
+      console.error(error);
 
-      alert("Failed to generate summary");
+      alert(apiErrorMessage());
 
     } finally {
 

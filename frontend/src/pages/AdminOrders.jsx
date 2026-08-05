@@ -12,7 +12,11 @@ import {
   FaMoneyBillWave,
 } from "react-icons/fa";
 
-import { API_URL } from "../utils/api";
+import {
+  API_URL,
+  apiErrorMessage,
+  getUserInfo,
+} from "../utils/api";
 
 import { SectionLabel, Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
@@ -34,9 +38,12 @@ const AdminOrders = () => {
 
     try {
 
-      const userInfo = JSON.parse(
-        localStorage.getItem("userInfo")
-      );
+      const userInfo = getUserInfo();
+
+      if (!userInfo) {
+        setOrders([]);
+        return;
+      }
 
       const response = await fetch(
         `${API_URL}/orders`,
@@ -49,11 +56,25 @@ const AdminOrders = () => {
 
       const data = await response.json();
 
-      setOrders(data);
+      if (!response.ok) {
+
+        setOrders([]);
+
+        alert(data.error || data.message || "Failed to load orders");
+
+        return;
+
+      }
+
+      setOrders(Array.isArray(data) ? data : []);
 
     } catch (error) {
 
-      console.log(error);
+      console.error(error);
+
+      setOrders([]);
+
+      alert(apiErrorMessage());
 
     } finally {
 
@@ -137,9 +158,9 @@ const AdminOrders = () => {
 
     try {
 
-      const userInfo = JSON.parse(
-        localStorage.getItem("userInfo")
-      );
+      const userInfo = getUserInfo();
+
+      if (!userInfo) return;
 
       const response = await fetch(
 
@@ -173,13 +194,15 @@ const AdminOrders = () => {
 
       } else {
 
-        alert(data.error);
+        alert(data.error || data.message || "Request failed");
 
       }
 
     } catch (error) {
 
-      console.log(error);
+      console.error(error);
+
+      alert(apiErrorMessage());
 
     }
 

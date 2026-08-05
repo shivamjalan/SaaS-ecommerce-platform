@@ -49,12 +49,12 @@ const StorePage = () => {
       }
 
       const storeData = await storeRes.json();
-      const productsData = await productRes.ok
+      const productsData = productRes.ok
         ? await productRes.json()
         : [];
 
       setStore(storeData);
-      setProducts(productsData);
+      setProducts(Array.isArray(productsData) ? productsData : []);
 
     } catch (err) {
 

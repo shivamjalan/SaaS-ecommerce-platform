@@ -6,7 +6,11 @@ import {
   FaUser,
 } from "react-icons/fa";
 
-import { API_URL } from "../utils/api";
+import {
+  API_URL,
+  apiErrorMessage,
+  getUserInfo,
+} from "../utils/api";
 
 import { SectionLabel } from "../components/ui/badge";
 
@@ -26,9 +30,12 @@ const MerchantCustomers = () => {
 
       try {
 
-        const userInfo = JSON.parse(
-          localStorage.getItem("userInfo")
-        );
+        const userInfo = getUserInfo();
+
+        if (!userInfo) {
+          setCustomers([]);
+          return;
+        }
 
         const response = await fetch(
           `${API_URL}/merchant/customers`,
@@ -41,13 +48,25 @@ const MerchantCustomers = () => {
 
         const data = await response.json();
 
-        setCustomers(data);
+        if (!response.ok) {
+
+          setCustomers([]);
+
+          alert(data.error || data.message || "Failed to load customers");
+
+          return;
+
+        }
+
+        setCustomers(Array.isArray(data) ? data : []);
 
       } catch (error) {
 
-        console.log(error);
+        console.error(error);
 
-        alert("Failed to load customers");
+        setCustomers([]);
+
+        alert(apiErrorMessage());
 
       } finally {
 

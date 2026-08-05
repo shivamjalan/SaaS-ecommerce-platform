@@ -47,7 +47,7 @@ const ProductDetail = () => {
         setProduct(data);
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
         setError(
           apiErrorMessage()
         );
@@ -79,10 +79,11 @@ const ProductDetail = () => {
       .then(async (res) => {
         if (!res.ok) return;
         const data = await res.json();
-        setRecommendations(data);
+        setRecommendations(Array.isArray(data) ? data : []);
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
+        setRecommendations([]);
       });
   }, [id]);
 

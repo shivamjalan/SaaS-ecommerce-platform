@@ -22,9 +22,15 @@ import {
   FaChartLine,
 } from "react-icons/fa";
 
-import { API_URL } from "../utils/api";
+import {
+  API_URL,
+  apiErrorMessage,
+  getUserInfo,
+} from "../utils/api";
 
 import { SectionLabel } from "../components/ui/badge";
+
+import { Card } from "../components/ui/card";
 
 const PIE_COLORS = [
   "#f43f5e",
@@ -59,9 +65,12 @@ const MerchantAnalytics = () => {
 
       try {
 
-        const userInfo = JSON.parse(
-          localStorage.getItem("userInfo")
-        );
+        const userInfo = getUserInfo();
+
+        if (!userInfo) {
+          setAnalytics(null);
+          return;
+        }
 
         const response = await fetch(
           `${API_URL}/merchant/analytics`,
@@ -74,13 +83,25 @@ const MerchantAnalytics = () => {
 
         const data = await response.json();
 
-        setAnalytics(data);
+        if (!response.ok) {
+
+          setAnalytics(null);
+
+          alert(data.error || data.message || "Failed to load analytics");
+
+          return;
+
+        }
+
+        setAnalytics(data && typeof data === "object" ? data : null);
 
       } catch (error) {
 
-        console.log(error);
+        console.error(error);
 
-        alert("Failed to load analytics");
+        setAnalytics(null);
+
+        alert(apiErrorMessage());
 
       } finally {
 
@@ -146,6 +167,36 @@ const MerchantAnalytics = () => {
             Loading Analytics...
 
           </p>
+
+        </div>
+
+      </div>
+    );
+  }
+
+  if (!analytics) {
+
+    return (
+
+      <div className="min-h-screen bg-background">
+
+        <div className="max-w-7xl mx-auto px-6 py-16">
+
+          <Card className="p-16 text-center">
+
+            <h2 className="text-3xl font-display text-foreground mb-4">
+
+              Analytics Unavailable
+
+            </h2>
+
+            <p className="text-muted-foreground">
+
+              We couldn't load your store analytics right now. Please try again later.
+
+            </p>
+
+          </Card>
 
         </div>
 
