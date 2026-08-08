@@ -14,8 +14,8 @@ import usePageMeta from "../hooks/usePageMeta";
 const ResetPassword = () => {
 
   usePageMeta(
-    "Reset Password | Vendora",
-    "Set a new password for your Vendora account."
+    "Reset Password | Vistaar",
+    "Set a new password for your Vistaar account."
   );
 
   const { token } = useParams();

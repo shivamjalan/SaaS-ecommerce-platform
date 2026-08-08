@@ -84,7 +84,7 @@ const CreateStore = () => {
         },
       });
 
-      alert("Store created successfully! Welcome to Vendora.");
+      alert("Store created successfully! Welcome to Vistaar.");
 
       navigate("/merchant/dashboard");
 
@@ -139,7 +139,7 @@ const CreateStore = () => {
 
           <p className="mt-3 text-muted-foreground">
 
-            Set up your storefront and start selling on Vendora.
+            Set up your storefront and start selling on Vistaar.
 
           </p>
 

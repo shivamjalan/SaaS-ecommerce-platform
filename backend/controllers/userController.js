@@ -245,7 +245,7 @@ export const forgotPassword =
         to: user.email,
 
         subject:
-          "Reset your Vendora password",
+          "Reset your Vistaar password",
 
         html:
           `<p>Hi ${user.name},</p>` +

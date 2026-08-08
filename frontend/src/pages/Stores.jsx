@@ -25,8 +25,8 @@ const Stores = () => {
     userInfo?.user?.role === "superadmin";
 
   usePageMeta(
-    "Browse Stores | Vendora",
-    "Explore independent stores and shop directly from merchants on Vendora."
+    "Browse Stores | Vistaar",
+    "Explore independent stores and shop directly from merchants on Vistaar."
   );
 
   const fetchStores = useCallback(async () => {

@@ -103,7 +103,7 @@ const Navbar = () => {
 
             <h1 className="font-display text-xl sm:text-2xl text-foreground leading-tight truncate">
 
-              Vendora
+              Vistaar
 
             </h1>
 

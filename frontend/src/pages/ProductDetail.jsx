@@ -27,11 +27,11 @@ const ProductDetail = () => {
 
   usePageMeta(
     product
-      ? `${product.name} | Vendora`
-      : "Product | Vendora",
+      ? `${product.name} | Vistaar`
+      : "Product | Vistaar",
     product
       ? `${product.description}`
-      : "Shop from independent stores on Vendora."
+      : "Shop from independent stores on Vistaar."
   );
 
   // Fetch from backend

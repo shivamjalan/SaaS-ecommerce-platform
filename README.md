@@ -136,7 +136,7 @@ same repo (monorepo — each dashboard points at its own subfolder).
    (`server.js` already honors Render's `PORT` env var; it falls back to 5000 locally).
 4. **Environment** → add every variable from `backend/.env`:
    `MONGO_URI`, `JWT_SECRET`, `CLOUDINARY_*`, `RAZORPAY_*`, `OPENAI_*`, `EMAIL_*`,
-   and `FRONTEND_URL` = your Vercel URL (e.g. `https://vendora.vercel.app`) so
+   and `FRONTEND_URL` = your Vercel URL (e.g. `https://vistaar.vercel.app`) so
    password-reset emails link to the deployed site.
 5. MongoDB Atlas → **Network Access** → allow `0.0.0.0/0` (Render uses rotating egress IPs).
 6. Deploy. Your API base becomes `https://<service>.onrender.com/api`.

@@ -93,7 +93,7 @@ const Login = () => {
 
             <span className="gradient-text">
 
-              Vendora
+              Vistaar
 
             </span>
 

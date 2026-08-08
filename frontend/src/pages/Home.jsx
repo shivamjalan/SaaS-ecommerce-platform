@@ -95,8 +95,8 @@ const MARQUEE = [
 const Home = () => {
 
   usePageMeta(
-    "Vendora — Marketplace of Independent Stores",
-    "Discover products from independent merchants across every category. Shop directly from trusted stores on Vendora."
+    "Vistaar — Marketplace of Independent Stores",
+    "Discover products from independent merchants across every category. Shop directly from trusted stores on Vistaar."
   );
 
   return (
@@ -340,7 +340,7 @@ const Home = () => {
 
             <SectionLabel>
 
-              Why Vendora
+              Why Vistaar
 
             </SectionLabel>
 
