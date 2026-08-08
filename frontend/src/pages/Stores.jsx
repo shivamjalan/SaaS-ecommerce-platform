@@ -25,8 +25,8 @@ const Stores = () => {
     userInfo?.user?.role === "superadmin";
 
   usePageMeta(
-    "Browse Stores | Saree SaaS",
-    "Explore independent saree stores and shop directly from merchants on Saree SaaS."
+    "Browse Stores | Vendora",
+    "Explore independent stores and shop directly from merchants on Vendora."
   );
 
   const fetchStores = useCallback(async () => {

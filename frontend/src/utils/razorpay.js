@@ -99,7 +99,7 @@ export const handleRazorpayPayment = async (order, clearCart, navigate) => {
 
   currency: razorpayOrder.currency,
 
-  name: "Saree SaaS",
+  name: "Vendora",
 
   description: "Order Payment",
 

@@ -359,33 +359,33 @@ export const seedProducts = async (
     const sampleProducts = [
 
       {
-        name: "Silk Saree",
-        price: 2500,
+        name: "Wireless Headphones",
+        price: 2499,
         image:
           "https://picsum.photos/300/200?random=1",
-        category: "Silk",
+        category: "Electronics",
         description:
-          "Premium silk saree perfect for weddings and festivals.",
+          "Premium wireless headphones with deep bass and all-day battery life.",
       },
 
       {
-        name: "Cotton Saree",
-        price: 1200,
+        name: "Cotton T-Shirt",
+        price: 799,
         image:
           "https://picsum.photos/300/200?random=2",
-        category: "Cotton",
+        category: "Fashion",
         description:
-          "Lightweight cotton saree for daily comfort.",
+          "Soft, breathable cotton tee for everyday comfort.",
       },
 
       {
-        name: "Designer Saree",
-        price: 3500,
+        name: "Ceramic Coffee Mug",
+        price: 499,
         image:
           "https://picsum.photos/300/200?random=3",
-        category: "Designer",
+        category: "Home & Living",
         description:
-          "Luxury designer saree with elegant patterns.",
+          "Handcrafted ceramic mug, perfect for your morning coffee.",
       },
 
     ];

@@ -52,7 +52,7 @@ const FEATURES = [
   {
     icon: FaGem,
     title: "Premium Quality",
-    text: "Handcrafted sarees designed with elegance and luxury.",
+    text: "Every product is listed and shipped directly by its own merchant — quality straight from the source.",
   },
   {
     icon: FaTruck,
@@ -61,8 +61,8 @@ const FEATURES = [
   },
   {
     icon: FaShieldAlt,
-    title: "Trusted Brand",
-    text: "Loved by thousands of fashion enthusiasts nationwide.",
+    title: "Trusted Marketplace",
+    text: "Loved by thousands of shoppers buying from independent stores nationwide.",
   },
 ];
 
@@ -72,7 +72,7 @@ const FEATURES = [
 
 const STATS = [
   { value: 5000, suffix: "+", label: "Happy Customers" },
-  { value: 200, suffix: "+", label: "Curated Sarees" },
+  { value: 200, suffix: "+", label: "Products Listed" },
   { value: 50, suffix: "+", label: "Partner Stores" },
   { value: 4.9, decimals: 1, label: "Average Rating" },
 ];
@@ -82,21 +82,21 @@ const STATS = [
 /* ===================================================== */
 
 const MARQUEE = [
-  "Silk Sarees",
-  "Banarasi",
-  "Kanjivaram",
-  "Chanderi",
-  "Handloom",
-  "Bridal Wear",
-  "Cotton Sarees",
-  "Designer Drapes",
+  "Fashion",
+  "Electronics",
+  "Home & Living",
+  "Handcrafted",
+  "Accessories",
+  "Beauty & Care",
+  "Toys & Games",
+  "Books",
 ];
 
 const Home = () => {
 
   usePageMeta(
-    "Saree SaaS — Curated Marketplace of Premium Saree Stores",
-    "Discover premium sarees from independent merchants. Shop directly from trusted stores on Saree SaaS."
+    "Vendora — Marketplace of Independent Stores",
+    "Discover products from independent merchants across every category. Shop directly from trusted stores on Vendora."
   );
 
   return (
@@ -127,7 +127,7 @@ const Home = () => {
 
               <SectionLabel>
 
-                Luxury Collection
+                Curated Marketplace
 
               </SectionLabel>
 
@@ -138,12 +138,11 @@ const Home = () => {
               className="mt-8 text-[2.75rem] md:text-6xl lg:text-[5.25rem] font-display leading-[1.05] tracking-[-0.02em] text-foreground"
             >
 
-              Elevate Your Style
-              With{" "}
+              Shop Everything From{" "}
 
               <span className="gradient-text">
 
-                Premium Sarees
+                Independent Stores
 
               </span>
 
@@ -154,10 +153,11 @@ const Home = () => {
               className="mt-8 max-w-xl text-lg text-muted-foreground leading-relaxed"
             >
 
-              Discover handcrafted elegance,
-              timeless tradition, and modern
-              luxury curated exclusively for
-              your wardrobe.
+              Discover handcrafted goods,
+              fashion, electronics, and home
+              essentials — curated from
+              independent merchants across
+              every category.
 
             </motion.p>
 
@@ -182,7 +182,7 @@ const Home = () => {
                 className="h-14 px-8 inline-flex items-center justify-center rounded-xl text-base font-medium border border-border bg-transparent text-foreground hover:border-accent/30 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
               >
 
-                Explore Collection
+                Explore Stores
 
               </Link>
 
@@ -212,8 +212,8 @@ const Home = () => {
             <div className="gradient-border absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] h-[520px] rounded-[2.5rem] p-[2px] shadow-accent-lg">
 
               <img
-                src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?q=80&w=1200&auto=format&fit=crop"
-                alt="Luxury Saree"
+                src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1200&auto=format&fit=crop"
+                alt="Independent store"
                 className="h-full w-full rounded-[calc(2.5rem-2px)] object-cover"
               />
 
@@ -253,13 +253,13 @@ const Home = () => {
 
                   <p className="text-sm font-semibold text-foreground">
 
-                    Silk Saree
+                    Trending Now
 
                   </p>
 
                   <p className="text-xs text-muted-foreground">
 
-                    From ₹1,200
+                    From ₹499
 
                   </p>
 
@@ -340,7 +340,7 @@ const Home = () => {
 
             <SectionLabel>
 
-              Why Saree SaaS
+              Why Vendora
 
             </SectionLabel>
 
@@ -355,7 +355,7 @@ const Home = () => {
 
             <span className="gradient-text">
 
-              Every Occasion
+              Every Shopper
 
             </span>
 
@@ -497,7 +497,7 @@ const Home = () => {
 
             <SectionLabel>
 
-              Exclusive Fashion
+              Shop Smarter
 
             </SectionLabel>
 
@@ -508,11 +508,11 @@ const Home = () => {
             className="mt-8 text-4xl md:text-6xl font-display leading-[1.1] text-foreground"
           >
 
-            Redefine Traditional{" "}
+            Thousands Of Stores.{" "}
 
             <span className="gradient-text">
 
-              Elegance
+              One Marketplace.
 
             </span>
 
@@ -523,9 +523,10 @@ const Home = () => {
             className="mt-6 max-w-2xl mx-auto text-lg text-muted-foreground leading-relaxed"
           >
 
-            Premium handcrafted sarees designed
-            for modern women who value timeless
-            style and luxury.
+            Everything you love — fashion,
+            electronics, home essentials and
+            more — from independent stores
+            you can trust, all in one place.
 
           </motion.p>
 

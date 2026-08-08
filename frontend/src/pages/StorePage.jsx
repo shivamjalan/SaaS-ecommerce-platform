@@ -23,10 +23,10 @@ const StorePage = () => {
   const [sortBy, setSortBy] = useState("featured");
 
   usePageMeta(
-    store ? `${store.name} | Saree SaaS` : "Store | Saree SaaS",
+    store ? `${store.name} | Vendora` : "Store | Vendora",
     store?.description
       ? store.description
-      : "Browse sarees from an independent merchant store on Saree SaaS."
+      : "Browse products from an independent merchant store on Vendora."
   );
 
   const fetchStore = useCallback(async () => {

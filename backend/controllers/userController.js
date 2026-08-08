@@ -245,7 +245,7 @@ export const forgotPassword =
         to: user.email,
 
         subject:
-          "Reset your Saree SaaS password",
+          "Reset your Vendora password",
 
         html:
           `<p>Hi ${user.name},</p>` +

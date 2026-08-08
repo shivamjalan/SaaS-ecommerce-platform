@@ -1,7 +1,7 @@
 # SaaS
 
-A multi-tenant e-commerce platform for premium saree stores. Every merchant owns a
-store and manages its products and orders; a superadmin oversees all stores. Built as
+A multi-tenant e-commerce platform for independent stores of any kind. Every merchant
+owns a store and manages its products and orders; a superadmin oversees all stores. Built as
 two independent apps in one repo — a REST API and a React SPA.
 
 ```
@@ -136,7 +136,7 @@ same repo (monorepo — each dashboard points at its own subfolder).
    (`server.js` already honors Render's `PORT` env var; it falls back to 5000 locally).
 4. **Environment** → add every variable from `backend/.env`:
    `MONGO_URI`, `JWT_SECRET`, `CLOUDINARY_*`, `RAZORPAY_*`, `OPENAI_*`, `EMAIL_*`,
-   and `FRONTEND_URL` = your Vercel URL (e.g. `https://saree.vercel.app`) so
+   and `FRONTEND_URL` = your Vercel URL (e.g. `https://vendora.vercel.app`) so
    password-reset emails link to the deployed site.
 5. MongoDB Atlas → **Network Access** → allow `0.0.0.0/0` (Render uses rotating egress IPs).
 6. Deploy. Your API base becomes `https://<service>.onrender.com/api`.

@@ -138,7 +138,7 @@ export const generateProductDescription =
             {
               role: "system",
               content:
-                "You write short, persuasive product descriptions for a saree marketplace. Return 2-3 sentences. No markdown, no bullet points.",
+                "You write short, persuasive product descriptions for an e-commerce marketplace. Return 2-3 sentences. No markdown, no bullet points.",
             },
             {
               role: "user",
@@ -193,7 +193,7 @@ export const generateSalesInsights =
             {
               role: "system",
               content:
-                "You are a business analyst for a saree marketplace merchant. Write 3-4 sentences summarizing store performance. Use rupee amounts. Be concise and encouraging. No markdown, no bullet points.",
+                "You are a business analyst for an e-commerce marketplace merchant. Write 3-4 sentences summarizing store performance. Use rupee amounts. Be concise and encouraging. No markdown, no bullet points.",
             },
             {
               role: "user",
@@ -276,7 +276,7 @@ export const chatReply =
 
       const systemPrompt =
         [
-          `You are the product assistant for "${store.name}", a saree marketplace store.`,
+          `You are the product assistant for "${store.name}", a marketplace store.`,
           "Answer shoppers' questions about the store's products only.",
           "",
           "You MAY help with:",

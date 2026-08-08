@@ -1,11 +1,12 @@
-# CHANGELOG — Saree SaaS
+# CHANGELOG — Vendora
 
 > Complete log of every change made across the entire codebase, with **before / after**,
 > the **reason**, and the **impact** of each change.
 >
 > Covers: merchant SaaS core (Phase 1), monetization (added & removed), AI & analytics
-> (Phase 3), store-scoped product visibility, role-based navigation, and the
-> `admin → superadmin` role rename.
+> (Phase 3), store-scoped product visibility, role-based navigation, the
+> `admin → superadmin` role rename, and the Phase 5 generalization from a saree-only
+> marketplace into **Vendora** — a marketplace for any store and any product.
 
 ---
 
@@ -20,6 +21,7 @@
 7. [Image galleries, inventory & customer chatbot](#7-image-galleries-inventory--customer-chatbot)
 8. [Fix: blank page + My Orders missing](#8-fix-app-rendered-a-blank-page--my-orders-missing)
 9. [Phase 4 — "Minimalist Modern" full UI redesign](#9-phase-4--minimalist-modern-full-ui-redesign)
+10. [Phase 5 — Generalize to Vendora (any store, any product)](#10-phase-5--generalize-to-vendora-any-store-any-product)
 
 ---
 
@@ -702,6 +704,56 @@ Docker/Cloudflare work and prepared the repo for a serverless deployment.
 - Verified Vercel-style build: `VITE_API_URL=https://saree-backend.onrender.com/api` +
   `VITE_RAZORPAY_KEY` → build passes, bundle contains the API base.
 - README gained a "Deployment (Render + Vercel)" section with dashboard steps.
+
+---
+
+## 10. Phase 5 — Generalize to Vendora (any store, any product)
+
+The platform is no longer a saree-only marketplace. It is now a generic multi-vendor
+marketplace — any merchant can sell any product, in any vertical. The code was already
+product/store-agnostic (categories are free-text, stores are merchant-owned, no vertical
+logic anywhere); this phase rebranded the platform and rewrote all saree-specific copy.
+
+**Brand rename: Saree SaaS → Vendora** (kept the existing infra identifiers — the
+`saree-saas` MongoDB DB name and Cloudinary upload folder were left as-is so existing
+data and uploaded images keep working):
+
+| File | Before | After |
+|---|---|---|
+| `frontend/index.html` | title/meta "Saree SaaS — curated marketplace of premium saree stores" | "Vendora — a curated marketplace of independent stores selling everything" |
+| `frontend/src/components/Navbar.jsx` | "Saree SaaS" + "Luxury Fashion Store" subtitle | "Vendora" + "Multi-Vendor Marketplace" |
+| `frontend/src/utils/razorpay.js` | `name: "Saree SaaS"` | `name: "Vendora"` |
+| `frontend/src/pages/Login.jsx`, `CreateStore.jsx` | "Saree SaaS" references | "Vendora" |
+| `frontend/src/pages/{ForgotPassword,ResetPassword,ProductDetail,Stores,StorePage}.jsx` | "Saree SaaS" meta titles/descriptions | "Vendora" + generic store/product wording |
+| `backend/controllers/userController.js` | email subject "Reset your Saree SaaS password" | "Reset your Vendora password" |
+| `frontend/src/pages/CreateStore.jsx` | placeholders "Shivam Sarees" / "shivam-sarees" | "My Store" / "my-store" |
+| `README.md` | "premium saree stores", example URL `saree.vercel.app` | "independent stores of any kind", `vendora.vercel.app` |
+
+**Landing page (`frontend/src/pages/Home.jsx`) rewritten to be vertical-agnostic:**
+
+| Before | After |
+|---|---|
+| Hero "Elevate Your Style With Premium Sarees" | "Shop Everything From **Independent Stores**" |
+| SectionLabel "Luxury Collection" / "Exclusive Fashion" | "Curated Marketplace" / "Shop Smarter" |
+| Feature copy about handcrafted sarees / fashion enthusiasts | generic marketplace features |
+| STATS "Curated Sarees" | "Products Listed" |
+| MARQUEE (Silk Sarees, Banarasi, Kanjivaram…) | generic categories (Fashion, Electronics, Home & Living…) |
+| Hero image: saree photo | generic retail store photo |
+| Floating card "Silk Saree / From ₹1,200" | "Trending Now / From ₹499" |
+| CTA "Redefine Traditional Elegance" | "Thousands Of Stores. **One Marketplace.**" |
+| page meta "…Premium Saree Stores" | "Vendora — Marketplace of Independent Stores" |
+
+**Seed data (`backend/controllers/productController.js`)**: `Silk/Cotton/Designer Saree`
+replaced with `Wireless Headphones`, `Cotton T-Shirt`, `Ceramic Coffee Mug`.
+
+**AI prompts (`backend/controllers/aiController.js`)**: all three system prompts say
+"e-commerce marketplace" / "marketplace store" instead of "saree marketplace".
+
+**Kept as-is (deliberate):**
+- Infra identifiers `saree-saas` (MongoDB DB name) and Cloudinary folder — avoids
+  orphaning existing data/images; user confirmed to keep.
+- Rupee currency (`₹`) throughout — the market is still India.
+- Historical CHANGELOG entries before this phase.
 
 ---
 

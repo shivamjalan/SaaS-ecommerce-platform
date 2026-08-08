@@ -14,8 +14,8 @@ import usePageMeta from "../hooks/usePageMeta";
 const ForgotPassword = () => {
 
   usePageMeta(
-    "Forgot Password | Saree SaaS",
-    "Reset your Saree SaaS account password."
+    "Forgot Password | Vendora",
+    "Reset your Vendora account password."
   );
 
   const [email, setEmail] = useState("");

@@ -103,7 +103,7 @@ const Navbar = () => {
 
             <h1 className="font-display text-xl sm:text-2xl text-foreground leading-tight truncate">
 
-              Saree SaaS
+              Vendora
 
             </h1>
 
@@ -113,7 +113,7 @@ const Navbar = () => {
                 ? "Merchant Workspace"
                 : isAdmin
                 ? "Superadmin Console"
-                : "Luxury Fashion Store"}
+                : "Multi-Vendor Marketplace"}
 
             </p>
 

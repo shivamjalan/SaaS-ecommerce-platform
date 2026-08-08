@@ -84,7 +84,7 @@ const CreateStore = () => {
         },
       });
 
-      alert("Store created successfully! Welcome to Saree SaaS.");
+      alert("Store created successfully! Welcome to Vendora.");
 
       navigate("/merchant/dashboard");
 
@@ -139,7 +139,7 @@ const CreateStore = () => {
 
           <p className="mt-3 text-muted-foreground">
 
-            Set up your storefront and start selling on Saree SaaS.
+            Set up your storefront and start selling on Vendora.
 
           </p>
 
@@ -165,7 +165,7 @@ const CreateStore = () => {
               <Input
                 type="text"
                 name="name"
-                placeholder="e.g. Shivam Sarees"
+                placeholder="e.g. My Store"
                 value={formData.name}
                 onChange={handleChange}
                 required
@@ -186,7 +186,7 @@ const CreateStore = () => {
               <Input
                 type="text"
                 name="slug"
-                placeholder="e.g. shivam-sarees"
+                placeholder="e.g. my-store"
                 value={formData.slug}
                 onChange={handleChange}
                 required
